@@ -246,6 +246,18 @@
       await loadFromCloud();
       enableRealtimeSync();
     })();
-  </script>
+  
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("increment-btn").onclick = incrementCounter;
+  document.getElementById("undo-btn").onclick = undoLastIncrement;
+  document.getElementById("reset-btn").onclick = resetCounter;
+
+  (async () => {
+    await loadFromCloud();
+    enableRealtimeSync();
+  })();
+});
+
+</script>
 </body>
 </html>
