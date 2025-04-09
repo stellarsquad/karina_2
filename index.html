@@ -1,263 +1,142 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ORGASM-O-MATIC v1.5</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ORGASM-O-MATIC</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      font-family: 'Press Start 2P', monospace;
       background-color: #0b0f24;
       color: #ffb6d5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
+      font-family: 'Press Start 2P', monospace;
       padding: 20px;
-      box-sizing: border-box;
+      text-align: center;
     }
-
-    .frame {
-      border: 4px solid #ff4081;
-      padding: 20px;
-      width: 340px;
-      box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6;
-    }
-
-    h1 {
-      font-size: 16px;
-      margin: 0;
-      text-align: left;
-      color: #ff9ec6;
-    }
-
-    .version {
-      float: right;
-      font-size: 10px;
-      color: #ffe6eb;
-    }
-
-    .count-box {
-      background-color: #1f2235;
-      border: 2px solid #ff9ec6;
-      padding: 10px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-    }
-
-    .count-box h2 {
-      margin: 0;
-      font-size: 10px;
-      color: #ffb6d5;
-    }
-
-    .count-number {
-      font-size: 32px;
-      margin: 10px 0;
-      color: #ff6b9e;
-    }
-
-    .timestamp {
-      font-size: 10px;
-      color: #ffe6eb;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin: 20px 0;
-    }
-
     button {
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px;
-      padding: 10px;
-      background-color: #ff6b9e;
-      border: none;
-      box-shadow: 2px 2px 0 #000;
-      cursor: pointer;
-      color: white;
-    }
-
-    button:hover {
-      background-color: #ff4081;
-    }
-
-    .stats {
-      background-color: #1f2235;
-      border: 2px solid #ff9ec6;
-      padding: 10px;
-      font-size: 10px;
-      color: #ffe6eb;
-      margin-bottom: 20px;
-    }
-
-    .footer {
       font-size: 12px;
-      color: #ff6b9e;
+      padding: 10px 20px;
+      margin: 10px;
+      background: #ff4081;
+      border: none;
+      color: white;
+      cursor: pointer;
     }
-
-    .footer span {
-      color: red;
+    .count {
+      font-size: 32px;
+      margin: 20px;
+    }
+    .stats {
+      font-size: 12px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="frame">
-    <div>
-      <h1>ORGASM-O-MATIC <span class="version">v1.5</span></h1>
-    </div>
-    <div class="count-box">
-      <h2>TOTAL COUNT</h2>
-      <div class="count-number" id="counter-display">0</div>
-      <div class="timestamp" id="last-timestamp">Last: --:--:--</div>
-    </div>
-    <div class="buttons">
-      <button id="increment-btn">+ ADD ONE</button>
-      <button id="bonus-btn">BONUS+0</button>
-      <button id="undo-btn">↺ UNDO</button>
-      <button id="reset-btn">↻ RESET</button>
-      <button style="grid-column: span 2;">⤓ STATS</button>
-    </div>
-    <div class="stats" id="stats-display">
-      <div>TODAY: 0</div>
-      <div>THIS WEEK: 0</div>
-      <div>THIS MONTH: 0</div>
-      <div>RECORD: 0</div>
-    </div>
-    <div class="footer">I love you <span>♥</span></div>
-  </div>
+  <h1>ORGASM-O-MATIC</h1>
+  <div class="count" id="counter-display">0</div>
+  <button id="increment-btn">+ ADD ONE</button>
+  <button id="undo-btn">↺ UNDO</button>
+  <button id="reset-btn">↻ RESET</button>
+  <div class="stats" id="stats-display"></div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
-      authDomain: "karina-5d44d.firebaseapp.com",
-      databaseURL: "https://karina-5d44d-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "karina-5d44d",
-      storageBucket: "karina-5d44d.firebasestorage.app",
-      messagingSenderId: "930914134264",
-      appId: "1:930914134264:web:0e527a744b3d2c7182330d"
-    };
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
+        authDomain: "karina-5d44d.firebaseapp.com",
+        databaseURL: "https://karina-5d44d-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "karina-5d44d",
+        storageBucket: "karina-5d44d.firebasestorage.app",
+        messagingSenderId: "930914134264",
+        appId: "1:930914134264:web:0e527a744b3d2c7182330d"
+      };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
 
-    let count = null;
-    let records = [];
-    const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
-    localStorage.setItem("deviceId", deviceId);
+      let count = 0;
+      let records = [];
+      const dataRef = db.collection("users").doc("karina");
 
-    const dataRef = () => doc(db, "users", sharedId);
-
-    async function syncToCloud() {
-      await setDoc(dataRef(), { records, count });
-    }
-
-    async function loadFromCloud() {
-  const snap = await getDoc(dataRef());
-  if (snap.exists()) {
-    const data = snap.data();
-    records = data.records || [];
-    count = data.count || 0;
-  } else {
-    records = [];
-    count = 0;
-    await syncToCloud(); // создаём документ, если его нет
-  }
-  isInitialized = true;
-  updateDisplay();
-}
+      async function syncToCloud() {
+        await dataRef.set({ count, records });
       }
-    }
 
-    function enableRealtimeSync() {
-      onSnapshot(dataRef(), (snap) => {
-        if (snap.exists()) {
+      async function loadFromCloud() {
+        const snap = await dataRef.get();
+        if (snap.exists) {
           const data = snap.data();
-          records = data.records || [];
           count = data.count || 0;
-            isInitialized = true;
-  updateDisplay();
+          records = data.records || [];
+        } else {
+          count = 0;
+          records = [];
+          await syncToCloud();
         }
-      });
-    }
+        updateDisplay();
+      }
 
-    function updateDisplay() {
-      if (count === null) return;
-      document.getElementById("counter-display").textContent = count;
-      document.getElementById("last-timestamp").textContent = "Last: " + new Date().toLocaleTimeString();
-      updateStats();
-    }
+      function updateDisplay() {
+        document.getElementById("counter-display").textContent = count;
+        updateStats();
+      }
 
-    function updateStats() {
-      const now = new Date();
-      const today = now.toDateString();
-      const dayCount = records.filter(ts => new Date(ts).toDateString() === today).length;
+      function updateStats() {
+        const now = new Date();
+        const today = now.toDateString();
+        const daily = records.filter(ts => new Date(ts).toDateString() === today).length;
 
-      const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7);
-      const weekCount = records.filter(ts => new Date(ts) >= weekAgo).length;
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+        const weekly = records.filter(ts => new Date(ts) >= weekAgo).length;
 
-      const monthAgo = new Date(); monthAgo.setMonth(now.getMonth() - 1);
-      const monthCount = records.filter(ts => new Date(ts) >= monthAgo).length;
+        const monthAgo = new Date();
+        monthAgo.setMonth(now.getMonth() - 1);
+        const monthly = records.filter(ts => new Date(ts) >= monthAgo).length;
 
-      const record = records.length;
+        document.getElementById("stats-display").innerHTML = `
+          <div>Today: ${daily}</div>
+          <div>This Week: ${weekly}</div>
+          <div>This Month: ${monthly}</div>
+          <div>Total: ${records.length}</div>
+        `;
+      }
 
-      document.getElementById("stats-display").innerHTML = `
-        <div>TODAY: ${dayCount}</div>
-        <div>THIS WEEK: ${weekCount}</div>
-        <div>THIS MONTH: ${monthCount}</div>
-        <div>RECORD: ${record}</div>
-      `;
-    }
-
-    document.getElementById("increment-btn").onclick = () => {
-      count++;
-      records.push(Date.now());
-        isInitialized = true;
-  updateDisplay();
-      syncToCloud();
-    };
-
-    document.getElementById("undo-btn").onclick = () => {
-      if (records.length > 0) {
-        records.pop();
-        count--;
-          isInitialized = true;
-  updateDisplay();
+      function incrementCounter() {
+        count++;
+        records.push(Date.now());
+        updateDisplay();
         syncToCloud();
       }
-    };
 
-    document.getElementById("reset-btn").onclick = () => {
-      count = 0;
-      records = [];
-        isInitialized = true;
-  updateDisplay();
-      syncToCloud();
-    };
+      function resetCounter() {
+        count = 0;
+        records = [];
+        updateDisplay();
+        syncToCloud();
+      }
 
-    (async () => {
+      function undoLastIncrement() {
+        if (records.length > 0) {
+          records.pop();
+          count = records.length;
+          updateDisplay();
+          syncToCloud();
+        }
+      }
+
+      document.getElementById("increment-btn").onclick = incrementCounter;
+      document.getElementById("reset-btn").onclick = resetCounter;
+      document.getElementById("undo-btn").onclick = undoLastIncrement;
+
       await loadFromCloud();
-      enableRealtimeSync();
-    })();
-  
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("increment-btn").onclick = incrementCounter;
-  document.getElementById("undo-btn").onclick = undoLastIncrement;
-  document.getElementById("reset-btn").onclick = resetCounter;
-
-  (async () => {
-    await loadFromCloud();
-    enableRealtimeSync();
-  })();
-});
-
-</script>
+    });
+  </script>
 </body>
 </html>
