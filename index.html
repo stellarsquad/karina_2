@@ -1,142 +1,692 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ORGASM-O-MATIC</title>
+  <title>Karina's Orgasm-O-Matic</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
       background-color: #0b0f24;
-      color: #ffb6d5;
       font-family: 'Press Start 2P', monospace;
-      padding: 20px;
+      color: #ffb6d5;
       text-align: center;
+      padding: 20px;
     }
+
+    .frame {
+      border: 4px solid #ff4081;
+      box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6;
+      padding: 20px;
+      display: inline-block;
+      border-radius: 20px;
+      max-width: 360px;
+    }
+
+    .title {
+      font-size: 14px;
+      color: #ffb6d5;
+      text-align: left;
+    }
+
+    .version {
+      float: right;
+      font-size: 10px;
+      color: #ffe6eb;
+    }
+
+    .count-box {
+      border: 2px solid #ff9ec6;
+      background-color: #1f2235;
+      padding: 10px;
+      margin: 20px 0;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      position: relative;
+    }
+
+    .count-label {
+      font-size: 10px;
+      color: #ffb6d5;
+    }
+
+    .count-value {
+      font-size: 32px;
+      color: #ff6b9e;
+      margin: 10px 0;
+    }
+
+    .count-value.animate {
+      animation: bounce 0.3s ease-in-out;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.5); }
+      60% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    .timestamp {
+      font-size: 10px;
+      color: #ffe6eb;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
     button {
       font-family: 'Press Start 2P', monospace;
-      font-size: 12px;
-      padding: 10px 20px;
-      margin: 10px;
-      background: #ff4081;
+      font-size: 10px;
+      padding: 10px;
+      background-color: #ff6b9e;
       border: none;
       color: white;
       cursor: pointer;
+      box-shadow: 0 4px #c03d70;
+      position: relative;
+      border-radius: 10px;
+      transition: all 0.2s;
     }
-    .count {
-      font-size: 32px;
-      margin: 20px;
+
+    button:active {
+      top: 2px;
+      box-shadow: 0 2px #c03d70;
     }
-    .stats {
-      font-size: 12px;
+
+    .stats-box {
+      background-color: #1f2235;
+      border: 2px solid #ff9ec6;
+      padding: 12px;
+      font-size: 11px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.2;
+      border-radius: 12px;
       margin-top: 20px;
+      width: 220px;
+      margin-left: auto;
+      margin-right: auto;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
-  </style>
+
+    .stats-box.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .stats-box div {
+      margin: 5px 0;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .bonus-popup {
+      position: absolute;
+      font-size: 14px;
+      color: #ffb6d5;
+      animation: popfade 0.8s ease forwards;
+      pointer-events: none;
+      left: 50%;
+      top: 80px;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+
+    @keyframes popfade {
+      0% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -30px); }
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ff6b9e;
+    }
+
+    .footer span {
+      color: red;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      background-color: #1f2235;
+      border: 2px solid #ff4081;
+      padding: 20px;
+      margin: 80px auto;
+      width: 280px;
+      color: #ffe6eb;
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.3);
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-grid button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 10px;
+      background-color: #ff6b9e;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .modal-grid button:hover {
+      background-color: #ff4081;
+    }
+
+    .close {
+      float: right;
+      cursor: pointer;
+      color: #ff9ec6;
+      font-size: 12px;
+    }
+  
+@keyframes pulseFrame {
+  0% { box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6; }
+  50% { box-shadow: 0 0 12px 6px #ff4081, 0 0 16px 12px #ff69b4; }
+  100% { box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6; }
+}
+.frame.pulse {
+  animation: pulseFrame 1s ease;
+}
+.footer span.animate-heart {
+  display: inline-block;
+  animation: bounceHeart 0.6s ease;
+}
+@keyframes bounceHeart {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.8) translateY(-10px); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+
+
+
+
+button:hover {
+  box-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
+  background-color: #ff4081;
+}
+
+button:active {
+  animation: shake 0.2s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+
+#saved-indicator {
+  position: fixed;
+  top: 10px;
+  right: 14px;
+  font-size: 10px;
+  color: #ffffff;
+  background-color: #1f2235;
+  border: 2px solid #ff4081;
+  border-radius: 6px;
+  padding: 6px 10px;
+  opacity: 0;
+  pointer-events: none;
+  font-family: 'Press Start 2P', monospace;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+#saved-indicator.show {
+  opacity: 1;
+}
+
+
+body.pink-theme .frame {
+  border-color: #ff4081;
+  box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6;
+}
+body.night-theme .frame {
+  border-color: #444;
+  box-shadow: 0 0 0 4px #111, 0 0 0 8px #333;
+}
+body.arcade-theme .frame {
+  border-color: #00ffe1;
+  box-shadow: 0 0 0 4px #00c9c9, 0 0 0 8px #007d7d;
+}
+body.love-theme .frame {
+  border-color: #ff0040;
+  box-shadow: 0 0 0 4px #ff0040, 0 0 8px 4px #ffc0cb;
+}
+
+body.night-theme button {
+  background-color: #333;
+  color: #ccc;
+}
+body.arcade-theme button {
+  background-color: #00ffe1;
+  color: #000;
+}
+body.love-theme button {
+  background-color: #ff0040;
+  color: white;
+}
+
+
+#theme-select {
+  background-color: #1f2235;
+  border: 2px solid #ff4081;
+  color: #ffb6d5;
+  padding: 6px 8px;
+  border-radius: 8px;
+  margin-left: 8px;
+  box-shadow: 2px 2px 0 #000;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  outline: none;
+}
+
+
+#theme-select:focus {
+  border-color: #ff9ec6;
+  box-shadow: 0 0 6px #ff4081;
+}
+
+
+.count-box {
+  position: relative;
+  overflow: hidden;
+}
+
+#floating-hearts-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-heart {
+  position: absolute;
+  bottom: 0;
+  font-size: 12px;
+  animation: floatUp 4s ease-in forwards;
+  opacity: 0.6;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+
+.count-label,
+.count-value,
+.timestamp {
+  position: relative;
+  z-index: 2;
+}
+
+
+@keyframes counterGlow {
+  0% { box-shadow: 0 0 4px #ff9ec6; }
+  25% { box-shadow: 0 0 10px #ff6b9e; }
+  50% { box-shadow: 0 0 16px #ff4081; }
+  75% { box-shadow: 0 0 10px #ff6b9e; }
+  100% { box-shadow: 0 0 4px #ff9ec6; }
+}
+
+.count-box {
+  animation: counterGlow 10s ease-in-out infinite;
+}
+
+
+.footer span {
+  animation: heartPulse 3s ease-in-out infinite;
+  display: inline-block;
+  font-size: 150%;
+  transform-origin: center;
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background-color: #1a1c2c;
+  border: 1px solid #ff9ec6;
+  border-radius: 6px;
+  margin: 10px 0 14px;
+  overflow: hidden;
+  box-shadow: inset 0 0 6px rgba(255, 64, 129, 0.4);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #ff4081, #ff9ec6);
+  transition: width 0.4s ease;
+}
+
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #ffb6d5;
+  margin-top: 2px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+  font-family: 'Press Start 2P', monospace;
+}
+
+
+.progress-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+
+.mid-label-absolute {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #ffb6d5;
+  font-family: 'Press Start 2P', monospace;
+  pointer-events: none;
+}
+
+</style>
 </head>
 <body>
-  <h1>ORGASM-O-MATIC</h1>
-  <div class="count" id="counter-display">0</div>
-  <button id="increment-btn">+ ADD ONE</button>
-  <button id="undo-btn">↺ UNDO</button>
-  <button id="reset-btn">↻ RESET</button>
-  <div class="stats" id="stats-display"></div>
+  <div class="frame">
+    <div class="title">
+      KARINA'S<br />ORGASM-O-MATIC <span class="version">v1.5</span>
+    </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <div class="count-box">
+  <div id="floating-hearts-container"></div>
+      <div class="count-label">TOTAL COUNT</div>
+      <div class="count-value" id="counter-display">0</div>
+      <div class="timestamp" id="last-timestamp">Last: --:--:--</div>
+    </div>
+
+
+
+<div class="progress-wrapper">
+  <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+  <div class="progress-labels">
+    <span>0</span>
+    <span>100</span>
+  </div>
+  <div class="mid-label-absolute">50</div>
+</div>
+
+    <div class="button-grid">
+      <button id="increment-btn">➕ ADD ONE</button>
+      <button id="location-btn">📍 LOCATION</button>
+      <button id="undo-btn">⤺ UNDO</button>
+      <button id="reset-btn">⟳ RESET</button>
+      <button id="stats-btn" style="grid-column: span 2;">📊 STATS</button>
+    </div>
+
+    <div class="stats-box" id="stats-display">
+      <div id="stat-today">Today: 0</div>
+      <div id="stat-week">This Week: 0</div>
+      <div id="stat-month">This Month: 0</div>
+      <div id="stat-record">Record: 0</div>
+    </div>
+
+    
+<div style="margin-top: 16px;">
+  <label for="theme-select" style="font-size:10px;">🎨 Theme:</label>
+  <select id="theme-select" style="font-family:'Press Start 2P',monospace;font-size:10px;">
+    <option value="pink">Classic Pink</option>
+    <option value="night">Night</option>
+    <option value="arcade">Arcade</option>
+    <option value="love">Love Mode</option>
+  </select>
+</div>
+
+<div class="footer">I love you <span>♥</span></div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="bonus-modal" class="modal">
+    <div class="modal-content">
+      <div><span class="close" id="close-modal">✖</span></div>
+      <h3 style="margin: 10px 0; font-size: 10px;">SELECT LOCATION</h3>
+      <div class="modal-grid">
+        <button data-bonus="2">🚕 TAXI +2</button>
+        <button data-bonus="3">🚇 SUBWAY +3</button>
+        <button data-bonus="4">☕ CAFE +4</button>
+        <button data-bonus="5">🧑‍🤝‍🧑 GUEST +5</button>
+        <button data-bonus="1" style="grid-column: span 2;">🌟 BONUS +1</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3" preload="auto"></audio>
 
   <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const firebaseConfig = {
-        apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
-        authDomain: "karina-5d44d.firebaseapp.com",
-        databaseURL: "https://karina-5d44d-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "karina-5d44d",
-        storageBucket: "karina-5d44d.firebasestorage.app",
-        messagingSenderId: "930914134264",
-        appId: "1:930914134264:web:0e527a744b3d2c7182330d"
-      };
+    document.addEventListener("DOMContentLoaded", () => {
+// Применяем сохранённую тему при загрузке
+  const savedTheme = localStorage.getItem("theme") || "pink";
+  document.getElementById("theme-select").value = savedTheme;
+  document.body.className = savedTheme + "-theme";
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+  // Сохраняем выбор темы
+  document.getElementById("theme-select").addEventListener("change", function() {
+    const theme = this.value;
+    document.body.className = theme + "-theme";
+    localStorage.setItem("theme", theme);
+  });
+      let counter = 0;
+      let history = [];
 
-      let count = 0;
-      let records = [];
-      const dataRef = db.collection("users").doc("karina");
+      const display = document.getElementById("counter-display");
 
-      async function syncToCloud() {
-        await dataRef.set({ count, records });
-      }
+      
+function updateCounter() {
+  const display = document.getElementById("counter-display");
+  display.textContent = counter;
+  document.getElementById("last-timestamp").textContent = "Last: " + new Date().toLocaleTimeString();
+  display.classList.remove("animate");
+  void display.offsetWidth;
+  display.classList.add("animate");
+  updateStats();
 
-      async function loadFromCloud() {
-        const snap = await dataRef.get();
-        if (snap.exists) {
-          const data = snap.data();
-          count = data.count || 0;
-          records = data.records || [];
-        } else {
-          count = 0;
-          records = [];
-          await syncToCloud();
-        }
-        updateDisplay();
-      }
+  const progress = document.getElementById("progress-bar");
+  const percent = Math.min(counter / 100, 1) * 100;
+  progress.style.width = percent + "%";
 
-      function updateDisplay() {
-        document.getElementById("counter-display").textContent = count;
-        updateStats();
-      }
+
+  if ([10, 25, 50, 75, 100].includes(counter)) {
+    const frame = document.querySelector('.frame');
+    const heart = document.querySelector('.footer span');
+    frame.classList.add('pulse');
+    heart.classList.add('animate-heart');
+    setTimeout(() => frame.classList.remove('pulse'), 1000);
+    setTimeout(() => heart.classList.remove('animate-heart'), 600);
+  }
+}
+
 
       function updateStats() {
-        const now = new Date();
-        const today = now.toDateString();
-        const daily = records.filter(ts => new Date(ts).toDateString() === today).length;
-
-        const weekAgo = new Date();
-        weekAgo.setDate(now.getDate() - 7);
-        const weekly = records.filter(ts => new Date(ts) >= weekAgo).length;
-
-        const monthAgo = new Date();
-        monthAgo.setMonth(now.getMonth() - 1);
-        const monthly = records.filter(ts => new Date(ts) >= monthAgo).length;
-
-        document.getElementById("stats-display").innerHTML = `
-          <div>Today: ${daily}</div>
-          <div>This Week: ${weekly}</div>
-          <div>This Month: ${monthly}</div>
-          <div>Total: ${records.length}</div>
-        `;
+        document.getElementById("stat-today").textContent = `Today: ${counter}`;
+        document.getElementById("stat-week").textContent = `This Week: ${counter}`;
+        document.getElementById("stat-month").textContent = `This Month: ${counter}`;
+        document.getElementById("stat-record").textContent = `Record: ${counter}`;
       }
 
-      function incrementCounter() {
-        count++;
-        records.push(Date.now());
-        updateDisplay();
-        syncToCloud();
-      }
-
-      function resetCounter() {
-        count = 0;
-        records = [];
-        updateDisplay();
-        syncToCloud();
-      }
-
-      function undoLastIncrement() {
-        if (records.length > 0) {
-          records.pop();
-          count = records.length;
-          updateDisplay();
-          syncToCloud();
+      function playSound() {
+        const sound = document.getElementById("click-sound");
+        if (sound) {
+          sound.currentTime = 0;
+          sound.play();
         }
       }
 
-      document.getElementById("increment-btn").onclick = incrementCounter;
-      document.getElementById("reset-btn").onclick = resetCounter;
-      document.getElementById("undo-btn").onclick = undoLastIncrement;
+      function showBonus(value) {
+        const popup = document.createElement("div");
+        popup.className = "bonus-popup";
+        popup.textContent = `+${value}`;
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 800);
+      }
 
-      await loadFromCloud();
+      document.getElementById("increment-btn").onclick = () => {
+        counter++;
+        history.push(counter);
+        updateCounter(); showSaved();
+        showBonus(1);
+      };
+
+      document.getElementById("undo-btn").onclick = () => {
+        if (history.length > 0) {
+          history.pop();
+          counter = history.length > 0 ? history[history.length - 1] : 0;
+          updateCounter(); showSaved();
+        }
+      };
+
+      document.getElementById("reset-btn").onclick = () => {
+        counter = 0;
+        history = [];
+        updateCounter(); showSaved();
+      };
+
+      document.getElementById("stats-btn").onclick = () => {
+        updateStats();
+
+  const progress = document.getElementById("progress-bar");
+  const percent = Math.min(counter / 100, 1) * 100;
+  progress.style.width = percent + "%";
+
+        document.getElementById("stats-display").classList.toggle("show");
+      };
+
+      const modal = document.getElementById("bonus-modal");
+      const openModalBtn = document.getElementById("location-btn");
+      const closeModalBtn = document.getElementById("close-modal");
+
+      openModalBtn.onclick = () => {
+        modal.style.display = "block";
+      };
+
+      closeModalBtn.onclick = () => {
+        modal.style.display = "none";
+      };
+
+      window.onclick = (event) => {
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      document.querySelectorAll(".modal-grid button[data-bonus]").forEach(btn => {
+        btn.onclick = () => {
+          const bonus = parseInt(btn.getAttribute("data-bonus"));
+          counter += bonus;
+          history.push(counter);
+          updateCounter(); showSaved();
+          showBonus(bonus);
+          modal.style.display = "none";
+        };
+      });
     });
-  </script>
+  
+function showSaved() {
+  const saved = document.getElementById("saved-indicator");
+  saved.classList.add("show");
+  setTimeout(() => saved.classList.remove("show"), 1000);
+}
+
+
+document.getElementById("theme-select").addEventListener("change", function() {
+  document.body.className = '';
+  const theme = this.value;
+  if (theme === "pink") {
+    document.body.classList.add("pink-theme");
+  } else if (theme === "night") {
+    document.body.classList.add("night-theme");
+  } else if (theme === "arcade") {
+    document.body.classList.add("arcade-theme");
+  } else if (theme === "love") {
+    document.body.classList.add("love-theme");
+  }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  setInterval(() => {
+    const container = document.getElementById("floating-hearts-container");
+    if (!container) return;
+    const heart = document.createElement("div");
+    heart.classList.add("floating-heart");
+    heart.textContent = "💖";
+    heart.style.left = Math.random() * 80 + 10 + "%";
+    container.appendChild(heart);
+    setTimeout(() => heart.remove(), 4000);
+  }, 1200);
+});
+
+</script>
+
+
+
+<div id="saved-indicator">💾 Saved</div>
 </body>
 </html>
