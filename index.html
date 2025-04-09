@@ -148,7 +148,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let count = 0;
+    let count = null;
     let records = [];
     const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
     localStorage.setItem("deviceId", deviceId);
@@ -181,6 +181,7 @@
     }
 
     function updateDisplay() {
+      if (count === null) return;
       document.getElementById("counter-display").textContent = count;
       document.getElementById("last-timestamp").textContent = "Last: " + new Date().toLocaleTimeString();
       updateStats();
@@ -231,10 +232,9 @@
     };
 
     (async () => {
-  await loadFromCloud();       // сначала загружаем данные
-  enableRealtimeSync();        // потом слушаем обновления
-})();
-
+      await loadFromCloud();
+      enableRealtimeSync();
+    })();
   </script>
 </body>
 </html>
