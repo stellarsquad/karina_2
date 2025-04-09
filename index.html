@@ -230,8 +230,11 @@
       syncToCloud();
     };
 
-    loadFromCloud();
-    enableRealtimeSync();
+    (async () => {
+  await loadFromCloud();       // сначала загружаем данные
+  enableRealtimeSync();        // потом слушаем обновления
+})();
+
   </script>
 </body>
 </html>
