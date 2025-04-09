@@ -165,7 +165,8 @@
         const data = snap.data();
         records = data.records || [];
         count = data.count || 0;
-        updateDisplay();
+          isInitialized = true;
+  updateDisplay();
       }
     }
 
@@ -175,7 +176,8 @@
           const data = snap.data();
           records = data.records || [];
           count = data.count || 0;
-          updateDisplay();
+            isInitialized = true;
+  updateDisplay();
         }
       });
     }
@@ -211,7 +213,8 @@
     document.getElementById("increment-btn").onclick = () => {
       count++;
       records.push(Date.now());
-      updateDisplay();
+        isInitialized = true;
+  updateDisplay();
       syncToCloud();
     };
 
@@ -219,7 +222,8 @@
       if (records.length > 0) {
         records.pop();
         count--;
-        updateDisplay();
+          isInitialized = true;
+  updateDisplay();
         syncToCloud();
       }
     };
@@ -227,7 +231,8 @@
     document.getElementById("reset-btn").onclick = () => {
       count = 0;
       records = [];
-      updateDisplay();
+        isInitialized = true;
+  updateDisplay();
       syncToCloud();
     };
 
