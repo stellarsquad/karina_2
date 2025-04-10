@@ -727,6 +727,15 @@
       content: " 💖";
       display: inline-block;
       animation: bounce-heart 2s infinite;
+      vertical-align: middle;
+      margin-left: 5px;
+    }
+
+    @media (max-width: 480px) {
+      .count-value::after {
+        display: inline;
+        margin-left: 2px;
+      }
     }
 
     @keyframes bounce-heart {
