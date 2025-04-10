@@ -800,7 +800,13 @@
     .full-width {
       grid-column: span 2;
     }
-  </style>
+  
+body.lock-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
+
+</style>
 </head>
 <body>
   <div class="frame">
@@ -964,7 +970,21 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      // Start heart animations
+      
+      const statsBox = document.getElementById("stats-display");
+      const body = document.body;
+      const toggleStats = () => {
+        statsBox.classList.toggle("show");
+        if (statsBox.classList.contains("show")) {
+          body.classList.remove("lock-scroll");
+        } else {
+          body.classList.add("lock-scroll");
+        }
+        loadStats();
+      };
+      body.classList.add("lock-scroll");
+
+// Start heart animations
       setInterval(createFloatingHeart, 600);
       for(let i = 0; i < 5; i++) {
         setTimeout(createFloatingHeart, i * 200);
@@ -1117,10 +1137,7 @@
         updateStatsDisplay({ today: 0, week: 0, month: 0, record: 0 });
       });
 
-      document.getElementById("stats-btn").addEventListener("click", () => {
-        document.getElementById("stats-display").classList.toggle("show");
-        loadStats();
-      });
+      document.getElementById("stats-btn").addEventListener("click", toggleStats);
 
       // Listen for counter updates
       docRef.onSnapshot((doc) => {
