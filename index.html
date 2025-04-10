@@ -689,28 +689,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <div id="saved-indicator">💾 Saved</div>
 
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+<!-- Firebase Core + Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
     authDomain: "karina-5d44d.firebaseapp.com",
-    databaseURL: "https://karina-5d44d-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "karina-5d44d",
     storageBucket: "karina-5d44d.appspot.com",
     messagingSenderId: "930914134264",
     appId: "1:930914134264:web:0e527a744b3d2c7182330d"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const counterRef = ref(db, "counter");
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const docRef = db.collection("users").doc("karina");
 
   let counter = 0;
 
-  function updateCounterDisplay() {
+  function updateDisplay() {
     const percent = Math.min(counter / 100, 1) * 100;
     document.getElementById("counter-display").textContent = counter;
     const progress = document.getElementById("progress-bar");
@@ -721,38 +720,37 @@ document.addEventListener("DOMContentLoaded", () => {
     else progress.classList.add("red");
   }
 
-  function saveCounterToDB() {
-    set(counterRef, counter);
+  function saveToFirestore() {
+    docRef.set({ count: counter }, { merge: true });
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("increment-btn").addEventListener("click", () => {
       counter++;
-      updateCounterDisplay();
-      saveCounterToDB();
+      updateDisplay();
+      saveToFirestore();
     });
 
     document.getElementById("reset-btn").addEventListener("click", () => {
       counter = 0;
-      updateCounterDisplay();
-      saveCounterToDB();
+      updateDisplay();
+      saveToFirestore();
     });
 
     document.getElementById("undo-btn").addEventListener("click", () => {
       counter = Math.max(0, counter - 1);
-      updateCounterDisplay();
-      saveCounterToDB();
+      updateDisplay();
+      saveToFirestore();
     });
 
     document.getElementById("stats-btn").addEventListener("click", () => {
       document.getElementById("stats-display").classList.toggle("show");
     });
 
-    onValue(counterRef, (snapshot) => {
-      const val = snapshot.val();
-      if (val !== null) {
-        counter = val;
-        updateCounterDisplay();
+    docRef.onSnapshot((doc) => {
+      if (doc.exists) {
+        counter = doc.data().count || 0;
+        updateDisplay();
       }
     });
   });
