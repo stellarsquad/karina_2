@@ -727,19 +727,19 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("increment-btn").addEventListener("click", () => {
       counter++;
-      updateDisplay();
+      // removed to prevent overwrite before Firestore load
       saveToFirestore();
     });
 
     document.getElementById("reset-btn").addEventListener("click", () => {
       counter = 0;
-      updateDisplay();
+      // removed to prevent overwrite before Firestore load
       saveToFirestore();
     });
 
     document.getElementById("undo-btn").addEventListener("click", () => {
       counter = Math.max(0, counter - 1);
-      updateDisplay();
+      // removed to prevent overwrite before Firestore load
       saveToFirestore();
     });
 
@@ -762,7 +762,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let current = snapshot.exists ? (snapshot.data().count || 0) : 0;
             current += locationBonuses[id];
             counter = current;
-            updateDisplay();
+            // removed to prevent overwrite before Firestore load
             await docRef.set({ count: current }, { merge: true });
             document.getElementById("location-menu").style.display = "none";
           } catch (e) {
@@ -776,7 +776,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (el) {
         el.addEventListener("click", () => {
           counter += locationBonuses[id];
-          updateDisplay();
+          // removed to prevent overwrite before Firestore load
           saveToFirestore();
           document.getElementById("location-menu").style.display = "none";
         });
@@ -787,7 +787,7 @@ document.addEventListener("DOMContentLoaded", () => {
   docRef.onSnapshot((doc) => {
       if (doc.exists) {
         counter = doc.data().count || 0;
-        updateDisplay();
+        // removed to prevent overwrite before Firestore load
       }
     });
   });
