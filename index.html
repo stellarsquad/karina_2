@@ -688,5 +688,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 <div id="saved-indicator">💾 Saved</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
+    authDomain: "karina-5d44d.firebaseapp.com",
+    databaseURL: "https://karina-5d44d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "karina-5d44d",
+    storageBucket: "karina-5d44d.appspot.com",
+    messagingSenderId: "930914134264",
+    appId: "1:930914134264:web:0e527a744b3d2c7182330d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const counterRef = ref(db, "counter");
+
+  let counter = 0;
+
+  function updateCounterDisplay() {
+    const percent = Math.min(counter / 100, 1) * 100;
+    document.getElementById("counter-display").textContent = counter;
+    const progress = document.getElementById("progress-bar");
+    progress.style.width = percent + "%";
+    progress.classList.remove("green", "yellow", "red");
+    if (percent <= 50) progress.classList.add("green");
+    else if (percent <= 80) progress.classList.add("yellow");
+    else progress.classList.add("red");
+  }
+
+  function saveCounterToDB() {
+    set(counterRef, counter);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("increment-btn").addEventListener("click", () => {
+      counter++;
+      updateCounterDisplay();
+      saveCounterToDB();
+    });
+
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      counter = 0;
+      updateCounterDisplay();
+      saveCounterToDB();
+    });
+
+    document.getElementById("undo-btn").addEventListener("click", () => {
+      counter = Math.max(0, counter - 1);
+      updateCounterDisplay();
+      saveCounterToDB();
+    });
+
+    document.getElementById("stats-btn").addEventListener("click", () => {
+      document.getElementById("stats-display").classList.toggle("show");
+    });
+
+    onValue(counterRef, (snapshot) => {
+      const val = snapshot.val();
+      if (val !== null) {
+        counter = val;
+        updateCounterDisplay();
+      }
+    });
+  });
+</script>
+
 </body>
 </html>
