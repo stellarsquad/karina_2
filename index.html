@@ -721,7 +721,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveToFirestore() {
-    docRef.set({ count: counter }, { merge: true });
+    docRef.update({ count: counter }).catch(() => docRef.set({ count: counter }));
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -747,7 +747,44 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("stats-display").classList.toggle("show");
     });
 
-    docRef.onSnapshot((doc) => {
+    
+    
+
+    
+    
+
+    Object.keys(locationBonuses).forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("click", async () => {
+          try {
+            const snapshot = await docRef.get();
+            let current = snapshot.exists ? (snapshot.data().count || 0) : 0;
+            current += locationBonuses[id];
+            counter = current;
+            updateDisplay();
+            await docRef.set({ count: current }, { merge: true });
+            document.getElementById("location-menu").style.display = "none";
+          } catch (e) {
+            console.error("Location bonus error:", e);
+          }
+        });
+      }
+    });
+
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("click", () => {
+          counter += locationBonuses[id];
+          updateDisplay();
+          saveToFirestore();
+          document.getElementById("location-menu").style.display = "none";
+        });
+      }
+    });
+
+
+  docRef.onSnapshot((doc) => {
       if (doc.exists) {
         counter = doc.data().count || 0;
         updateDisplay();
