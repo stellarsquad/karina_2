@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="theme-color" content="#1a1c2c"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#1a1c2c"/>
   <title>Karina's Orgasm-O-Matic</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
@@ -45,7 +47,7 @@
         width: calc(100% - 30px);
         margin: 5px;
       }
-      
+
       .button-grid button {
         padding: 12px 8px;
         font-size: 9px;
@@ -737,7 +739,7 @@
       animation: pulse-border 3s infinite;
     }
 
-    
+
 
     .heart-container {
       position: absolute;
@@ -873,7 +875,7 @@
   </div>
 
   <div id="saved-indicator">💾 Saved</div>
-  
+
   <!-- Achievement notification -->
   <div id="achievement-notification" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, #ff4081, #ff9ec6); padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4); z-index: 1000; font-family: 'Press Start 2P', monospace; color: white; font-size: 12px; text-align: center; animation: achievementSlide 0.5s ease-out;">
     <div style="margin-bottom: 8px;">🏆 Achievement Unlocked!</div>
@@ -1017,8 +1019,17 @@
       });
 
       // Button event handlers
-      const incrementHistory = [];
+      let incrementHistory = [];
       const MAX_HISTORY = 100;
+
+      // Real-time listener for history updates
+      docRef.onSnapshot(doc => {
+        if (doc.exists) {
+          counter = doc.data().count || 0;
+          incrementHistory = doc.data().history || [];
+          updateDisplay();
+        }
+      });
 
       const achievements = {
         10: { title: "Getting Started! 🌟", unlocked: false },
@@ -1036,7 +1047,7 @@
         const text = document.getElementById("achievement-text");
         text.textContent = title;
         notification.style.display = "block";
-        
+
         // Add sparkle animation
         for(let i = 0; i < 5; i++) {
           createFloatingHeart();
@@ -1072,7 +1083,8 @@
           document.getElementById("last-timestamp").textContent = `Last: ${timeStr}`;
           await docRef.set({ 
             count: counter,
-            lastTimestamp: timeStr 
+            lastTimestamp: timeStr,
+            history: incrementHistory
           }, { merge: true });
           await updateFirestoreStats(increment);
         } catch (e) {
