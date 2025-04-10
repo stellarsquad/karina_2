@@ -36,6 +36,7 @@
     }
 
     .count-box {
+  position: relative;
       border: 2px solid #ff9ec6;
       background-color: #1f2235;
       padding: 10px;
@@ -167,15 +168,17 @@
     }
 
     .modal-content {
-      background-color: #1f2235;
-      border: 2px solid #ff4081;
-      padding: 20px;
-      margin: 80px auto;
-      width: 280px;
-      color: #ffe6eb;
-      border-radius: 16px;
-      box-shadow: 0 0 12px rgba(255,255,255,0.3);
-    }
+  position: relative;
+  background-color: #1f2235;
+  border: 2px solid #ff4081;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
+  width: 270px;
+  max-width: 90%;
+  z-index: 10000;
+  transform: translateY(-170px);
+}
 
     .modal-grid {
       display: grid;
@@ -323,6 +326,7 @@ body.love-theme button {
 
 .count-box {
   position: relative;
+  position: relative;
   overflow: hidden;
 }
 
@@ -376,6 +380,7 @@ body.love-theme button {
 }
 
 .count-box {
+  position: relative;
   animation: counterGlow 10s ease-in-out infinite;
 }
 
@@ -446,6 +451,171 @@ body.love-theme button {
   pointer-events: none;
 }
 
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(255,64,129,0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255,64,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,64,129,0); }
+}
+
+.frame {
+  animation: pulse-border 3s infinite;
+}
+
+.count-value::after {
+  content: " 💖";
+  display: inline-block;
+  animation: bounce-heart 2s infinite;
+}
+
+@keyframes bounce-heart {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+
+.heart-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  border-radius: 12px;
+}
+
+.heart {
+  position: absolute;
+  bottom: -10px;
+  font-size: 14px;
+  color: #ff9ec6;
+  filter: drop-shadow(0 0 2px rgba(255, 155, 193, 0.5));
+  will-change: transform;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100%) translateX(-50%) scale(1) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(50%) translateX(calc(-50% + 20px)) scale(1.1) rotate(10deg);
+  }
+  100% {
+    transform: translateY(0%) translateX(calc(-50% - 20px)) scale(0.8) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100%) scale(1);
+    opacity: var(--start-opacity, 0.6);
+  }
+  50% {
+    opacity: var(--start-opacity, 0.6);
+  }
+  100% {
+    transform: translateY(-120%) scale(1.2) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+.heart {
+  position: absolute;
+  animation: float-up 4s ease-in-out forwards;
+  pointer-events: none;
+  z-index: 1;
+  text-shadow: 0 0 5px rgba(255, 182, 213, 0.5);
+}
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #1f2235;
+  border: 2px solid #ff4081;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
+  width: 270px;
+  max-width: 90%;
+  z-index: 10000;
+  transform: translateY(-170px);
+}
+
+.modal-content {
+  position: relative;
+  background-color: #1f2235;
+  border: 2px solid #ff4081;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
+  width: 270px;
+  max-width: 90%;
+  z-index: 10000;
+  transform: translateY(-170px);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #ffb6d5;
+  cursor: pointer;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.modal-grid button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 10px;
+  background-color: #ff6b9e;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow: 0 4px #c03d70;
+  transition: all 0.2s;
+}
+
+.modal-grid button:active {
+  top: 2px;
+  box-shadow: 0 2px #c03d70;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
 </style>
 </head>
 <body>
@@ -455,6 +625,9 @@ body.love-theme button {
     </div>
 
     <div class="count-box">
+
+<div class="heart-container" id="heart-container"></div>
+
   <div id="floating-hearts-container"></div>
       <div class="count-label">TOTAL COUNT</div>
       <div class="count-value" id="counter-display">0</div>
@@ -475,9 +648,35 @@ body.love-theme button {
 </div>
 
     <div class="button-grid">
-      <button id="increment-btn">➕ ADD ONE</button>
-      <button id="location-btn">📍 LOCATION</button>
-      <button id="undo-btn">⤺ UNDO</button>
+<!-- Location Modal -->
+<div id="location-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>SELECT LOCATION</span>
+      <button class="close-btn" id="close-location">✖</button>
+    </div>
+    <div class="modal-grid">
+      <button id="location-taxi">🚕 TAXI +2</button>
+      <button id="location-subway">🚇 SUBWAY +3</button>
+      <button id="location-cafe">☕ CAFE +4</button>
+      <button id="location-guest">👯‍♀️ GUEST +5</button>
+      <button id="location-bonus" class="full-width">✨ BONUS +1</button>
+    </div>
+  </div>
+</div>
+
+<!-- Location Menu -->
+<div id="location-menu" style="display:none; margin-top:10px;">
+  <button id="location-taxi">🚕 Taxi +2</button>
+  <button id="location-subway">🚇 Subway +3</button>
+  <button id="location-cafe">☕ Cafe +4</button>
+  <button id="location-guest">🎁 Guest +5</button>
+  <button id="location-bonus">💎 Bonus +1</button>
+</div>
+
+      <button id="increment-btn">➕ +1</button>
+      <button id="location-btn">📍 BONUS</button>
+      <button id="undo-btn">↩️ CANCEL</button>
       <button id="reset-btn">⟳ RESET</button>
       <button id="stats-btn" style="grid-column: span 2;">📊 STATS</button>
     </div>
@@ -490,15 +689,7 @@ body.love-theme button {
     </div>
 
     
-<div style="margin-top: 16px;">
-  <label for="theme-select" style="font-size:10px;">🎨 Theme:</label>
-  <select id="theme-select" style="font-family:'Press Start 2P',monospace;font-size:10px;">
-    <option value="pink">Classic Pink</option>
-    <option value="night">Night</option>
-    <option value="arcade">Arcade</option>
-    <option value="love">Love Mode</option>
-  </select>
-</div>
+
 
 <div class="footer">I love you <span>♥</span></div>
   </div>
@@ -520,170 +711,148 @@ body.love-theme button {
 
   <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3" preload="auto"></audio>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-// Применяем сохранённую тему при загрузке
-  const savedTheme = localStorage.getItem("theme") || "pink";
-  document.getElementById("theme-select").value = savedTheme;
-  document.body.className = savedTheme + "-theme";
-
-  // Сохраняем выбор темы
-  document.getElementById("theme-select").addEventListener("change", function() {
-    const theme = this.value;
-    document.body.className = theme + "-theme";
-    localStorage.setItem("theme", theme);
-  });
-      let counter = 0;
-      let history = [];
-
-      const display = document.getElementById("counter-display");
-
-      
-function updateCounter() {
-  const display = document.getElementById("counter-display");
-  display.textContent = counter;
-  document.getElementById("last-timestamp").textContent = "Last: " + new Date().toLocaleTimeString();
-  display.classList.remove("animate");
-  void display.offsetWidth;
-  display.classList.add("animate");
-  updateStats();
-
-  const progress = document.getElementById("progress-bar");
-  const percent = Math.min(counter / 100, 1) * 100;
-  progress.style.width = percent + "%";
-
-
-  if ([10, 25, 50, 75, 100].includes(counter)) {
-    const frame = document.querySelector('.frame');
-    const heart = document.querySelector('.footer span');
-    frame.classList.add('pulse');
-    heart.classList.add('animate-heart');
-    setTimeout(() => frame.classList.remove('pulse'), 1000);
-    setTimeout(() => heart.classList.remove('animate-heart'), 600);
-  }
-}
-
-
-      function updateStats() {
-        document.getElementById("stat-today").textContent = `Today: ${counter}`;
-        document.getElementById("stat-week").textContent = `This Week: ${counter}`;
-        document.getElementById("stat-month").textContent = `This Month: ${counter}`;
-        document.getElementById("stat-record").textContent = `Record: ${counter}`;
-      }
-
-      function playSound() {
-        const sound = document.getElementById("click-sound");
-        if (sound) {
-          sound.currentTime = 0;
-          sound.play();
-        }
-      }
-
-      function showBonus(value) {
-        const popup = document.createElement("div");
-        popup.className = "bonus-popup";
-        popup.textContent = `+${value}`;
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 800);
-      }
-
-      document.getElementById("increment-btn").onclick = () => {
-        counter++;
-        history.push(counter);
-        updateCounter(); showSaved();
-        showBonus(1);
-      };
-
-      document.getElementById("undo-btn").onclick = () => {
-        if (history.length > 0) {
-          history.pop();
-          counter = history.length > 0 ? history[history.length - 1] : 0;
-          updateCounter(); showSaved();
-        }
-      };
-
-      document.getElementById("reset-btn").onclick = () => {
-        counter = 0;
-        history = [];
-        updateCounter(); showSaved();
-      };
-
-      document.getElementById("stats-btn").onclick = () => {
-        updateStats();
-
-  const progress = document.getElementById("progress-bar");
-  const percent = Math.min(counter / 100, 1) * 100;
-  progress.style.width = percent + "%";
-
-        document.getElementById("stats-display").classList.toggle("show");
-      };
-
-      const modal = document.getElementById("bonus-modal");
-      const openModalBtn = document.getElementById("location-btn");
-      const closeModalBtn = document.getElementById("close-modal");
-
-      openModalBtn.onclick = () => {
-        modal.style.display = "block";
-      };
-
-      closeModalBtn.onclick = () => {
-        modal.style.display = "none";
-      };
-
-      window.onclick = (event) => {
-        if (event.target === modal) {
-          modal.style.display = "none";
-        }
-      };
-
-      document.querySelectorAll(".modal-grid button[data-bonus]").forEach(btn => {
-        btn.onclick = () => {
-          const bonus = parseInt(btn.getAttribute("data-bonus"));
-          counter += bonus;
-          history.push(counter);
-          updateCounter(); showSaved();
-          showBonus(bonus);
-          modal.style.display = "none";
-        };
-      });
-    });
   
-function showSaved() {
-  const saved = document.getElementById("saved-indicator");
-  saved.classList.add("show");
-  setTimeout(() => saved.classList.remove("show"), 1000);
-}
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 
 
-document.getElementById("theme-select").addEventListener("change", function() {
-  document.body.className = '';
-  const theme = this.value;
-  if (theme === "pink") {
-    document.body.classList.add("pink-theme");
-  } else if (theme === "night") {
-    document.body.classList.add("night-theme");
-  } else if (theme === "arcade") {
-    document.body.classList.add("arcade-theme");
-  } else if (theme === "love") {
-    document.body.classList.add("love-theme");
+<script>
+  // Firebase configuration will be initialized only once in the main script
+
+  function updateDisplay() {
+    document.getElementById("counter-display").textContent = counter;
   }
-});
 
+  function updateStatsDisplay(data) {
+    document.getElementById("stat-today").textContent = `Today: ${data.today || 0}`;
+    document.getElementById("stat-week").textContent = `This Week: ${data.week || 0}`;
+    document.getElementById("stat-month").textContent = `This Month: ${data.month || 0}`;
+    document.getElementById("stat-record").textContent = `Record: ${data.record || 0}`;
+  }
 
-document.addEventListener("DOMContentLoaded", () => {
-  setInterval(() => {
-    const container = document.getElementById("floating-hearts-container");
-    if (!container) return;
-    const heart = document.createElement("div");
-    heart.classList.add("floating-heart");
-    heart.textContent = "💖";
-    heart.style.left = Math.random() * 80 + 10 + "%";
-    container.appendChild(heart);
-    setTimeout(() => heart.remove(), 4000);
-  }, 1200);
-});
+  async function updateFirestoreStats(increment = 1) {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    try {
+      const snapshot = await statsRef.get();
+      let data = snapshot.exists ? snapshot.data() : {
+        today: 0, week: 0, month: 0, record: 0, lastUpdated: todayKey
+      };
 
+      if (increment < 0) {
+        if (data.today <= 0 && data.week <= 0 && data.month <= 0) return;
+        data.today = Math.max(0, (data.today || 0) + increment);
+        data.week = Math.max(0, (data.week || 0) + increment);
+        data.month = Math.max(0, (data.month || 0) + increment);
+      } else {
+        data.today = data.lastUpdated === todayKey ? (data.today || 0) + increment : increment;
+        data.week = (data.week || 0) + increment;
+        data.month = (data.month || 0) + increment;
+        data.record = Math.max(data.record || 0, counter);
+        data.lastUpdated = todayKey;
+      }
+
+      await statsRef.set(data);
+      updateStatsDisplay(data);
+    } catch (e) {
+      console.error("Error updating stats:", e);
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const snapshot = await statsRef.get();
+      if (snapshot.exists) {
+        updateStatsDisplay(snapshot.data());
+      }
+    } catch (e) {
+      console.error("Failed to load stats:", e);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    docRef.onSnapshot((doc) => {
+      if (doc.exists) {
+        counter = doc.data().count || 0;
+        updateDisplay();
+      }
+    });
+
+    document.getElementById("increment-btn").addEventListener("click", () => {
+      counter++;
+      updateDisplay();
+      docRef.set({ count: counter }, { merge: true });
+      updateFirestoreStats();
+    });
+
+    document.getElementById("reset-btn").addEventListener("click", async () => {
+      counter = 0;
+      updateDisplay();
+      await docRef.set({ count: counter }, { merge: true });
+      await statsRef.set({
+        today: 0,
+        week: 0,
+        month: 0,
+        record: 0,
+        lastUpdated: new Date().toISOString().slice(0, 10)
+      });
+      updateStatsDisplay({ today: 0, week: 0, month: 0, record: 0 });
+    });
+
+    document.getElementById("undo-btn").addEventListener("click", () => {
+      counter = Math.max(0, counter - 1);
+      updateDisplay();
+      docRef.set({ count: counter }, { merge: true });
+      updateFirestoreStats(-1);
+    });
+
+    document.getElementById("stats-btn").addEventListener("click", () => {
+      document.getElementById("stats-display").classList.toggle("show");
+      loadStats();
+    });
+
+    const locationBtn = document.getElementById("location-btn");
+    const locationModal = document.getElementById("location-modal");
+    const closeModal = document.getElementById("close-location");
+
+    locationBtn.addEventListener("click", () => {
+      locationModal.style.display = "flex";
+    });
+
+    closeModal.addEventListener("click", () => {
+      locationModal.style.display = "none";
+    });
+
+    const locationBonuses = {
+      "location-taxi": 2,
+      "location-subway": 3,
+      "location-cafe": 4,
+      "location-guest": 5,
+      "location-bonus": 1
+    };
+
+    Object.keys(locationBonuses).forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("click", async () => {
+          try {
+            const snapshot = await docRef.get();
+            let current = snapshot.exists ? (snapshot.data().count || 0) : 0;
+            current += locationBonuses[id];
+            counter = current;
+            updateDisplay();
+            await docRef.set({ count: current }, { merge: true });
+            updateFirestoreStats(locationBonuses[id]);
+            locationModal.style.display = "none";
+          } catch (e) {
+            console.error("Location bonus error:", e);
+          }
+        });
+      }
+    });
+  });
 </script>
+
+
 
 
 
@@ -694,6 +863,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 
 <script>
+  // Initialize Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
     authDomain: "karina-5d44d.firebaseapp.com",
@@ -706,7 +876,8 @@ document.addEventListener("DOMContentLoaded", () => {
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const docRef = db.collection("users").doc("karina");
-
+  const statsRef = db.collection("users").doc("karina_stats");
+  
   let counter = 0;
 
   function updateDisplay() {
@@ -714,44 +885,48 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("counter-display").textContent = counter;
     const progress = document.getElementById("progress-bar");
     progress.style.width = percent + "%";
-    progress.classList.remove("green", "yellow", "red");
-    if (percent <= 50) progress.classList.add("green");
-    else if (percent <= 80) progress.classList.add("yellow");
-    else progress.classList.add("red");
   }
 
-  function saveToFirestore() {
-    docRef.update({ count: counter }).catch(() => docRef.set({ count: counter }));
+  function createFloatingHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerText = ["💖", "💗", "💝", "💕"][Math.floor(Math.random() * 4)];
+    heart.style.left = (10 + Math.random() * 80) + "%";
+    heart.style.fontSize = (12 + Math.random() * 8) + "px";
+    heart.style.animation = `float-up ${2.5 + Math.random() * 2}s ease-in-out forwards`;
+    document.getElementById("heart-container").appendChild(heart);
+    setTimeout(() => heart.remove(), 4500);
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("increment-btn").addEventListener("click", () => {
-      counter++;
-      // removed to prevent overwrite before Firestore load
-      saveToFirestore();
+
+    // Start heart animations
+    setInterval(createFloatingHeart, 600);
+    for(let i = 0; i < 5; i++) {
+      setTimeout(createFloatingHeart, i * 200);
+    }
+
+    // Location modal handling
+    const locationBtn = document.getElementById("location-btn");
+    const locationModal = document.getElementById("location-modal");
+    const closeModal = document.getElementById("close-location");
+
+    locationBtn.addEventListener("click", () => {
+      locationModal.style.display = "flex";
     });
 
-    document.getElementById("reset-btn").addEventListener("click", () => {
-      counter = 0;
-      // removed to prevent overwrite before Firestore load
-      saveToFirestore();
+    closeModal.addEventListener("click", () => {
+      locationModal.style.display = "none";
     });
 
-    document.getElementById("undo-btn").addEventListener("click", () => {
-      counter = Math.max(0, counter - 1);
-      // removed to prevent overwrite before Firestore load
-      saveToFirestore();
-    });
-
-    document.getElementById("stats-btn").addEventListener("click", () => {
-      document.getElementById("stats-display").classList.toggle("show");
-    });
-
-    
-    
-
-    
-    
+    // Location bonus handling
+    const locationBonuses = {
+      "location-taxi": 2,
+      "location-subway": 3,
+      "location-cafe": 4,
+      "location-guest": 5,
+      "location-bonus": 1
+    };
 
     Object.keys(locationBonuses).forEach((id) => {
       const el = document.getElementById(id);
@@ -759,12 +934,13 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener("click", async () => {
           try {
             const snapshot = await docRef.get();
-            let current = snapshot.exists ? (snapshot.data().count || 0) : 0;
-            current += locationBonuses[id];
-            counter = current;
-            // removed to prevent overwrite before Firestore load
-            await docRef.set({ count: current }, { merge: true });
-            document.getElementById("location-menu").style.display = "none";
+            counter = (snapshot.exists ? snapshot.data().count : 0) + locationBonuses[id];
+            updateDisplay();
+            await docRef.set({ count: counter }, { merge: true });
+            locationModal.style.display = "none";
+            createFloatingHeart();
+            createFloatingHeart();
+            createFloatingHeart();
           } catch (e) {
             console.error("Location bonus error:", e);
           }
@@ -772,22 +948,37 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("click", () => {
-          counter += locationBonuses[id];
-          // removed to prevent overwrite before Firestore load
-          saveToFirestore();
-          document.getElementById("location-menu").style.display = "none";
-        });
+    // Button event handlers
+    document.getElementById("increment-btn").addEventListener("click", () => {
+      counter++;
+      updateDisplay();
+      docRef.set({ count: counter }, { merge: true });
+      createFloatingHeart();
+    });
+
+    document.getElementById("undo-btn").addEventListener("click", () => {
+      if (counter > 0) {
+        counter--;
+        updateDisplay();
+        docRef.set({ count: counter }, { merge: true });
       }
     });
 
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      counter = 0;
+      updateDisplay();
+      docRef.set({ count: 0 }, { merge: true });
+    });
 
-  docRef.onSnapshot((doc) => {
+    document.getElementById("stats-btn").addEventListener("click", () => {
+      document.getElementById("stats-display").classList.toggle("show");
+    });
+
+    // Listen for counter updates
+    docRef.onSnapshot((doc) => {
       if (doc.exists) {
         counter = doc.data().count || 0;
-        // removed to prevent overwrite before Firestore load
+        updateDisplay();
       }
     });
   });
