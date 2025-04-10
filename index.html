@@ -2,25 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#1a1c2c"/>
   <title>Karina's Orgasm-O-Matic</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #0b0f24;
+      background: linear-gradient(-45deg, #0b0f24, #1a1c2c, #2d2157, #3d1b47);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
       font-family: 'Press Start 2P', monospace;
       color: #ffb6d5;
       text-align: center;
       padding: 20px;
+      min-height: 100vh;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .frame {
       border: 4px solid #ff4081;
-      box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6;
+      box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6,
+                  0 10px 20px rgba(255, 64, 129, 0.3),
+                  0 20px 40px rgba(0, 0, 0, 0.4);
       padding: 20px;
       display: inline-block;
-      border-radius: 20px;
+      border-radius: 24px;
+      width: calc(100% - 40px);
       max-width: 360px;
+      background: rgba(31, 34, 53, 0.7);
+      backdrop-filter: blur(10px);
+      margin: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .frame {
+        padding: 15px;
+        width: calc(100% - 30px);
+        margin: 5px;
+      }
+      
+      .button-grid button {
+        padding: 12px 8px;
+        font-size: 9px;
+      }
+
+      .count-value {
+        font-size: 36px;
+      }
+
+      .title {
+        font-size: 12px;
+      }
+
+      .progress-container {
+        height: 16px;
+      }
+
+      .modal-content {
+        width: 85%;
+        padding: 15px;
+      }
+
+      .stats-box {
+        width: 90%;
+        font-size: 10px;
+      }
+
+      .footer {
+        margin-top: 15px;
+        font-size: 16px;
+      }
+    }
+
+    /* Prevent text selection on mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .title {
@@ -37,16 +101,32 @@
 
     .count-box {
       position: relative;
-      border: 2px solid rgba(255, 158, 198, 0.5);
-      background: linear-gradient(135deg, rgba(31, 34, 53, 0.9), rgba(31, 34, 53, 0.7));
-      padding: 15px;
-      margin: 25px 0;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(255, 107, 158, 0.2),
-                  inset 0 0 30px rgba(255, 107, 158, 0.1);
-      backdrop-filter: blur(10px);
+      border: 3px solid rgba(255, 158, 198, 0.7);
+      background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 158, 198, 0.1) 50%,
+        rgba(255, 64, 129, 0.05) 100%);
+      backdrop-filter: blur(15px);
+      padding: 30px;
+      margin: 35px 0;
+      border-radius: 25px;
+      box-shadow: 0 0 40px rgba(255, 107, 158, 0.4),
+                  inset 0 0 50px rgba(255, 107, 158, 0.2),
+                  0 15px 25px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { 
+        box-shadow: 0 0 40px rgba(255, 107, 158, 0.4),
+                    inset 0 0 50px rgba(255, 107, 158, 0.2);
+      }
+      50% { 
+        box-shadow: 0 0 60px rgba(255, 107, 158, 0.6),
+                    inset 0 0 70px rgba(255, 107, 158, 0.3);
+      }
     }
 
     .count-box:hover {
@@ -61,13 +141,21 @@
     }
 
     .count-value {
-      font-size: 38px;
-      color: #ff6b9e;
-      margin: 15px 0;
-      text-shadow: 0 0 10px rgba(255, 107, 158, 0.5),
-                   0 0 20px rgba(255, 107, 158, 0.3);
-      letter-spacing: 2px;
+      font-size: 42px;
+      color: #ff4081;
+      margin: 20px 0;
+      text-shadow: 0 0 15px rgba(255, 107, 158, 0.7),
+                   0 0 30px rgba(255, 107, 158, 0.4),
+                   0 0 45px rgba(255, 107, 158, 0.2);
+      letter-spacing: 3px;
       animation: pulse-text 2s infinite ease-in-out;
+      position: relative;
+      z-index: 2;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff4081, #ff9ec6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(255, 64, 129, 0.6));
     }
 
     @keyframes pulse-text {
@@ -102,22 +190,53 @@
     button {
       font-family: 'Press Start 2P', monospace;
       font-size: 10px;
-      padding: 12px;
+      padding: 15px;
       background: linear-gradient(145deg, #ff6b9e, #ff4081);
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
       color: white;
-      cursor: pointer;
-      box-shadow: 0 4px #c03d70, 0 0 15px rgba(255, 107, 158, 0.3);
       position: relative;
-      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px #c03d70,
+                  0 0 15px rgba(255, 107, 158, 0.3),
+                  inset 0 1px rgba(255, 255, 255, 0.2);
+      position: relative;
+      border-radius: 14px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       backdrop-filter: blur(5px);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      animation: shimmer 3s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
     }
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px #c03d70, 0 0 20px rgba(255, 107, 158, 0.5);
+      box-shadow: 0 6px #c03d70, 0 0 30px rgba(255, 107, 158, 0.7);
       background: linear-gradient(145deg, #ff4081, #ff6b9e);
+      filter: brightness(1.1);
     }
 
     button:active {
@@ -176,6 +295,13 @@
       0% { opacity: 0; }
       50% { opacity: 1; }
       100% { opacity: 0; }
+    }
+
+    @keyframes achievementSlide {
+      0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+      20% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      80% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(0); opacity: 1; }
     }
 
     .bonus-popup {
@@ -410,11 +536,11 @@
     }
 
     @keyframes counterGlow {
-      0% { box-shadow: 0 0 4px #ff9ec6; }
-      25% { box-shadow: 0 0 10px #ff6b9e; }
-      50% { box-shadow: 0 0 16px #ff4081; }
-      75% { box-shadow: 0 0 10px #ff6b9e; }
-      100% { box-shadow: 0 0 4px #ff9ec6; }
+      0% { box-shadow: 0 0 15px #ff9ec6, 0 0 30px rgba(255, 107, 158, 0.3); }
+      25% { box-shadow: 0 0 25px #ff6b9e, 0 0 50px rgba(255, 107, 158, 0.5); }
+      50% { box-shadow: 0 0 35px #ff4081, 0 0 70px rgba(255, 107, 158, 0.7); }
+      75% { box-shadow: 0 0 25px #ff6b9e, 0 0 50px rgba(255, 107, 158, 0.5); }
+      100% { box-shadow: 0 0 15px #ff9ec6, 0 0 30px rgba(255, 107, 158, 0.3); }
     }
 
     .count-box {
@@ -437,21 +563,125 @@
 
     .progress-container {
       width: 100%;
-      height: 10px;
-      background-color: #1a1c2c;
-      border: 1px solid #ff9ec6;
-      border-radius: 6px;
-      margin: 10px 0 14px;
+      height: 20px;
+      background: linear-gradient(to right, rgba(26, 28, 44, 0.95), rgba(26, 28, 44, 0.8));
+      border: 2px solid #ff9ec6;
+      border-radius: 12px;
+      margin: 15px 0 20px;
       overflow: hidden;
-      box-shadow: inset 0 0 6px rgba(255, 64, 129, 0.4);
+      box-shadow: inset 0 0 12px rgba(255, 64, 129, 0.6),
+                  0 4px 12px rgba(0, 0, 0, 0.4);
+      position: relative;
+      backdrop-filter: blur(4px);
     }
 
     .progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(to right, #ff4081, #ff9ec6);
-      transition: width 0.4s ease;
+      background: linear-gradient(45deg, 
+        #ff4081 0%, 
+        #ff9ec6 25%, 
+        #ff4081 50%, 
+        #ff9ec6 75%, 
+        #ff4081 100%);
+      background-size: 200% 100%;
+      animation: gradient-shift 3s linear infinite;
+      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 20px rgba(255, 64, 129, 0.8),
+                  inset 0 0 15px rgba(255, 255, 255, 0.4);
+      position: relative;
+      filter: brightness(1.1) contrast(1.1);
     }
+
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.2), 
+        rgba(255, 255, 255, 0.05));
+      border-radius: 8px 8px 0 0;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 30px;
+      background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%);
+      animation: shine-effect 2s infinite;
+      transform: skew(-20deg);
+    }
+
+    @keyframes shine-effect {
+      0% { left: -50px; }
+      100% { left: calc(100% + 50px); }
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 100% 0%; }
+      100% { background-position: -100% 0%; }
+    }
+
+    .progress-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%);
+      animation: shine 2s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-container .milestone {
+      position: absolute;
+      top: -2px;
+      bottom: -2px;
+      width: 3px;
+      background: rgba(255, 255, 255, 0.7);
+      z-index: 1;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .progress-container .milestone::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-container .milestone:hover {
+      background: rgba(255, 255, 255, 0.9);
+      width: 4px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-container .milestone.m25 { left: 25%; }
+    .progress-container .milestone.m50 { left: 50%; }
+    .progress-container .milestone.m75 { left: 75%; }
 
     .progress-labels {
       display: flex;
@@ -527,15 +757,15 @@
 
     @keyframes float-up {
       0% {
-        transform: translateY(100%) translateX(-50%) scale(1) rotate(0deg);
+        transform: translateY(0) translateX(-50%) scale(1) rotate(0deg);
         opacity: 0.8;
       }
       50% {
         opacity: 0.5;
-        transform: translateY(50%) translateX(calc(-50% + 20px)) scale(1.1) rotate(10deg);
+        transform: translateY(-50%) translateX(calc(-50% + 20px)) scale(1.1) rotate(10deg);
       }
       100% {
-        transform: translateY(0%) translateX(calc(-50% - 20px)) scale(0.8) rotate(-10deg);
+        transform: translateY(-100%) translateX(calc(-50% - 20px)) scale(0.8) rotate(-10deg);
         opacity: 0;
       }
     }
@@ -590,6 +820,9 @@
 
     <div class="progress-wrapper">
       <div class="progress-container">
+        <div class="milestone m25"></div>
+        <div class="milestone m50"></div>
+        <div class="milestone m75"></div>
         <div class="progress-bar" id="progress-bar"></div>
       </div>
       <div class="progress-labels">
@@ -635,6 +868,12 @@
   </div>
 
   <div id="saved-indicator">💾 Saved</div>
+  
+  <!-- Achievement notification -->
+  <div id="achievement-notification" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, #ff4081, #ff9ec6); padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4); z-index: 1000; font-family: 'Press Start 2P', monospace; color: white; font-size: 12px; text-align: center; animation: achievementSlide 0.5s ease-out;">
+    <div style="margin-bottom: 8px;">🏆 Achievement Unlocked!</div>
+    <div id="achievement-text" style="font-size: 10px;"></div>
+  </div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -776,12 +1015,49 @@
       const incrementHistory = [];
       const MAX_HISTORY = 100;
 
+      const achievements = {
+        10: { title: "Getting Started! 🌟", unlocked: false },
+        25: { title: "Quarter Century! 🎯", unlocked: false },
+        50: { title: "Halfway There! 🎊", unlocked: false },
+        69: { title: "Nice! 😏", unlocked: false },
+        100: { title: "Century Club! 🏆", unlocked: false },
+        200: { title: "Double Trouble! 🌈", unlocked: false },
+        500: { title: "High Achiever! 👑", unlocked: false },
+        1000: { title: "Legendary Status! 🔥", unlocked: false }
+      };
+
+      function showAchievement(title) {
+        const notification = document.getElementById("achievement-notification");
+        const text = document.getElementById("achievement-text");
+        text.textContent = title;
+        notification.style.display = "block";
+        
+        // Add sparkle animation
+        for(let i = 0; i < 5; i++) {
+          createFloatingHeart();
+        }
+
+        setTimeout(() => {
+          notification.style.display = "none";
+        }, 3000);
+      }
+
+      function checkAchievements(count) {
+        Object.entries(achievements).forEach(([threshold, achievement]) => {
+          if (!achievement.unlocked && count >= parseInt(threshold)) {
+            achievement.unlocked = true;
+            showAchievement(achievement.title);
+          }
+        });
+      }
+
       async function handleIncrement(increment) {
         try {
           const snapshot = await docRef.get();
           const currentCount = snapshot.exists ? snapshot.data().count : 0;
           counter = currentCount + increment;
           incrementHistory.push(increment);
+          checkAchievements(counter);
           if (incrementHistory.length > MAX_HISTORY) {
             incrementHistory.shift();
           }
