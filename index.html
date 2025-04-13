@@ -1036,8 +1036,12 @@ body.lock-scroll {
       // Real-time listener for history updates
       docRef.onSnapshot(doc => {
         if (doc.exists) {
-          counter = doc.data().count || 0;
-          incrementHistory = doc.data().history || [];
+          const data = doc.data();
+          counter = data.count || 0;
+          incrementHistory = data.history || [];
+          if (data.lastTimestamp) {
+            document.getElementById("last-timestamp").textContent = `Last: ${data.lastTimestamp}`;
+          }
           updateDisplay();
         }
       });
@@ -1080,6 +1084,10 @@ body.lock-scroll {
 
       async function handleIncrement(increment) {
         try {
+          // Add vibration feedback if supported
+          if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+          }
           const snapshot = await docRef.get();
           const currentCount = snapshot.exists ? snapshot.data().count : 0;
           counter = currentCount + increment;
