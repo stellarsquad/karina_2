@@ -815,12 +815,7 @@ body.lock-scroll {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 </head>
-<body>
-  <div id="login-screen" style="position: fixed; inset: 0; background-color: #0b0f24; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999;">
-    <h2>🔒 Please login via Telegram to continue</h2>
-    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
-  </div>
-  <div id="app" style="display:none;">
+<body><div id="app">
   <div class="frame">
     <div class="title">
       KARINA'S ORGASM-O-MATIC
@@ -1224,19 +1219,6 @@ body.lock-scroll {
     });
   </script>
 </div>
-
-<script>
-  window.addEventListener('load', function () {
-    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
-      const user = Telegram.WebApp.initDataUnsafe.user;
-      localStorage.setItem("telegram_user", JSON.stringify(user));
-      document.getElementById("login-screen").style.display = "none";
-      document.getElementById("app").style.display = "block";
-    } else {
-      document.getElementById("login-screen").innerHTML += '<p style="color: #ff6b6b">Please open this app via Telegram</p>';
-    }
-  });
-</script>
 
 </body>
 </html>
