@@ -1218,26 +1218,5 @@ body.lock-scroll {
       });
     });
   </script>
-
-<script>
-  window.addEventListener("DOMContentLoaded", () => {
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-
-      const user = Telegram.WebApp.initDataUnsafe?.user;
-      if (!user) {
-        document.body.innerHTML = "<div style='color:white;text-align:center;padding:30px;font-family:monospace;'>⛔️ Запусти через Telegram</div>";
-        return;
-      }
-
-      console.log("👤 Авторизован как:", user.username || user.first_name);
-      window.currentTelegramUser = user;
-    } else {
-      document.body.innerHTML = "<div style='color:white;text-align:center;padding:30px;font-family:monospace;'>⛔️ Telegram WebApp API не найден</div>";
-    }
-  });
-</script>
-
 </body>
 </html>
