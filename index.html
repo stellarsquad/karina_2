@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="theme-color" content="#1a1c2c"/>
@@ -982,6 +983,18 @@ body.lock-scroll {
     }
 
     document.addEventListener("DOMContentLoaded", function () {
+
+    let tg = window.Telegram.WebApp;
+    tg.expand(); // развернуть на весь экран
+    let currentUser = tg.initDataUnsafe.user;
+
+    if (!currentUser) {
+      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:100px;'>Please open this app via Telegram.</h2>";
+      throw new Error("Telegram user not found");
+    }
+
+    let currentUsername = currentUser.username || (currentUser.first_name || "Unknown");
+
 
       const statsBox = document.getElementById("stats-display");
       const body = document.body;
