@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="theme-color" content="#1a1c2c"/>
@@ -983,34 +982,6 @@ body.lock-scroll {
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-
-    let tg = window.Telegram.WebApp;
-    tg.expand(); // развернуть на весь экран
-    let currentUser = tg.initDataUnsafe.user;
-
-    if (!currentUser) {
-      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:100px;'>Please open this app via Telegram.</h2>";
-      throw new Error("Telegram user not found");
-    }
-
-    let currentUsername = currentUser.username || (currentUser.first_name || "Unknown");
-
-  const debugUser = document.createElement("div");
-  debugUser.style.position = "absolute";
-  debugUser.style.top = "5px";
-  debugUser.style.right = "5px";
-  debugUser.style.background = "rgba(0,0,0,0.5)";
-  debugUser.style.color = "white";
-  debugUser.style.padding = "4px 8px";
-  debugUser.style.fontSize = "10px";
-  debugUser.style.borderRadius = "4px";
-  debugUser.style.zIndex = 9999;
-  const currentUser = tg.initDataUnsafe.user;
-  debugUser.textContent = currentUser ? `👤 ${currentUser.username || currentUser.first_name}` : '❌ no user';
-  document.body.appendChild(debugUser);
-  console.log("Telegram initDataUnsafe:", tg.initDataUnsafe);
-
-
 
       const statsBox = document.getElementById("stats-display");
       const body = document.body;
