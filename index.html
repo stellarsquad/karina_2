@@ -848,7 +848,8 @@ body.lock-scroll {
       <button id="location-btn">📍 LOCATION</button>
       <button id="undo-btn">⤺ UNDO</button>
       <button id="reset-btn">⟳ RESET</button>
-      <button id="stats-btn" style="grid-column: span 2;">📊 STATS</button>
+      <button id="stats-btn">📊 STATS</button>
+      <button id="last-btn">📜 LAST</button>
     </div>
 
     <div class="stats-box" id="stats-display">
@@ -857,6 +858,8 @@ body.lock-scroll {
       <div id="stat-month">This Month: 0</div>
       <div id="stat-record">Record: 0</div>
     </div>
+
+    <div class="stats-box" id="last-results" style="display: none; opacity: 0;"></div>
 
     <div class="footer">I love you <span>♥</span></div>
   </div>
@@ -907,6 +910,8 @@ body.lock-scroll {
     const statsRef = db.collection("users").doc("karina_stats");
 
     let counter = 0;
+    let incrementHistory = [];
+    const MAX_HISTORY = 100;
 
     function updateDisplay() {
       const percent = Math.min(counter / 100, 1) * 100;
@@ -1037,9 +1042,7 @@ body.lock-scroll {
       });
 
       // Button event handlers
-      let incrementHistory = [];
-      const MAX_HISTORY = 100;
-
+      
       // Real-time listener for history updates
       docRef.onSnapshot(doc => {
         if (doc.exists) {
@@ -1125,7 +1128,19 @@ body.lock-scroll {
             counter -= lastIncrement;
             incrementHistory.pop();
             updateDisplay();
-            await docRef.set({ count: counter }, { merge: true });
+            
+            // Update Last table if it's visible
+            if (lastResults.style.display === "block") {
+              const last5 = incrementHistory.slice(-5).reverse();
+              lastResults.innerHTML = last5.map(increment => 
+                `<div>${getLocationName(increment)}: +${increment}</div>`
+              ).join('');
+            }
+            
+            await docRef.set({ 
+              count: counter,
+              history: incrementHistory 
+            }, { merge: true });
             await updateFirestoreStats(-lastIncrement);
           } catch (e) {
             console.error("Undo error:", e);
@@ -1152,7 +1167,47 @@ body.lock-scroll {
         updateStatsDisplay({ today: 0, week: 0, month: 0, record: 0 });
       });
 
-      document.getElementById("stats-btn").addEventListener("click", toggleStats);
+      document.getElementById("stats-btn").addEventListener("click", () => {
+        if (lastResults.style.display === "block") {
+          lastResults.style.display = "none";
+          lastResults.style.opacity = "0";
+        }
+        statsBox.classList.toggle("show");
+        if (statsBox.classList.contains("show")) {
+          loadStats();
+        }
+      });
+
+      // Last results modal handling
+      const lastBtn = document.getElementById("last-btn");
+      const lastModal = document.getElementById("last-modal");
+      const closeLast = document.getElementById("close-last");
+      const lastResults = document.getElementById("last-results");
+
+      function getLocationName(increment) {
+        switch(increment) {
+          case 1: return "Add one";
+          case 2: return "Taxi";
+          case 3: return "Subway";
+          case 4: return "Cafe";
+          case 5: return "Guest";
+          default: return "Bonus";
+        }
+      }
+
+      lastBtn.addEventListener("click", () => {
+        const last5 = incrementHistory.slice(-5).reverse();
+        lastResults.innerHTML = last5.map(increment => 
+          `<div>${getLocationName(increment)}: +${increment}</div>`
+        ).join('');
+        
+        if (statsBox.classList.contains("show")) {
+          statsBox.classList.remove("show");
+        }
+        
+        lastResults.style.display = lastResults.style.display === "block" ? "none" : "block";
+        lastResults.style.opacity = lastResults.style.display === "block" ? "1" : "0";
+      });
 
       // Listen for counter updates
       docRef.onSnapshot((doc) => {
