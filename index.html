@@ -1218,54 +1218,5 @@ body.lock-scroll {
       });
     });
   </script>
-
-
-
-<script>
-  function onTelegramAuth(user) {
-    console.log("Logged in as", user);
-    localStorage.setItem("telegram_user", JSON.stringify(user));
-    document.getElementById("auth-overlay").style.display = "none";
-    window.location.reload(); // Optional: reload to trigger app
-  }
-
-  // Check auth on load
-  const storedUser = localStorage.getItem("telegram_user");
-  if (!storedUser) {
-    document.body.style.overflow = "hidden"; // prevent scroll behind auth
-  } else {
-    const parsedUser = JSON.parse(storedUser);
-    window.currentTelegramUser = parsedUser;
-    console.log("Authorized as", parsedUser);
-    const overlay = document.getElementById("auth-overlay");
-    if (overlay) overlay.remove();
-  }
-</script>
-
-
-<!-- Telegram Auto Auth Modal -->
-<div id="auth-overlay" style="position: fixed; top:0; left:0; width:100vw; height:100vh; background: #0b0f24; color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:9999;">
-  <div style="margin-bottom: 20px; font-family: 'Press Start 2P', monospace; text-align: center;">
-    🔒 Checking Telegram login...
-  </div>
-</div>
-
-<script>
-  window.onload = function () {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-
-    const user = tg.initDataUnsafe?.user;
-    if (user) {
-      console.log("✅ Авторизован через Telegram", user);
-      localStorage.setItem("telegram_user", JSON.stringify(user));
-      const overlay = document.getElementById("auth-overlay");
-      if (overlay) overlay.remove();
-    } else {
-      console.log("❌ Пользователь не найден");
-    }
-  };
-</script>
-
 </body>
 </html>
