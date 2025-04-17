@@ -1,11 +1,1242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#1a1c2c"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#1a1c2c"/>
   <title>Karina's Orgasm-O-Matic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0b0f24;
+      background-size: 400% 400%;
+
+      font-family: 'Press Start 2P', monospace;
+      color: #ffb6d5;
+      text-align: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .frame {
+      border: 4px solid #ff4081;
+      box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6,
+                  0 10px 20px rgba(255, 64, 129, 0.3),
+                  0 20px 40px rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      display: inline-block;
+      border-radius: 24px;
+      width: calc(100% - 40px);
+      max-width: 360px;
+      background: rgba(31, 34, 53, 0.7);
+      backdrop-filter: blur(10px);
+      margin: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .frame {
+        padding: 15px;
+        width: calc(100% - 30px);
+        margin: 5px;
+      }
+
+      .button-grid button {
+        padding: 12px 8px;
+        font-size: 9px;
+      }
+
+      .count-value {
+        font-size: 36px;
+      }
+
+      .title {
+        font-size: 12px;
+      }
+
+      .progress-container {
+        height: 16px;
+      }
+
+      .modal-content {
+        width: 85%;
+        padding: 15px;
+      }
+
+      .stats-box {
+        width: 90%;
+        font-size: 10px;
+      }
+
+      .footer {
+        margin-top: 15px;
+        font-size: 16px;
+      }
+    }
+
+    /* Prevent text selection on mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .title {
+      font-size: 14px;
+      color: #ffb6d5;
+      text-align: center;
+    }
+
+    .version {
+      float: right;
+      font-size: 10px;
+      color: #ffe6eb;
+    }
+
+    .count-box {
+      position: relative;
+      border: 3px solid rgba(255, 158, 198, 0.7);
+      background: linear-gradient(165deg, 
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 158, 198, 0.1) 50%,
+        rgba(255, 64, 129, 0.05) 100%);
+      backdrop-filter: blur(15px);
+      padding: 30px;
+      margin: 35px 0;
+      border-radius: 25px;
+      box-shadow: 0 0 40px rgba(255, 107, 158, 0.4),
+                  inset 0 0 50px rgba(255, 107, 158, 0.2),
+                  0 15px 25px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { 
+        box-shadow: 0 0 40px rgba(255, 107, 158, 0.4),
+                    inset 0 0 50px rgba(255, 107, 158, 0.2);
+      }
+      50% { 
+        box-shadow: 0 0 60px rgba(255, 107, 158, 0.6),
+                    inset 0 0 70px rgba(255, 107, 158, 0.3);
+      }
+    }
+
+    .count-box:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 107, 158, 0.3),
+                  inset 0 0 40px rgba(255, 107, 158, 0.15);
+    }
+
+    .count-label {
+      font-size: 10px;
+      color: #ffb6d5;
+    }
+
+    .count-value {
+      font-size: 42px;
+      color: #ff4081;
+      margin: 20px 0;
+      text-shadow: 0 0 15px rgba(255, 107, 158, 0.7),
+                   0 0 30px rgba(255, 107, 158, 0.4),
+                   0 0 45px rgba(255, 107, 158, 0.2);
+      letter-spacing: 3px;
+      animation: pulse-text 2s infinite ease-in-out;
+      position: relative;
+      z-index: 2;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff4081, #ff9ec6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(255, 64, 129, 0.6));
+    }
+
+    @keyframes pulse-text {
+      0% { text-shadow: 0 0 10px rgba(255, 107, 158, 0.5); }
+      50% { text-shadow: 0 0 20px rgba(255, 107, 158, 0.8); }
+      100% { text-shadow: 0 0 10px rgba(255, 107, 158, 0.5); }
+    }
+
+    .count-value.animate {
+      animation: bounce 0.3s ease-in-out;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.5); }
+      60% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    .timestamp {
+      font-size: 10px;
+      color: #ffe6eb;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 15px;
+      background: linear-gradient(145deg, #ff6b9e, #ff4081);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px #c03d70,
+                  0 0 15px rgba(255, 107, 158, 0.3),
+                  inset 0 1px rgba(255, 255, 255, 0.2);
+      position: relative;
+      border-radius: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(5px);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      animation: shimmer 3s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px #c03d70, 0 0 30px rgba(255, 107, 158, 0.7);
+      background: linear-gradient(145deg, #ff4081, #ff6b9e);
+      filter: brightness(1.1);
+    }
+
+    button:active {
+      top: 2px;
+      box-shadow: 0 2px #c03d70;
+    }
+
+    .stats-box {
+      background-color: #1f2235;
+      border: 2px solid #ff9ec6;
+      padding: 12px;
+      font-size: 11px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.2;
+      border-radius: 12px;
+      margin-top: 20px;
+      width: 220px;
+      margin-left: auto;
+      margin-right: auto;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .stats-box.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .stats-box div {
+      margin: 5px 0;
+      text-align: center;
+      font-size: 11px;
+      transition: opacity 0.3s;
+    }
+
+    .stats-box.loading div {
+      opacity: 0.5;
+    }
+
+    .button-press {
+      transform: scale(0.95);
+      transition: transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .saved-flash {
+      animation: flash 0.5s;
+    }
+
+    @keyframes flash {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes achievementSlide {
+      0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+      20% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      80% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+
+    .bonus-popup {
+      position: absolute;
+      font-size: 14px;
+      color: #ffb6d5;
+      animation: popfade 0.8s ease forwards;
+      pointer-events: none;
+      left: 50%;
+      top: 80px;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+
+    @keyframes popfade {
+      0% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -30px); }
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ff6b9e;
+    }
+
+    .footer span {
+      color: red;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: #1f2235;
+      border: 2px solid #ff4081;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
+      width: 270px;
+      max-width: 90%;
+      z-index: 10000;
+      transform: translateY(-170px);
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-grid button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 10px;
+      background-color: #ff6b9e;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .modal-grid button:hover {
+      background-color: #ff4081;
+    }
+
+    .close {
+      float: right;
+      cursor: pointer;
+      color: #ff9ec6;
+      font-size: 12px;
+    }
+    @keyframes pulseFrame {
+      0% { box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6; }
+      50% { box-shadow: 0 0 12px 6px #ff4081, 0 0 16px 12px #ff69b4; }
+      100% { box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6; }
+    }
+    .frame.pulse {
+      animation: pulseFrame 1s ease;
+    }
+    .footer span.animate-heart {
+      display: inline-block;
+      animation: bounceHeart 0.6s ease;
+    }
+    @keyframes bounceHeart {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.8) translateY(-10px); }
+      60% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+
+    button:hover {
+      box-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
+      background-color: #ff4081;
+    }
+
+    button:active {
+      animation: pressEffect 0.2s ease-out;
+      transform: scale(0.95);
+      transition: transform 0.1s ease-out;
+    }
+
+    @keyframes pressEffect {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(0.92); }
+      100% { transform: scale(0.95); }
+    }
+
+    @media (hover: hover) {
+      button:hover {
+        transform: translateY(-2px);
+      }
+      button:active {
+        transform: translateY(0) scale(0.95);
+      }
+    }
+
+    /* Prevent double-tap zoom on iOS */
+    button {
+      touch-action: manipulation;
+    }
+
+    #saved-indicator {
+      position: fixed;
+      top: 10px;
+      right: 14px;
+      font-size: 10px;
+      color: #ffffff;
+      background-color: #1f2235;
+      border: 2px solid #ff4081;
+      border-radius: 6px;
+      padding: 6px 10px;
+      opacity: 0;
+      pointer-events: none;
+      font-family: 'Press Start 2P', monospace;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+
+    #saved-indicator.show {
+      opacity: 1;
+    }
+
+    body.pink-theme .frame {
+      border-color: #ff4081;
+      box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6;
+    }
+    body.night-theme .frame {
+      border-color: #444;
+      box-shadow: 0 0 0 4px #111, 0 0 0 8px #333;
+    }
+    body.arcade-theme .frame {
+      border-color: #00ffe1;
+      box-shadow: 0 0 0 4px #00c9c9, 0 0 0 8px #007d7d;
+    }
+    body.love-theme .frame {
+      border-color: #ff0040;
+      box-shadow: 0 0 0 4px #ff0040, 0 0 8px 4px #ffc0cb;
+    }
+
+    body.night-theme button {
+      background-color: #333;
+      color: #ccc;
+    }
+    body.arcade-theme button {
+      background-color: #00ffe1;
+      color: #000;
+    }
+    body.love-theme button {
+      background-color: #ff0040;
+      color: white;
+    }
+
+    #theme-select {
+      background-color: #1f2235;
+      border: 2px solid #ff4081;
+      color: #ffb6d5;
+      padding: 6px 8px;
+      border-radius: 8px;
+      margin-left: 8px;
+      box-shadow: 2px 2px 0 #000;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      outline: none;
+    }
+
+    #theme-select:focus {
+      border-color: #ff9ec6;
+      box-shadow: 0 0 6px #ff4081;
+    }
+
+    .count-box {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #floating-hearts-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: 0;
+      font-size: 12px;
+      animation: floatUp 4s ease-in forwards;
+      opacity: 0.6;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    .count-label,
+    .count-value,
+    .timestamp {
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes counterGlow {
+      0% { box-shadow: 0 0 15px #ff9ec6, 0 0 30px rgba(255, 107, 158, 0.3); }
+      25% { box-shadow: 0 0 25px #ff6b9e, 0 0 50px rgba(255, 107, 158, 0.5); }
+      50% { box-shadow: 0 0 35px #ff4081, 0 0 70px rgba(255, 107, 158, 0.7); }
+      75% { box-shadow: 0 0 25px #ff6b9e, 0 0 50px rgba(255, 107, 158, 0.5); }
+      100% { box-shadow: 0 0 15px #ff9ec6, 0 0 30px rgba(255, 107, 158, 0.3); }
+    }
+
+    .count-box {
+      animation: counterGlow 10s ease-in-out infinite;
+    }
+
+    .footer span {
+      animation: heartPulse 3s ease-in-out infinite;
+      display: inline-block;
+      font-size: 150%;
+      transform-origin: center;
+    }
+
+    @keyframes heartPulse {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.15); }
+      60% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 20px;
+      background: linear-gradient(to right, rgba(26, 28, 44, 0.95), rgba(26, 28, 44, 0.8));
+      border: 2px solid #ff9ec6;
+      border-radius: 12px;
+      margin: 15px 0 20px;
+      overflow: hidden;
+      box-shadow: inset 0 0 12px rgba(255, 64, 129, 0.6),
+                  0 4px 12px rgba(0, 0, 0, 0.4);
+      position: relative;
+      backdrop-filter: blur(4px);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(45deg, 
+        #ff4081 0%, 
+        #ff9ec6 25%, 
+        #ff4081 50%, 
+        #ff9ec6 75%, 
+        #ff4081 100%);
+      background-size: 200% 100%;
+      animation: gradient-shift 3s linear infinite;
+      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 20px rgba(255, 64, 129, 0.8),
+                  inset 0 0 15px rgba(255, 255, 255, 0.4);
+      position: relative;
+      filter: brightness(1.1) contrast(1.1);
+    }
+
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.2), 
+        rgba(255, 255, 255, 0.05));
+      border-radius: 8px 8px 0 0;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 30px;
+      background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%);
+      animation: shine-effect 2s infinite;
+      transform: skew(-20deg);
+    }
+
+    @keyframes shine-effect {
+      0% { left: -50px; }
+      100% { left: calc(100% + 50px); }
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 100% 0%; }
+      100% { background-position: -100% 0%; }
+    }
+
+    .progress-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%);
+      animation: shine 2s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-container .milestone {
+      position: absolute;
+      top: -2px;
+      bottom: -2px;
+      width: 3px;
+      background: rgba(255, 255, 255, 0.7);
+      z-index: 1;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .progress-container .milestone::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-container .milestone:hover {
+      background: rgba(255, 255, 255, 0.9);
+      width: 4px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-container .milestone.m25 { left: 25%; }
+    .progress-container .milestone.m50 { left: 50%; }
+    .progress-container .milestone.m75 { left: 75%; }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #ffb6d5;
+      margin-top: 2px;
+      margin-bottom: 12px;
+      padding: 0 4px;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .progress-wrapper {
+      position: relative;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .mid-label-absolute {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #ffb6d5;
+      font-family: 'Press Start 2P', monospace;
+      pointer-events: none;
+    }
+
+
+
+
+
+    .heart-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+      border-radius: 12px;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -10px;
+      font-size: 14px;
+      color: #ff9ec6;
+      filter: drop-shadow(0 0 2px rgba(255, 155, 193, 0.5));
+      will-change: transform;
+    }
+
+    @keyframes float-up {
+      0% {
+        transform: translateY(0) translateX(-50%) scale(1) rotate(0deg);
+        opacity: 0.8;
+      }
+      50% {
+        opacity: 0.5;
+        transform: translateY(-50%) translateX(calc(-50% + 20px)) scale(1.1) rotate(10deg);
+      }
+      100% {
+        transform: translateY(-100%) translateX(calc(-50% - 20px)) scale(0.8) rotate(-10deg);
+        opacity: 0;
+      }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      display: none;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: #ffb6d5;
+      cursor: pointer;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+body.lock-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
+
+</style>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Karina App">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 </head>
 <body>
-  <h1>Финальная версия готовится...</h1>
+  <div id="login-screen" style="position: fixed; inset: 0; background-color: #0b0f24; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999;">
+    <h2>🔒 Please login via Telegram to continue</h2>
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+  </div>
+  <div id="app" style="display:none;">
+  <div class="frame">
+    <div class="title">
+      KARINA'S ORGASM-O-MATIC
+    </div>
+
+    <div class="count-box">
+      <div class="heart-container" id="heart-container"></div>
+      <div id="floating-hearts-container"></div>
+      <div class="count-label">TOTAL COUNT</div>
+      <div class="count-value" id="counter-display">0</div>
+      <div class="timestamp" id="last-timestamp">Last: --:--:--</div>
+    </div>
+
+    <div class="progress-wrapper">
+      <div class="progress-container">
+        <div class="milestone m25"></div>
+        <div class="milestone m50"></div>
+        <div class="milestone m75"></div>
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-labels">
+        <span>0</span>
+        <span>100</span>
+      </div>
+      <div class="mid-label-absolute">50</div>
+    </div>
+
+    <div class="button-grid">
+      <button id="increment-btn">➕ ADD ONE</button>
+      <button id="location-btn">📍 LOCATION</button>
+      <button id="undo-btn">⤺ UNDO</button>
+      <button id="reset-btn">⟳ RESET</button>
+      <button id="stats-btn">📊 STATS</button>
+      <button id="last-btn">📜 LAST</button>
+    </div>
+
+    <div class="stats-box" id="stats-display">
+      <div id="stat-today">Today: 0</div>
+      <div id="stat-week">This Week: 0</div>
+      <div id="stat-month">This Month: 0</div>
+      <div id="stat-record">Record: 0</div>
+    </div>
+
+    <div class="stats-box" id="last-results" style="display: none; opacity: 0;"></div>
+
+    <div class="footer">I love you <span>♥</span></div>
+  </div>
+
+  <!-- Location Modal -->
+  <div id="location-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>SELECT LOCATION</span>
+        <button class="close-btn" id="close-location">✖</button>
+      </div>
+      <div class="modal-grid">
+        <button id="location-taxi">🚕 TAXI +2</button>
+        <button id="location-subway">🚇 SUBWAY +3</button>
+        <button id="location-cafe">☕ CAFE +4</button>
+        <button id="location-guest">👯 GUEST +5</button>
+        <button id="location-bonus" class="full-width">✨ BONUS +1</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="saved-indicator">💾 Saved</div>
+
+  <!-- Achievement notification -->
+  <div id="achievement-notification" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, #ff4081, #ff9ec6); padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4); z-index: 1000; font-family: 'Press Start 2P', monospace; color: white; font-size: 12px; text-align: center; animation: achievementSlide 0.5s ease-out;">
+    <div style="margin-bottom: 8px;">🏆 Achievement Unlocked!</div>
+    <div id="achievement-text" style="font-size: 10px;"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
+      authDomain: "karina-5d44d.firebaseapp.com",
+      projectId: "karina-5d44d",
+      storageBucket: "karina-5d44d.appspot.com",
+      messagingSenderId: "930914134264",
+      appId: "1:930914134264:web:0e527a744b3d2c7182330d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const docRef = db.collection("users").doc("karina");
+    const statsRef = db.collection("users").doc("karina_stats");
+
+    let counter = 0;
+    let incrementHistory = [];
+    const MAX_HISTORY = 100;
+
+    function updateDisplay() {
+      const percent = Math.min(counter / 100, 1) * 100;
+      document.getElementById("counter-display").textContent = counter;
+      const progress = document.getElementById("progress-bar");
+      progress.style.width = percent + "%";
+    }
+
+    function createFloatingHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerText = ["💖", "💗", "💝", "💕"][Math.floor(Math.random() * 4)];
+      heart.style.left = (10 + Math.random() * 80) + "%";
+      heart.style.fontSize = (12 + Math.random() * 8) + "px";
+      heart.style.animation = `float-up ${2.5 + Math.random() * 2}s ease-in-out forwards`;
+      document.getElementById("heart-container").appendChild(heart);
+      setTimeout(() => heart.remove(), 4500);
+    }
+
+    function updateStatsDisplay(data) {
+      document.getElementById("stat-today").textContent = `Today: ${data.today || 0}`;
+      document.getElementById("stat-week").textContent = `This Week: ${data.week || 0}`;
+      document.getElementById("stat-month").textContent = `This Month: ${data.month || 0}`;
+      document.getElementById("stat-record").textContent = `Record: ${data.record || 0}`;
+    }
+
+    async function updateFirestoreStats(increment = 1) {
+      const todayKey = new Date().toISOString().slice(0, 10);
+      try {
+        const snapshot = await statsRef.get();
+        let data = snapshot.exists ? snapshot.data() : {
+          today: 0, week: 0, month: 0, record: 0, lastUpdated: todayKey
+        };
+
+        if (increment < 0) {
+          if (data.today <= 0 && data.week <= 0 && data.month <= 0) return;
+          data.today = Math.max(0, (data.today || 0) + increment);
+          data.week = Math.max(0, (data.week || 0) + increment);
+          data.month = Math.max(0, (data.month || 0) + increment);
+        } else {
+          data.today = data.lastUpdated === todayKey ? (data.today || 0) + increment : increment;
+          data.week = (data.week || 0) + increment;
+          data.month = (data.month || 0) + increment;
+          data.record = Math.max(data.record || 0, counter);
+          data.lastUpdated = todayKey;
+        }
+
+        await statsRef.set(data);
+        updateStatsDisplay(data);
+      } catch (e) {
+        console.error("Error updating stats:", e);
+      }
+    }
+
+    async function loadStats() {
+      const statsBox = document.getElementById("stats-display");
+      statsBox.classList.add("loading");
+      try {
+        const snapshot = await statsRef.get();
+        if (snapshot.exists) {
+          updateStatsDisplay(snapshot.data());
+        }
+      } catch (e) {
+        console.error("Failed to load stats:", e);
+      } finally {
+        statsBox.classList.remove("loading");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const statsBox = document.getElementById("stats-display");
+      const body = document.body;
+      const toggleStats = () => {
+        statsBox.classList.toggle("show");
+        if (statsBox.classList.contains("show")) {
+          body.classList.remove("lock-scroll");
+        } else {
+          body.classList.add("lock-scroll");
+        }
+        loadStats();
+      };
+      body.classList.add("lock-scroll");
+
+// Start heart animations
+      setInterval(createFloatingHeart, 600);
+      for(let i = 0; i < 5; i++) {
+        setTimeout(createFloatingHeart, i * 200);
+      }
+
+      // Location modal handling
+      const locationBtn = document.getElementById("location-btn");
+      const locationModal = document.getElementById("location-modal");
+      const closeModal = document.getElementById("close-location");
+
+      locationBtn.addEventListener("click", () => {
+        locationModal.style.display = "flex";
+      });
+
+      closeModal.addEventListener("click", () => {
+        locationModal.style.display = "none";
+      });
+
+      // Location bonus handling
+      const locationBonuses = {
+        "location-taxi": 2,
+        "location-subway": 3,
+        "location-cafe": 4,
+        "location-guest": 5,
+        "location-bonus": 1
+      };
+
+      Object.keys(locationBonuses).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("click", async () => {
+            try {
+              await handleIncrement(locationBonuses[id]);
+              locationModal.style.display = "none";
+              for(let i = 0; i < 3; i++) {
+                createFloatingHeart();
+              }
+            } catch (e) {
+              console.error("Location bonus error:", e);
+            }
+          });
+        }
+      });
+
+      // Button event handlers
+      
+      // Real-time listener for history updates
+      docRef.onSnapshot(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          counter = data.count || 0;
+          incrementHistory = data.history || [];
+          if (data.lastTimestamp) {
+            document.getElementById("last-timestamp").textContent = `Last: ${data.lastTimestamp}`;
+          }
+          updateDisplay();
+        }
+      });
+
+      const achievements = {
+        10: { title: "Getting Started! 🌟", unlocked: false },
+        25: { title: "Quarter Century! 🎯", unlocked: false },
+        50: { title: "Halfway There! 🎊", unlocked: false },
+        69: { title: "Nice! 😏", unlocked: false },
+        100: { title: "Century Club! 🏆", unlocked: false },
+        200: { title: "Double Trouble! 🌈", unlocked: false },
+        500: { title: "High Achiever! 👑", unlocked: false },
+        1000: { title: "Legendary Status! 🔥", unlocked: false }
+      };
+
+      function showAchievement(title) {
+        const notification = document.getElementById("achievement-notification");
+        const text = document.getElementById("achievement-text");
+        text.textContent = title;
+        notification.style.display = "block";
+
+        // Add sparkle animation
+        for(let i = 0; i < 5; i++) {
+          createFloatingHeart();
+        }
+
+        setTimeout(() => {
+          notification.style.display = "none";
+        }, 3000);
+      }
+
+      function checkAchievements(count) {
+        Object.entries(achievements).forEach(([threshold, achievement]) => {
+          if (!achievement.unlocked && count >= parseInt(threshold)) {
+            achievement.unlocked = true;
+            showAchievement(achievement.title);
+          }
+        });
+      }
+
+      async function handleIncrement(increment) {
+        try {
+          // Add vibration feedback if supported
+          if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+          }
+          const snapshot = await docRef.get();
+          const currentCount = snapshot.exists ? snapshot.data().count : 0;
+          counter = currentCount + increment;
+          incrementHistory.push(increment);
+          checkAchievements(counter);
+          if (incrementHistory.length > MAX_HISTORY) {
+            incrementHistory.shift();
+          }
+          updateDisplay();
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString();
+          document.getElementById("last-timestamp").textContent = `Last: ${timeStr}`;
+          await docRef.set({ 
+            count: counter,
+            lastTimestamp: timeStr,
+            history: incrementHistory
+          }, { merge: true });
+          await updateFirestoreStats(increment);
+        } catch (e) {
+          console.error("Increment error:", e);
+        }
+      }
+
+      document.getElementById("undo-btn").addEventListener("click", async () => {
+        if (counter > 0 && incrementHistory.length > 0) {
+          try {
+            const lastIncrement = incrementHistory[incrementHistory.length - 1];
+            counter -= lastIncrement;
+            incrementHistory.pop();
+            updateDisplay();
+            
+            // Update Last table if it's visible
+            if (lastResults.style.display === "block") {
+              const last5 = incrementHistory.slice(-5).reverse();
+              lastResults.innerHTML = last5.map(increment => 
+                `<div>${getLocationName(increment)}: +${increment}</div>`
+              ).join('');
+            }
+            
+            await docRef.set({ 
+              count: counter,
+              history: incrementHistory 
+            }, { merge: true });
+            await updateFirestoreStats(-lastIncrement);
+          } catch (e) {
+            console.error("Undo error:", e);
+          }
+        }
+      });
+
+      document.getElementById("increment-btn").addEventListener("click", async () => {
+        await handleIncrement(1);
+        createFloatingHeart();
+      });
+
+      document.getElementById("reset-btn").addEventListener("click", async () => {
+        counter = 0;
+        updateDisplay();
+        await docRef.set({ count: 0 }, { merge: true });
+        await statsRef.set({
+          today: 0,
+          week: 0,
+          month: 0,
+          record: 0,
+          lastUpdated: new Date().toISOString().slice(0, 10)
+        });
+        updateStatsDisplay({ today: 0, week: 0, month: 0, record: 0 });
+      });
+
+      document.getElementById("stats-btn").addEventListener("click", () => {
+        if (lastResults.style.display === "block") {
+          lastResults.style.display = "none";
+          lastResults.style.opacity = "0";
+        }
+        statsBox.classList.toggle("show");
+        if (statsBox.classList.contains("show")) {
+          loadStats();
+        }
+      });
+
+      // Last results modal handling
+      const lastBtn = document.getElementById("last-btn");
+      const lastModal = document.getElementById("last-modal");
+      const closeLast = document.getElementById("close-last");
+      const lastResults = document.getElementById("last-results");
+
+      function getLocationName(increment) {
+        switch(increment) {
+          case 1: return "Add one";
+          case 2: return "Taxi";
+          case 3: return "Subway";
+          case 4: return "Cafe";
+          case 5: return "Guest";
+          default: return "Bonus";
+        }
+      }
+
+      lastBtn.addEventListener("click", () => {
+        const last5 = incrementHistory.slice(-5).reverse();
+        lastResults.innerHTML = last5.map(increment => 
+          `<div>${getLocationName(increment)}: +${increment}</div>`
+        ).join('');
+        
+        if (statsBox.classList.contains("show")) {
+          statsBox.classList.remove("show");
+        }
+        
+        lastResults.style.display = lastResults.style.display === "block" ? "none" : "block";
+        lastResults.style.opacity = lastResults.style.display === "block" ? "1" : "0";
+      });
+
+      // Listen for counter updates
+      docRef.onSnapshot((doc) => {
+        if (doc.exists) {
+          counter = doc.data().count || 0;
+          updateDisplay();
+        }
+      });
+    });
+  </script>
+</div>
+
+<script>
+  window.addEventListener('load', function () {
+    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+      const user = Telegram.WebApp.initDataUnsafe.user;
+      localStorage.setItem("telegram_user", JSON.stringify(user));
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("app").style.display = "block";
+    } else {
+      document.getElementById("login-screen").innerHTML += '<p style="color: #ff6b6b">Please open this app via Telegram</p>';
+    }
+  });
+</script>
+
 </body>
 </html>
