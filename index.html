@@ -995,6 +995,22 @@ body.lock-scroll {
 
     let currentUsername = currentUser.username || (currentUser.first_name || "Unknown");
 
+  const debugUser = document.createElement("div");
+  debugUser.style.position = "absolute";
+  debugUser.style.top = "5px";
+  debugUser.style.right = "5px";
+  debugUser.style.background = "rgba(0,0,0,0.5)";
+  debugUser.style.color = "white";
+  debugUser.style.padding = "4px 8px";
+  debugUser.style.fontSize = "10px";
+  debugUser.style.borderRadius = "4px";
+  debugUser.style.zIndex = 9999;
+  const currentUser = tg.initDataUnsafe.user;
+  debugUser.textContent = currentUser ? `👤 ${currentUser.username || currentUser.first_name}` : '❌ no user';
+  document.body.appendChild(debugUser);
+  console.log("Telegram initDataUnsafe:", tg.initDataUnsafe);
+
+
 
       const statsBox = document.getElementById("stats-display");
       const body = document.body;
