@@ -1,4 +1,3 @@
-
 // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
@@ -281,10 +280,10 @@ let soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; // Default 
 // Sound effects
 function playSound(type) {
   if (!soundEnabled) return;
-  
+
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   let frequency, duration;
-  
+
   switch(type) {
     case 'increment':
       frequency = 800;
@@ -306,19 +305,19 @@ function playSound(type) {
       frequency = 500;
       duration = 0.1;
   }
-  
+
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
-  
+
   oscillator.connect(gainNode);
   gainNode.connect(audioContext.destination);
-  
+
   oscillator.frequency.value = frequency;
   oscillator.type = 'sine';
-  
+
   gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-  
+
   oscillator.start(audioContext.currentTime);
   oscillator.stop(audioContext.currentTime + duration);
 }
@@ -351,15 +350,15 @@ function updateStatsDisplay(data) {
 function updateStreakDisplay(data) {
   const streakCount = document.getElementById("streak-count");
   const dailyProgress = document.getElementById("daily-progress");
-  
+
   if (streakCount) {
     streakCount.textContent = data.streak || 0;
   }
-  
+
   if (dailyProgress) {
     const today = data.today || 0;
     dailyProgress.textContent = today;
-    
+
     // Change color based on progress
     const streakInfo = document.getElementById("streak-info");
     if (today >= 10) {
@@ -375,7 +374,7 @@ function updateStreakDisplay(data) {
 async function updateFirestoreStats(increment = 1) {
   const todayKey = new Date().toISOString().slice(0, 10);
   const yesterdayKey = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  
+
   try {
     const snapshot = await statsRef.get();
     let data = snapshot.exists ? snapshot.data() : {
@@ -401,13 +400,13 @@ async function updateFirestoreStats(increment = 1) {
       } else {
         data.today = (data.today || 0) + increment;
       }
-      
+
       // Update weekly goal progress (if reached daily goal of 10)
       if (data.today >= 10 && data.lastStreakUpdate !== todayKey) {
         data.streak = (data.streak || 0) + 1;
         data.lastStreakUpdate = todayKey;
       }
-      
+
       data.week = (data.week || 0) + increment;
       data.month = (data.month || 0) + increment;
       data.record = Math.max(data.record || 0, counter);
@@ -455,7 +454,7 @@ async function savePhotoGameTask(task) {
   try {
     const today = new Date().toISOString().slice(0, 10);
     const timestamp = new Date().toISOString();
-    
+
     const photoGameData = {
       date: today,
       timestamp: timestamp,
@@ -466,14 +465,14 @@ async function savePhotoGameTask(task) {
     };
 
     await photoGamesRef.collection("tasks").add(photoGameData);
-    
+
     // Send task to Telegram bot
     const message = `📷 <b>Photo Game Task for Karina</b>\n\n<b>${task.title}</b>\n\n${task.description}`;
     await sendTelegramMessage(message);
-    
+
     // Show success notification
     showPhotoGameNotification("📷 Task sent to Telegram!");
-    
+
   } catch (error) {
     console.error("Error saving photo game task:", error);
     showPhotoGameNotification("❌ Error saving task");
@@ -520,7 +519,7 @@ async function savePunishment(punishment) {
   try {
     const today = new Date().toISOString().slice(0, 10);
     const timestamp = new Date().toISOString();
-    
+
     const punishmentData = {
       date: today,
       timestamp: timestamp,
@@ -532,27 +531,27 @@ async function savePunishment(punishment) {
 
     const docRef = await punishmentsRef.collection("tasks").add(punishmentData);
     currentPunishmentId = docRef.id;
-    
+
     if (currentUser === 'she') {
       // Send notification to submissive (herself)
       const subMessage = `🩸 <b>Punishment for Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
       await sendTelegramMessage(subMessage, null, SUBMISSIVE_CHAT_ID);
-      
+
       // Send notification to dominant
       const domMessage = `🩸 <b>Karina has chosen the following punishment:</b>\n\n${punishment.description}`;
       await sendTelegramMessage(domMessage, null, DOMINANT_CHAT_ID);
-      
+
       showPunishmentNotification("🩸 Punishment selected and reported!");
     } else {
       // Dominant assigning punishment
       const message = `🩸 <b>Punishment assigned to Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
       await sendTelegramMessage(message, null, SUBMISSIVE_CHAT_ID);
-      
+
       showPunishmentNotification("🩸 Punishment assigned to Karina!");
     }
-    
+
     document.getElementById("punishment-completed").style.display = "block";
-    
+
   } catch (error) {
     console.error("Error saving punishment:", error);
     showPunishmentNotification("❌ Error saving punishment");
@@ -561,24 +560,24 @@ async function savePunishment(punishment) {
 
 async function completePunishment() {
   if (!currentPunishmentId) return;
-  
+
   try {
     await punishmentsRef.collection("tasks").doc(currentPunishmentId).update({
       status: "done",
       completedAt: new Date().toISOString()
     });
-    
+
     // Send completion notification to Telegram
     const message = `✅ <b>Punishment Completed</b>\n\nКарина выполнила наказание:\n${currentPunishment.description}`;
     await sendTelegramMessage(message);
-    
+
     showPunishmentNotification("✅ Punishment completed!");
-    
+
     // Reset punishment state
     currentPunishment = null;
     currentPunishmentId = null;
     document.getElementById("punishment-completed").style.display = "none";
-    
+
   } catch (error) {
     console.error("Error completing punishment:", error);
     showPunishmentNotification("❌ Error completing punishment");
@@ -624,9 +623,9 @@ let isAuthorized = currentUser !== null;
 async function sendTelegramMessage(message, inlineKeyboard = null, chatId = null) {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    
+
     const targetChatId = chatId || (currentUser === 'he' ? DOMINANT_CHAT_ID : SUBMISSIVE_CHAT_ID);
-    
+
     const payload = {
       chat_id: targetChatId,
       text: message,
@@ -666,7 +665,7 @@ async function saveOrgasmRequest() {
   try {
     const today = new Date().toISOString().slice(0, 10);
     const timestamp = new Date().toISOString();
-    
+
     const orgasmRequestData = {
       date: today,
       timestamp: timestamp,
@@ -677,7 +676,7 @@ async function saveOrgasmRequest() {
     };
 
     await orgasmRequestsRef.collection("requests").add(orgasmRequestData);
-    
+
     if (currentUser === 'she') {
       // Send request to dominant
       const message = "🧎‍♀️ <b>Карина просит разрешения на оргазм</b>";
@@ -689,22 +688,63 @@ async function saveOrgasmRequest() {
       ];
 
       await sendTelegramMessage(message, inlineKeyboard, DOMINANT_CHAT_ID);
-      
+
       // Start polling for bot updates if not already active
       if (!isPollingActive) {
         startTelegramPolling();
       }
-      
+
       showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен доминанту!");
     } else {
       // If dominant is making request, auto-approve
       showOrgasmResponseNotification("✅ Автоматически разрешено", "success");
     }
-    
+
     return true;
   } catch (error) {
     console.error("Error saving orgasm request:", error);
     showOrgasmRequestNotification("❌ Ошибка отправки запроса");
+    return false;
+  }
+}
+
+async function sendCumCommand() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const timestamp = new Date().toISOString();
+
+    const cumCommandData = {
+      date: today,
+      timestamp: timestamp,
+      type: "cum_command",
+      status: "pending",
+      commandedBy: "Dominant",
+      message: "Карина, кончай, сучка!"
+    };
+
+    await orgasmRequestsRef.collection("commands").add(cumCommandData);
+
+    // Send command to submissive
+    const message = "🔥 <b>Карина, кончай, сучка!</b>";
+    const inlineKeyboard = [
+      [
+        { text: "Yes, sir", callback_data: "cum_yes_sir" }
+      ]
+    ];
+
+    await sendTelegramMessage(message, inlineKeyboard, SUBMISSIVE_CHAT_ID);
+
+    // Start polling for bot updates if not already active
+    if (!isPollingActive) {
+      startTelegramPolling();
+    }
+
+    showCumCommandNotification("🔥 Команда отправлена!");
+
+    return true;
+  } catch (error) {
+    console.error("Error sending cum command:", error);
+    showCumCommandNotification("❌ Ошибка отправки команды");
     return false;
   }
 }
@@ -714,7 +754,7 @@ async function updateOrgasmRequestStatus(status, approvedBy) {
   try {
     const today = new Date().toISOString().slice(0, 10);
     const timestamp = new Date().toISOString();
-    
+
     await orgasmRequestsRef.collection("requests").add({
       date: today,
       timestamp: timestamp,
@@ -731,10 +771,10 @@ async function updateOrgasmRequestStatus(status, approvedBy) {
 async function getTelegramUpdates() {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=3`;
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
-    
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -742,9 +782,9 @@ async function getTelegramUpdates() {
       },
       signal: controller.signal
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     if (!response.ok) {
       if (response.status === 409) {
         // Conflict - another bot instance is polling
@@ -760,11 +800,11 @@ async function getTelegramUpdates() {
     }
 
     const data = await response.json();
-    
+
     if (data.ok && data.result.length > 0) {
       for (const update of data.result) {
         lastUpdateId = update.update_id;
-        
+
         // Check for callback query (button press)
         if (update.callback_query) {
           await handleCallbackQuery(update.callback_query);
@@ -776,12 +816,12 @@ async function getTelegramUpdates() {
       // Timeout is normal for long polling, don't log as error
       return;
     }
-    
+
     // Reduce error logging frequency
     if (Math.random() < 0.1) { // Only log 10% of errors
       console.warn("Telegram polling issue:", error.message);
     }
-    
+
     // Stop polling on persistent errors
     if (error.message && (error.message.includes('401') || error.message.includes('403'))) {
       isPollingActive = false;
@@ -792,34 +832,48 @@ async function getTelegramUpdates() {
 // Handle callback queries from Telegram
 async function handleCallbackQuery(callbackQuery) {
   const callbackData = callbackQuery.data;
-  
+
   if (callbackData === "orgasm_allow") {
     showOrgasmResponseNotification("✅ Разрешаю", "success");
-    
+
     // Send confirmation to both chats
     await sendTelegramMessage("✅ <b>Orgasm Allowed</b>\n\nKarina has been granted permission.", null, DOMINANT_CHAT_ID);
-    
+
     // Answer the callback query
     await answerCallbackQuery(callbackQuery.id, "Разрешение отправлено Карине");
-    
+
     // Update request status in Firestore
     await updateOrgasmRequestStatus("allowed", "Anton");
-    
+
     // Stop polling after successful response
     isPollingActive = false;
-    
+
   } else if (callbackData === "orgasm_deny") {
     showOrgasmResponseNotification("❌ Запрещаю", "denied");
-    
+
     // Send confirmation to both chats
     await sendTelegramMessage("❌ <b>Orgasm Denied</b>\n\nKarina's request has been denied.", null, DOMINANT_CHAT_ID);
-    
+
     // Answer the callback query
     await answerCallbackQuery(callbackQuery.id, "Отказ отправлен Карине");
-    
+
     // Update request status in Firestore
     await updateOrgasmRequestStatus("denied", "Anton");
-    
+
+    // Stop polling after successful response
+    isPollingActive = false;
+  } else if (callbackData === "cum_yes_sir") {
+    showCumCommandResponseNotification("✅ Karina is cumming!", "success");
+
+    // Send confirmation to dominant
+    await sendTelegramMessage("✅ <b>Karina is ready to cum.</b>", null, DOMINANT_CHAT_ID);
+
+    // Answer the callback query
+    await answerCallbackQuery(callbackQuery.id, "Карина готова кончить");
+
+     // Send notification to dominant's app
+    showDominantCumNotification("Karina is ready to cum.");
+
     // Stop polling after successful response
     isPollingActive = false;
   }
@@ -828,7 +882,7 @@ async function handleCallbackQuery(callbackQuery) {
 async function answerCallbackQuery(callbackQueryId, text) {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`;
-    
+
     await fetch(url, {
       method: "POST",
       headers: {
@@ -851,10 +905,10 @@ const MAX_POLL_RETRIES = 3;
 
 function startTelegramPolling() {
   if (isPollingActive) return;
-  
+
   isPollingActive = true;
   pollRetryCount = 0;
-  
+
   const poll = async () => {
     if (!isPollingActive) {
       if (pollInterval) {
@@ -863,7 +917,7 @@ function startTelegramPolling() {
       }
       return;
     }
-    
+
     try {
       await getTelegramUpdates();
       pollRetryCount = 0; // Reset retry count on success
@@ -876,11 +930,11 @@ function startTelegramPolling() {
       }
     }
   };
-  
+
   // Start polling immediately, then every 4 seconds
   poll();
   pollInterval = setInterval(poll, 4000);
-  
+
   // Stop polling after 3 minutes to prevent excessive requests
   setTimeout(() => {
     stopTelegramPolling();
@@ -897,11 +951,11 @@ function stopTelegramPolling() {
 
 function showOrgasmResponseNotification(message, type) {
   const notification = document.createElement("div");
-  
+
   const bgColor = type === "success" ? 
     "linear-gradient(45deg, #4CAF50, #66BB6A)" : 
     "linear-gradient(45deg, #f44336, #ef5350)";
-  
+
   notification.style.cssText = `
     position: fixed;
     top: 50%;
@@ -919,7 +973,7 @@ function showOrgasmResponseNotification(message, type) {
     animation: bounceIn 0.5s ease-out;
     border: 3px solid white;
   `;
-  
+
   notification.textContent = message;
   document.body.appendChild(notification);
 
@@ -976,6 +1030,113 @@ function showOrgasmRequestNotification(message) {
   }, 3000);
 }
 
+function showCumCommandNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, #4081ff, #6b9eff);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(64, 129, 255, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+function showCumCommandResponseNotification(message, type) {
+  const notification = document.createElement("div");
+
+  const bgColor = type === "success" ? 
+    "linear-gradient(45deg, #4CAF50, #66BB6A)" : 
+    "linear-gradient(45deg, #f44336, #ef5350)";
+
+  notification.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: ${bgColor};
+    color: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    z-index: 10001;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    animation: bounceIn 0.5s ease-out;
+    border: 3px solid white;
+  `;
+
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  // Add bounceIn animation
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes bounceIn {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.05); }
+      70% { transform: translate(-50%, -50%) scale(0.9); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Add celebration hearts for approval
+  if (type === "success") {
+    for(let i = 0; i < 8; i++) {
+      setTimeout(createFloatingHeart, i * 100);
+    }
+  }
+
+  setTimeout(() => {
+    notification.style.animation = "fadeOut 0.3s ease-out forwards";
+    setTimeout(() => {
+      notification.remove();
+      style.remove();
+    }, 300);
+  }, 4000);
+}
+
+function showDominantCumNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #4081ff, #6b9eff);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
 // Authorization functions
 function showAuthorizationModal() {
   const authModal = document.createElement("div");
@@ -1004,16 +1165,16 @@ function showAuthorizationModal() {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(authModal);
   authModal.style.display = "flex";
-  
+
   // Add event listeners
   document.getElementById("auth-he").addEventListener("click", () => {
     authorizeUser('he');
     authModal.remove();
   });
-  
+
   document.getElementById("auth-she").addEventListener("click", () => {
     authorizeUser('she');
     authModal.remove();
@@ -1024,10 +1185,10 @@ function authorizeUser(userType) {
   currentUser = userType;
   isAuthorized = true;
   localStorage.setItem('currentUser', userType);
-  
+
   // Update UI based on user type
   updateUIForUser(userType);
-  
+
   // Show authorization success
   const message = userType === 'he' ? "👨 Authorized as Dominant" : "👩 Authorized as Submissive";
   showAuthNotification(message);
@@ -1044,7 +1205,7 @@ function updateUIForUser(userType) {
     titleText.textContent = "KARINA'S ORGASM-O-MATIC";
     document.body.style.setProperty('--primary-color', '#ff4081');
   }
-  
+
   // Show user info
   const userInfo = document.getElementById("user-info");
   const userDisplay = document.getElementById("current-user-display");
@@ -1052,11 +1213,19 @@ function updateUIForUser(userType) {
     userDisplay.textContent = userType === 'he' ? '👨 Dominant Mode' : '👩 Submissive Mode';
     userInfo.style.display = 'block';
   }
-  
+
   // Show/hide certain buttons based on user type
   const orgasmBtn = document.getElementById("orgasm-request-btn");
+  const cumCommandBtn = document.getElementById("cum-command-btn");
+
   if (orgasmBtn) {
-    orgasmBtn.style.display = userType === 'she' ? 'block' : 'none';
+    // Only show orgasm request for submissive user
+    orgasmBtn.style.display = userType === 'she' ? 'inline-block' : 'none';
+  }
+
+  if (cumCommandBtn) {
+    // Only show cum command for dominant user
+    cumCommandBtn.style.display = userType === 'he' ? 'inline-block' : 'none';
   }
 }
 
@@ -1064,18 +1233,18 @@ function logout() {
   currentUser = null;
   isAuthorized = false;
   localStorage.removeItem('currentUser');
-  
+
   // Hide user info
   const userInfo = document.getElementById("user-info");
   if (userInfo) {
     userInfo.style.display = 'none';
   }
-  
+
   // Reset title
   const titleElement = document.querySelector('.title');
   const titleText = titleElement.firstChild;
   titleText.textContent = "KARINA'S ORGASM-O-MATIC";
-  
+
   // Show authorization modal
   showAuthorizationModal();
 }
@@ -1170,7 +1339,7 @@ document.addEventListener("DOMContentLoaded", function () {
     punishmentAccept.addEventListener("click", async () => {
       if (currentPunishment) {
         await savePunishment(currentPunishment);
-        
+
         // Add some hearts for acceptance
         for(let i = 0; i < 3; i++) {
           setTimeout(createFloatingHeart, i * 200);
@@ -1183,7 +1352,7 @@ document.addEventListener("DOMContentLoaded", function () {
     punishmentDone.addEventListener("click", async () => {
       await completePunishment();
       punishmentModal.style.display = "none";
-      
+
       // Add celebration hearts
       for(let i = 0; i < 5; i++) {
         setTimeout(createFloatingHeart, i * 150);
@@ -1225,7 +1394,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (currentPhotoTask) {
         await savePhotoGameTask(currentPhotoTask);
         photoGameModal.style.display = "none";
-        
+
         // Add some hearts for celebration
         for(let i = 0; i < 3; i++) {
           setTimeout(createFloatingHeart, i * 200);
@@ -1238,7 +1407,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!checkAuthorization()) {
     return; // Don't initialize app until authorized
   }
-  
+
   // Update UI for current user
   if (currentUser) {
     updateUIForUser(currentUser);
@@ -1275,9 +1444,49 @@ document.addEventListener("DOMContentLoaded", function () {
       const success = await saveOrgasmRequest();
       if (success) {
         orgasmRequestModal.style.display = "none";
-        
+
         // Add some hearts for celebration
         for(let i = 0; i < 5; i++) {
+          setTimeout(createFloatingHeart, i * 150);
+        }
+      }
+    });
+  }
+
+   // Cum Command modal handling
+  const cumCommandBtn = document.getElementById("cum-command-btn");
+  const cumCommandModal = document.getElementById("cum-command-modal");
+  const closeCumCommand = document.getElementById("close-cum-command");
+  const cumCommandSend = document.getElementById("cum-command-send");
+  const cumCommandCancel = document.getElementById("cum-command-cancel");
+
+  if (cumCommandBtn && cumCommandModal) {
+    cumCommandBtn.addEventListener("click", () => {
+      if (!checkAuthorization()) return;
+      cumCommandModal.style.display = "flex";
+    });
+  }
+
+  if (closeCumCommand && cumCommandModal) {
+    closeCumCommand.addEventListener("click", () => {
+      cumCommandModal.style.display = "none";
+    });
+  }
+
+  if (cumCommandCancel && cumCommandModal) {
+    cumCommandCancel.addEventListener("click", () => {
+      cumCommandModal.style.display = "none";
+    });
+  }
+
+  if (cumCommandSend && cumCommandModal) {
+    cumCommandSend.addEventListener("click", async () => {
+      const success = await sendCumCommand();
+      if (success) {
+        cumCommandModal.style.display = "none";
+
+        // Add some hearts for celebration
+        for (let i = 0; i < 5; i++) {
           setTimeout(createFloatingHeart, i * 150);
         }
       }
@@ -1380,7 +1589,7 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem('soundEnabled', soundEnabled);
     const soundBtn = document.getElementById("sound-toggle-btn");
     soundBtn.textContent = soundEnabled ? "🔊 SOUND" : "🔇 SOUND";
-    
+
     // Play test sound when enabling
     if (soundEnabled) {
       playSound('success');
@@ -1402,10 +1611,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if ('vibrate' in navigator) {
         navigator.vibrate(50);
       }
-      
+
       // Play sound effect
       playSound('increment');
-      
+
       const snapshot = await docRef.get();
       const currentCount = snapshot.exists ? snapshot.data().count : 0;
       counter = currentCount + increment;
@@ -1424,7 +1633,7 @@ document.addEventListener("DOMContentLoaded", function () {
         history: incrementHistory
       }, { merge: true });
       await updateFirestoreStats(increment);
-      
+
       // Show temporary feedback
       showSavedIndicator();
     } catch (e) {
