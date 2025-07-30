@@ -15,6 +15,60 @@ const docRef = db.collection("users").doc("karina");
 const statsRef = db.collection("users").doc("karina_stats");
 const photoGamesRef = db.collection("users").doc("karina_photo_games");
 const orgasmRequestsRef = db.collection("users").doc("karina_orgasm_requests");
+const punishmentsRef = db.collection("users").doc("karina_punishments");
+
+// Punishment tasks data
+const punishmentTasks = [
+  { "type": "punishment", "description": "7 минут на гречке + аудио 'я виновата' + фото коленей" },
+  { "type": "punishment", "description": "10 приседаний + написать 'Я буду послушной' 20 раз" },
+  { "type": "punishment", "description": "5 минут стоять в углу + аудио извинения + селфи с опущенными глазами" },
+  { "type": "punishment", "description": "Холодный душ 2 минуты + видео как дрожишь" },
+  { "type": "punishment", "description": "15 отжиманий + аудио 'Я заслуживаю наказания'" },
+  { "type": "punishment", "description": "Написать письмо-извинение + прочитать вслух на аудио" },
+  { "type": "punishment", "description": "Снять трусики и держать их во рту 3 минуты + фото" },
+  { "type": "punishment", "description": "Видео с фразой 'Я глупая девочка и заслуживаю наказания'" },
+  { "type": "punishment", "description": "Стоять с поднятыми руками 5 минут + фото" },
+  { "type": "punishment", "description": "Нарисовать на теле слово 'непослушная' и сфотографировать" },
+  { "type": "punishment", "description": "5 минут на коленях на полу + аудио 'я сожалею'" },
+  { "type": "punishment", "description": "Надеть что-то стыдное и сделать 3 фото" },
+  { "type": "punishment", "description": "Полоскание рта водой с солью 30 сек + видео реакции" },
+  { "type": "punishment", "description": "Описать в тексте 5 своих ошибок + отправить скрин" },
+  { "type": "punishment", "description": "5 минут в позе покаяния + аудио 'прости меня'" },
+  { "type": "punishment", "description": "20 прыжков на месте + селфи после с потным лицом" },
+  { "type": "punishment", "description": "Записать видео, где умоляешь о прощении" },
+  { "type": "punishment", "description": "Нарисовать себя наказанной и отправить фото рисунка" },
+  { "type": "punishment", "description": "Ползать 3 минуты по полу + видео" },
+  { "type": "punishment", "description": "Один час тишины — без общения и телефона" },
+  { "type": "punishment", "description": "Видео, где говоришь 'я разочаровала тебя'" },
+  { "type": "punishment", "description": "Один день без нижнего белья + отчёт вечером" },
+  { "type": "punishment", "description": "Сделать 10 поклонов + аудио с каждым 'Прости меня'" },
+  { "type": "punishment", "description": "Записать 1 минуту стона без прикосновений" },
+  { "type": "punishment", "description": "Фраза 'я глупая девочка' написана на теле + фото" },
+  { "type": "punishment", "description": "Выставить себя в неловкой позе и сфотографироваться" },
+  { "type": "punishment", "description": "5 минут с прикушенной губой + фото" },
+  { "type": "punishment", "description": "Публично сказать 'я непослушная' (в аудио)" },
+  { "type": "punishment", "description": "Сделать себе 'ошейник' из подручных средств + фото" },
+  { "type": "punishment", "description": "Надеть что-то вызывающее и снять 3 селфи" },
+  { "type": "punishment", "description": "1 час без комфорта: сесть на жёсткий пол + отчёт" },
+  { "type": "punishment", "description": "Написать 3 причины, за что тебя надо наказать" },
+  { "type": "punishment", "description": "Промолчать час и не жаловаться ни на что" },
+  { "type": "punishment", "description": "Устроить показательный 'стыд' и записать видео" },
+  { "type": "punishment", "description": "Видео на 10 секунд: 'я проиграла свою волю'" },
+  { "type": "punishment", "description": "Снять 3 фото в разных позах покорности" },
+  { "type": "punishment", "description": "Отказ от сладкого на сутки + аудио отчёт вечером" },
+  { "type": "punishment", "description": "Написать 20 раз 'я не буду спорить' + фото" },
+  { "type": "punishment", "description": "Поза 'наказанной школьницы' 5 минут + фото" },
+  { "type": "punishment", "description": "Сделать 5 шпагатов или попыток + видео" },
+  { "type": "punishment", "description": "Заставить себя заплакать и сфотографироваться" },
+  { "type": "punishment", "description": "Сказать 'я игрушка' и снять аудио" },
+  { "type": "punishment", "description": "30 секунд в позе 'собаки' + фото" },
+  { "type": "punishment", "description": "Снять себя с завязанными глазами + аудио покорности" },
+  { "type": "punishment", "description": "Сделать 5 фото со связанными руками (символически)" },
+  { "type": "punishment", "description": "Подразнить и не кончить — аудио сдерживания" },
+  { "type": "punishment", "description": "1 час без зеркала и макияжа + фото" },
+  { "type": "punishment", "description": "Нарисовать себе след от шлёпка + фото" },
+  { "type": "punishment", "description": "Записать аудио 'я готова принять любое наказание'" }
+];
 
 // Photo game tasks data
 const photoGameTasks = [
@@ -41,13 +95,233 @@ const photoGameTasks = [
   {
     "title": "Фитнес-тренер",
     "description": "Ты спортивный тренер. Сделай 5 фото в спортивной форме: растяжка, упражнения, подчёркивающие твою фигуру."
+  },
+  {
+    "title": "Школьница",
+    "description": "Ты непослушная ученица. Сделай 5 фото с ремнём, доской, на коленях у парты."
+  },
+  {
+    "title": "Игрушка",
+    "description": "Ты моя кукла. Сделай 4 фото с пустым взглядом, в нелепых позах и детских аксессуарах."
+  },
+  {
+    "title": "Кошечка",
+    "description": "Ты моя киска. Сделай 6 фото с ушками, ошейником, на четвереньках и с язычком наружу."
+  },
+  {
+    "title": "Ждущая наказания",
+    "description": "Ты провинилась. Сделай 5 фото в углу, на коленях, со связанными руками или взглядом вниз."
+  },
+  {
+    "title": "Подарок",
+    "description": "Ты подарок. Сделай 4 фото, обмотав себя лентами или бантами, как сюрприз для меня."
+  },
+  {
+    "title": "Пижамная непослушная",
+    "description": "Ты в пижаме, но шалишь. Сделай 5 фото с одеялом, в кровати, в игривых позах."
+  },
+  {
+    "title": "Ванная сцена",
+    "description": "Ты мокрая и послушная. Сделай 4 фото в ванне или душе, с каплями воды и мыльной пеной."
+  },
+  {
+    "title": "Наказанная",
+    "description": "Ты наказана. Сделай 5 фото в позах подчинения, с надписями на теле (например, 'непослушная')."
+  },
+  {
+    "title": "Домашняя стриптизёрша",
+    "description": "Ты танцуешь для меня. Сделай 5 фото с медленным снятием одежды и страстным взглядом."
+  },
+  {
+    "title": "Телесная исповедь",
+    "description": "Ты рассказываешь телом. Сделай 4 фото с надписями на теле: 'прости', 'виновата', 'твоя'."
+  },
+  {
+    "title": "Зеркало",
+    "description": "Ты играешь с отражением. Сделай 5 фото у зеркала: фронт, бок, сзади, взгляд в глаза себе."
+  },
+  {
+    "title": "Кухонная сцена",
+    "description": "Ты 'забылась' на кухне. Сделай 4 фото во фартуке без белья, наклоняясь над плитой или столом."
+  },
+  {
+    "title": "Служанка из прошлого",
+    "description": "Ты викторианская горничная. Сделай 5 фото в классической позе, со свечами, книгами или щёткой."
+  },
+  {
+    "title": "Невинная под юбкой",
+    "description": "Ты играешь с воображением. Сделай 5 фото в юбке, с видимыми краями белья или без него."
+  },
+  {
+    "title": "Прозрачная непокорность",
+    "description": "Ты в прозрачной одежде. Сделай 4 фото в ночнушке или тонкой ткани на просвет."
+  },
+  {
+    "title": "Танцовщица",
+    "description": "Ты как на сцене. Сделай 5 фото в движении, с волосами, бросающимися в глаза и телом в ритме."
+  },
+  {
+    "title": "Гимнастка",
+    "description": "Ты гнёшься ради меня. Сделай 4 фото с растяжкой, шпагатом, мостиком или позами гибкости."
+  },
+  {
+    "title": "Сельская простушка",
+    "description": "Ты на поле. Сделай 4 фото в рубашке, босиком, с соломой или банкой варенья."
+  },
+  {
+    "title": "Книга грехов",
+    "description": "Ты читаешь книгу. Сделай 5 фото с эротичной позой и текстом на теле или в книге."
+  },
+  {
+    "title": "Звонок Доминанту",
+    "description": "Ты только что позвонила. Сделай 4 фото с телефоном у губ, страстным или покорным выражением лица."
+  },
+  {
+    "title": "В ожидании",
+    "description": "Ты ждёшь меня. Сделай 5 фото у двери, на стуле, с раскрытыми руками или ногами."
+  },
+  {
+    "title": "Запретный флирт",
+    "description": "Ты знаешь, что нельзя. Сделай 5 фото, флиртуя с камерой, но оставаясь одетой (почти)."
+  },
+  {
+    "title": "Чулки и послушание",
+    "description": "Ты в чулках. Сделай 4 фото с медленным натягиванием или снятием чулков."
+  },
+  {
+    "title": "Наказание текстом",
+    "description": "Ты описываешь себя. Напиши 5 фраз на теле и сделай 5 фото с разных ракурсов."
+  },
+  {
+    "title": "Застенчивая развратница",
+    "description": "Ты смущаешься. Сделай 4 фото, где прячешь лицо, но показываешь тело."
+  },
+  {
+    "title": "Коврик под ногами",
+    "description": "Ты внизу. Сделай 4 фото с нижнего ракурса — будто ты у ног хозяина."
+  },
+  {
+    "title": "Наказанная письмом",
+    "description": "Ты пишешь. Сделай 5 фото с текстом извинений, ручкой во рту, в покорной позе."
+  },
+  {
+    "title": "Ошейник и поводок",
+    "description": "Ты на привязи. Сделай 4 фото с шарфом или ремнём как поводком."
+  },
+  {
+    "title": "Ночная игрушка",
+    "description": "Ты принадлежишь ночью. Сделай 4 фото в темноте с яркой подсветкой или свечой."
+  },
+  {
+    "title": "Грязная фантазия",
+    "description": "Ты испачкана. Сделай 5 фото с кремом, маслом, вареньем или пеной на теле."
+  },
+  {
+    "title": "Селфи подчинения",
+    "description": "Ты отправляешь селфи. Сделай 5 фото, смотря в камеру и прикусывая губу."
+  },
+  {
+    "title": "Точка Gлаз",
+    "description": "Ты соблазняешь глазами. Сделай 4 фото крупным планом взгляда, без слов."
+  },
+  {
+    "title": "Винтажная развратница",
+    "description": "Ты из прошлого. Сделай 4 фото в чулках, перчатках, с винтажными аксессуарами."
+  },
+  {
+    "title": "Блондиночка наказана",
+    "description": "Ты ломаешь образ. Сделай 4 фото как стереотипная блондинка, но покорная."
+  },
+  {
+    "title": "Под столом",
+    "description": "Ты там, где тебя не видно. Сделай 3 фото под столом — на коленях, под креслом, как игрушка."
+  },
+  {
+    "title": "В ожидании команды",
+    "description": "Ты слушаешь. Сделай 4 фото с телефоном рядом, взглядом в экран и телом в ожидании."
+  },
+  {
+    "title": "Сексуальная тень",
+    "description": "Ты в силуэте. Сделай 5 фото с задней подсветкой, чтобы были видны только очертания тела."
+  },
+  {
+    "title": "Прислуга в ожидании",
+    "description": "Ты ничем не занята. Сделай 4 фото с тряпкой, пылесосом или метлой, но без одежды."
+  },
+  {
+    "title": "Контроль белья",
+    "description": "Ты не носишь его. Сделай 3 фото в юбке без трусиков или с трусиками в руке."
+  },
+  {
+    "title": "Ты без прав",
+    "description": "Ты под контролем. Сделай 5 фото с запиской 'не принадлежу себе'."
+  },
+  {
+    "title": "Послушная поза",
+    "description": "Ты застываешь. Сделай 4 фото в статичных позах: стоя, сидя, на четвереньках, лёжа."
+  },
+  {
+    "title": "Сексуальный беспорядок",
+    "description": "Ты после бурной ночи. Сделай 5 фото в растрёпанном виде: скомканные простыни, слезы, следы на теле."
+  },
+  {
+    "title": "Фантазия без контроля",
+    "description": "Ты забылась. Сделай 5 фото, будто тебя застали врасплох за фантазией."
   }
 ];
 
 let counter = 0;
 let incrementHistory = [];
 let currentPhotoTask = null;
+let currentPunishment = null;
+let currentPunishmentId = null;
 const MAX_HISTORY = 100;
+let soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; // Default to true
+
+// Sound effects
+function playSound(type) {
+  if (!soundEnabled) return;
+  
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let frequency, duration;
+  
+  switch(type) {
+    case 'increment':
+      frequency = 800;
+      duration = 0.1;
+      break;
+    case 'achievement':
+      frequency = 600;
+      duration = 0.3;
+      break;
+    case 'success':
+      frequency = 900;
+      duration = 0.2;
+      break;
+    case 'error':
+      frequency = 300;
+      duration = 0.3;
+      break;
+    default:
+      frequency = 500;
+      duration = 0.1;
+  }
+  
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = frequency;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + duration);
+}
 
 function updateDisplay() {
   const percent = Math.min(counter / 100, 1) * 100;
@@ -74,12 +348,38 @@ function updateStatsDisplay(data) {
   document.getElementById("stat-record").textContent = `Record: ${data.record || 0}`;
 }
 
+function updateStreakDisplay(data) {
+  const streakCount = document.getElementById("streak-count");
+  const dailyProgress = document.getElementById("daily-progress");
+  
+  if (streakCount) {
+    streakCount.textContent = data.streak || 0;
+  }
+  
+  if (dailyProgress) {
+    const today = data.today || 0;
+    dailyProgress.textContent = today;
+    
+    // Change color based on progress
+    const streakInfo = document.getElementById("streak-info");
+    if (today >= 10) {
+      streakInfo.style.color = "#4CAF50"; // Green when goal reached
+    } else if (today >= 7) {
+      streakInfo.style.color = "#ff9ec6"; // Pink when close
+    } else {
+      streakInfo.style.color = "#ffb6d5"; // Default
+    }
+  }
+}
+
 async function updateFirestoreStats(increment = 1) {
   const todayKey = new Date().toISOString().slice(0, 10);
+  const yesterdayKey = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  
   try {
     const snapshot = await statsRef.get();
     let data = snapshot.exists ? snapshot.data() : {
-      today: 0, week: 0, month: 0, record: 0, lastUpdated: todayKey
+      today: 0, week: 0, month: 0, record: 0, lastUpdated: todayKey, streak: 0, lastStreakUpdate: todayKey
     };
 
     if (increment < 0) {
@@ -88,7 +388,26 @@ async function updateFirestoreStats(increment = 1) {
       data.week = Math.max(0, (data.week || 0) + increment);
       data.month = Math.max(0, (data.month || 0) + increment);
     } else {
-      data.today = data.lastUpdated === todayKey ? (data.today || 0) + increment : increment;
+      // Handle day change
+      if (data.lastUpdated !== todayKey) {
+        // Check if streak should continue
+        if (data.lastStreakUpdate === yesterdayKey && (data.today || 0) >= 10) {
+          data.streak = (data.streak || 0) + 1;
+        } else if (data.lastStreakUpdate !== yesterdayKey && data.lastStreakUpdate !== todayKey) {
+          data.streak = 0; // Reset streak if gap
+        }
+        data.today = increment;
+        data.lastStreakUpdate = todayKey;
+      } else {
+        data.today = (data.today || 0) + increment;
+      }
+      
+      // Update weekly goal progress (if reached daily goal of 10)
+      if (data.today >= 10 && data.lastStreakUpdate !== todayKey) {
+        data.streak = (data.streak || 0) + 1;
+        data.lastStreakUpdate = todayKey;
+      }
+      
       data.week = (data.week || 0) + increment;
       data.month = (data.month || 0) + increment;
       data.record = Math.max(data.record || 0, counter);
@@ -97,6 +416,7 @@ async function updateFirestoreStats(increment = 1) {
 
     await statsRef.set(data);
     updateStatsDisplay(data);
+    updateStreakDisplay(data);
   } catch (e) {
     console.error("Error updating stats:", e);
   }
@@ -108,7 +428,9 @@ async function loadStats() {
   try {
     const snapshot = await statsRef.get();
     if (snapshot.exists) {
-      updateStatsDisplay(snapshot.data());
+      const data = snapshot.data();
+      updateStatsDisplay(data);
+      updateStreakDisplay(data);
     }
   } catch (e) {
     console.error("Failed to load stats:", e);
@@ -183,6 +505,98 @@ function showPhotoGameNotification(message) {
   }, 3000);
 }
 
+// Punishment functionality
+function getRandomPunishment() {
+  const randomIndex = Math.floor(Math.random() * punishmentTasks.length);
+  return punishmentTasks[randomIndex];
+}
+
+function displayPunishment(punishment) {
+  document.getElementById("punishment-description").textContent = punishment.description;
+  currentPunishment = punishment;
+}
+
+async function savePunishment(punishment) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const timestamp = new Date().toISOString();
+    
+    const punishmentData = {
+      date: today,
+      timestamp: timestamp,
+      type: "punishment",
+      description: punishment.description,
+      status: "pending"
+    };
+
+    const docRef = await punishmentsRef.collection("tasks").add(punishmentData);
+    currentPunishmentId = docRef.id;
+    
+    // Send punishment to Telegram bot
+    const message = `🩸 <b>Punishment for Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
+    await sendTelegramMessage(message);
+    
+    // Show success notification and enable completion button
+    showPunishmentNotification("🩸 Punishment assigned!");
+    document.getElementById("punishment-completed").style.display = "block";
+    
+  } catch (error) {
+    console.error("Error saving punishment:", error);
+    showPunishmentNotification("❌ Error saving punishment");
+  }
+}
+
+async function completePunishment() {
+  if (!currentPunishmentId) return;
+  
+  try {
+    await punishmentsRef.collection("tasks").doc(currentPunishmentId).update({
+      status: "done",
+      completedAt: new Date().toISOString()
+    });
+    
+    // Send completion notification to Telegram
+    const message = `✅ <b>Punishment Completed</b>\n\nКарина выполнила наказание:\n${currentPunishment.description}`;
+    await sendTelegramMessage(message);
+    
+    showPunishmentNotification("✅ Punishment completed!");
+    
+    // Reset punishment state
+    currentPunishment = null;
+    currentPunishmentId = null;
+    document.getElementById("punishment-completed").style.display = "none";
+    
+  } catch (error) {
+    console.error("Error completing punishment:", error);
+    showPunishmentNotification("❌ Error completing punishment");
+  }
+}
+
+function showPunishmentNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, #ff4081, #ff9ec6);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
 // Telegram bot configuration
 const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
 const TELEGRAM_CHAT_ID = "1221598";
@@ -224,6 +638,9 @@ async function sendTelegramMessage(message, inlineKeyboard = null) {
 }
 
 // Orgasm Request functionality
+let lastUpdateId = 0;
+let isPollingActive = false;
+
 async function saveOrgasmRequest() {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -251,6 +668,11 @@ async function saveOrgasmRequest() {
 
     await sendTelegramMessage(message, inlineKeyboard);
     
+    // Start polling for bot updates if not already active
+    if (!isPollingActive) {
+      startTelegramPolling();
+    }
+    
     // Show success notification
     showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен в Telegram!");
     
@@ -260,6 +682,203 @@ async function saveOrgasmRequest() {
     showOrgasmRequestNotification("❌ Ошибка отправки запроса");
     return false;
   }
+}
+
+// Telegram bot polling for callback responses
+async function getTelegramUpdates() {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(8000) // 8 second timeout
+    });
+    
+    if (!response.ok) {
+      if (response.status === 409) {
+        // Conflict - another bot instance is polling
+        isPollingActive = false;
+        return;
+      }
+      throw new Error(`Telegram API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.ok && data.result.length > 0) {
+      for (const update of data.result) {
+        lastUpdateId = update.update_id;
+        
+        // Check for callback query (button press)
+        if (update.callback_query) {
+          const callbackData = update.callback_query.data;
+          
+          if (callbackData === "orgasm_allow") {
+            showOrgasmResponseNotification("✅ Разрешаю", "success");
+            
+            // Answer the callback query to remove loading state from button
+            await answerCallbackQuery(update.callback_query.id, "Разрешение отправлено Карине");
+            
+            // Stop polling after successful response
+            isPollingActive = false;
+            
+          } else if (callbackData === "orgasm_deny") {
+            showOrgasmResponseNotification("❌ Запрещаю", "denied");
+            
+            // Answer the callback query
+            await answerCallbackQuery(update.callback_query.id, "Отказ отправлен Карине");
+            
+            // Stop polling after successful response
+            isPollingActive = false;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+      // Timeout is normal for long polling, don't log as error
+      return;
+    }
+    
+    // Only log actual errors, not timeouts
+    if (error.message && !error.message.includes('timeout')) {
+      console.warn("Telegram polling issue:", error.message);
+    }
+    
+    // Stop polling on persistent errors
+    if (error.message && (error.message.includes('401') || error.message.includes('403'))) {
+      isPollingActive = false;
+    }
+  }
+}
+
+async function answerCallbackQuery(callbackQueryId, text) {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`;
+    
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        callback_query_id: callbackQueryId,
+        text: text,
+        show_alert: false
+      })
+    });
+  } catch (error) {
+    console.error("Error answering callback query:", error);
+  }
+}
+
+let pollInterval = null;
+let pollRetryCount = 0;
+const MAX_POLL_RETRIES = 3;
+
+function startTelegramPolling() {
+  if (isPollingActive) return;
+  
+  isPollingActive = true;
+  pollRetryCount = 0;
+  
+  const poll = async () => {
+    if (!isPollingActive) {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+      return;
+    }
+    
+    try {
+      await getTelegramUpdates();
+      pollRetryCount = 0; // Reset retry count on success
+    } catch (error) {
+      pollRetryCount++;
+      if (pollRetryCount >= MAX_POLL_RETRIES) {
+        console.warn("Max polling retries reached, stopping polling");
+        stopTelegramPolling();
+        return;
+      }
+    }
+  };
+  
+  // Start polling immediately, then every 4 seconds
+  poll();
+  pollInterval = setInterval(poll, 4000);
+  
+  // Stop polling after 3 minutes to prevent excessive requests
+  setTimeout(() => {
+    stopTelegramPolling();
+  }, 180000); // 3 minutes
+}
+
+function stopTelegramPolling() {
+  isPollingActive = false;
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+}
+
+function showOrgasmResponseNotification(message, type) {
+  const notification = document.createElement("div");
+  
+  const bgColor = type === "success" ? 
+    "linear-gradient(45deg, #4CAF50, #66BB6A)" : 
+    "linear-gradient(45deg, #f44336, #ef5350)";
+  
+  notification.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: ${bgColor};
+    color: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    z-index: 10001;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    animation: bounceIn 0.5s ease-out;
+    border: 3px solid white;
+  `;
+  
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  // Add bounceIn animation
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes bounceIn {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.05); }
+      70% { transform: translate(-50%, -50%) scale(0.9); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Add celebration hearts for approval
+  if (type === "success") {
+    for(let i = 0; i < 8; i++) {
+      setTimeout(createFloatingHeart, i * 100);
+    }
+  }
+
+  setTimeout(() => {
+    notification.style.animation = "fadeOut 0.3s ease-out forwards";
+    setTimeout(() => {
+      notification.remove();
+      style.remove();
+    }, 300);
+  }, 4000);
 }
 
 function showOrgasmRequestNotification(message) {
@@ -305,6 +924,62 @@ document.addEventListener("DOMContentLoaded", function () {
   setInterval(createFloatingHeart, 600);
   for(let i = 0; i < 5; i++) {
     setTimeout(createFloatingHeart, i * 200);
+  }
+
+  // Punishment modal handling
+  const punishmentBtn = document.getElementById("punishment-btn");
+  const punishmentModal = document.getElementById("punishment-modal");
+  const closePunishment = document.getElementById("close-punishment");
+  const punishmentAccept = document.getElementById("punishment-accept");
+  const punishmentNew = document.getElementById("punishment-new");
+  const punishmentDone = document.getElementById("punishment-done");
+
+  if (punishmentBtn && punishmentModal) {
+    punishmentBtn.addEventListener("click", () => {
+      const punishment = getRandomPunishment();
+      displayPunishment(punishment);
+      document.getElementById("punishment-completed").style.display = "none";
+      punishmentModal.style.display = "flex";
+    });
+  }
+
+  if (closePunishment && punishmentModal) {
+    closePunishment.addEventListener("click", () => {
+      punishmentModal.style.display = "none";
+    });
+  }
+
+  if (punishmentNew) {
+    punishmentNew.addEventListener("click", () => {
+      const punishment = getRandomPunishment();
+      displayPunishment(punishment);
+      document.getElementById("punishment-completed").style.display = "none";
+    });
+  }
+
+  if (punishmentAccept && punishmentModal) {
+    punishmentAccept.addEventListener("click", async () => {
+      if (currentPunishment) {
+        await savePunishment(currentPunishment);
+        
+        // Add some hearts for acceptance
+        for(let i = 0; i < 3; i++) {
+          setTimeout(createFloatingHeart, i * 200);
+        }
+      }
+    });
+  }
+
+  if (punishmentDone && punishmentModal) {
+    punishmentDone.addEventListener("click", async () => {
+      await completePunishment();
+      punishmentModal.style.display = "none";
+      
+      // Add celebration hearts
+      for(let i = 0; i < 5; i++) {
+        setTimeout(createFloatingHeart, i * 150);
+      }
+    });
   }
 
   // Photo Game modal handling
@@ -457,6 +1132,9 @@ document.addEventListener("DOMContentLoaded", function () {
     text.textContent = title;
     notification.style.display = "block";
 
+    // Play achievement sound
+    playSound('achievement');
+
     // Add sparkle animation
     for(let i = 0; i < 5; i++) {
       createFloatingHeart();
@@ -465,6 +1143,27 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       notification.style.display = "none";
     }, 3000);
+  }
+
+  function showSavedIndicator() {
+    const indicator = document.getElementById("saved-indicator");
+    indicator.classList.add("show");
+    setTimeout(() => {
+      indicator.classList.remove("show");
+    }, 1000);
+  }
+
+  // Sound toggle functionality
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('soundEnabled', soundEnabled);
+    const soundBtn = document.getElementById("sound-toggle-btn");
+    soundBtn.textContent = soundEnabled ? "🔊 SOUND" : "🔇 SOUND";
+    
+    // Play test sound when enabling
+    if (soundEnabled) {
+      playSound('success');
+    }
   }
 
   function checkAchievements(count) {
@@ -482,6 +1181,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if ('vibrate' in navigator) {
         navigator.vibrate(50);
       }
+      
+      // Play sound effect
+      playSound('increment');
+      
       const snapshot = await docRef.get();
       const currentCount = snapshot.exists ? snapshot.data().count : 0;
       counter = currentCount + increment;
@@ -500,8 +1203,12 @@ document.addEventListener("DOMContentLoaded", function () {
         history: incrementHistory
       }, { merge: true });
       await updateFirestoreStats(increment);
+      
+      // Show temporary feedback
+      showSavedIndicator();
     } catch (e) {
       console.error("Increment error:", e);
+      playSound('error');
     }
   }
 
@@ -590,6 +1297,16 @@ document.addEventListener("DOMContentLoaded", function () {
     lastResults.style.display = lastResults.style.display === "block" ? "none" : "block";
     lastResults.style.opacity = lastResults.style.display === "block" ? "1" : "0";
   });
+
+  // Sound toggle button
+  const soundToggleBtn = document.getElementById("sound-toggle-btn");
+  if (soundToggleBtn) {
+    soundToggleBtn.textContent = soundEnabled ? "🔊 SOUND" : "🔇 SOUND";
+    soundToggleBtn.addEventListener("click", toggleSound);
+  }
+
+  // Load initial streak data
+  loadStats();
 
   // Listen for counter updates
   docRef.onSnapshot((doc) => {

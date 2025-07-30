@@ -837,6 +837,9 @@ body.lock-scroll {
       <div class="count-label">TOTAL COUNT</div>
       <div class="count-value" id="counter-display">0</div>
       <div class="timestamp" id="last-timestamp">Last: --:--:--</div>
+      <div class="streak-info" id="streak-info" style="font-size: 9px; color: #ffb6d5; margin-top: 8px;">
+        🔥 Streak: <span id="streak-count">0</span> days | 🎯 Today: <span id="daily-progress">0</span>/10
+      </div>
     </div>
 
     <div class="progress-wrapper">
@@ -857,7 +860,9 @@ body.lock-scroll {
       <button id="increment-btn">➕ ADD ONE</button>
       <button id="location-btn">📍 LOCATION</button>
       <button id="photo-game-btn">📷 PHOTO GAME</button>
+      <button id="punishment-btn">🩸 PUNISH ME</button>
       <button id="orgasm-request-btn">🧎‍♀️ REQUEST ORGASM</button>
+      <button id="sound-toggle-btn">🔊 SOUND</button>
       <button id="undo-btn">⤺ UNDO</button>
       <button id="reset-btn">⟳ RESET</button>
       <button id="stats-btn">📊 STATS</button>
@@ -910,6 +915,32 @@ body.lock-scroll {
         </button>
         <button id="photo-game-new" class="full-width" style="background: linear-gradient(145deg, #6b9eff, #4081ff);">
           🔄 NEW TASK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Punishment Modal -->
+  <div id="punishment-modal" class="modal-overlay">
+    <div class="modal-content" style="width: 320px; max-width: 95%;">
+      <div class="modal-header">
+        <span>🩸 PUNISHMENT</span>
+        <button class="close-btn" id="close-punishment">✖</button>
+      </div>
+      <div id="punishment-content" style="text-align: left; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 15px 0;">
+        <div id="punishment-description"></div>
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button id="punishment-accept" class="full-width" style="background: linear-gradient(145deg, #ff4081, #ff6b9e);">
+          ✅ ACCEPT PUNISHMENT
+        </button>
+        <button id="punishment-new" class="full-width" style="background: linear-gradient(145deg, #6b9eff, #4081ff);">
+          🔄 NEW PUNISHMENT
+        </button>
+      </div>
+      <div id="punishment-completed" style="display: none; margin-top: 15px;">
+        <button id="punishment-done" class="full-width" style="background: linear-gradient(145deg, #4CAF50, #66BB6A);">
+          ✅ ВЫПОЛНЕНО
         </button>
       </div>
     </div>
