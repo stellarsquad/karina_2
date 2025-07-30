@@ -145,8 +145,12 @@ async function savePhotoGameTask(task) {
 
     await photoGamesRef.collection("tasks").add(photoGameData);
     
+    // Send task to Telegram bot
+    const message = `📷 <b>Photo Game Task for Karina</b>\n\n<b>${task.title}</b>\n\n${task.description}`;
+    await sendTelegramMessage(message);
+    
     // Show success notification
-    showPhotoGameNotification("📷 Task sent successfully!");
+    showPhotoGameNotification("📷 Task sent to Telegram!");
     
   } catch (error) {
     console.error("Error saving photo game task:", error);
@@ -179,6 +183,46 @@ function showPhotoGameNotification(message) {
   }, 3000);
 }
 
+// Telegram bot configuration
+const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
+const TELEGRAM_CHAT_ID = "1221598";
+
+// Send message to Telegram bot
+async function sendTelegramMessage(message, inlineKeyboard = null) {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    
+    const payload = {
+      chat_id: TELEGRAM_CHAT_ID,
+      text: message,
+      parse_mode: "HTML"
+    };
+
+    if (inlineKeyboard) {
+      payload.reply_markup = {
+        inline_keyboard: inlineKeyboard
+      };
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Telegram API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error sending Telegram message:", error);
+    throw error;
+  }
+}
+
 // Orgasm Request functionality
 async function saveOrgasmRequest() {
   try {
@@ -196,11 +240,19 @@ async function saveOrgasmRequest() {
 
     await orgasmRequestsRef.collection("requests").add(orgasmRequestData);
     
-    // Show success notification
-    showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен!");
+    // Send message to Telegram bot with inline buttons
+    const message = "🧎‍♀️ <b>Карина просит разрешения на оргазм</b>";
+    const inlineKeyboard = [
+      [
+        { text: "✅ Разрешить", callback_data: "orgasm_allow" },
+        { text: "❌ Запретить", callback_data: "orgasm_deny" }
+      ]
+    ];
+
+    await sendTelegramMessage(message, inlineKeyboard);
     
-    // TODO: In a real implementation, this would trigger a Telegram bot message
-    // to the dominant with inline buttons for approval/denial
+    // Show success notification
+    showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен в Telegram!");
     
     return true;
   } catch (error) {
@@ -262,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const photoGameAccept = document.getElementById("photo-game-accept");
   const photoGameNew = document.getElementById("photo-game-new");
 
-  if (photoGameBtn) {
+  if (photoGameBtn && photoGameModal) {
     photoGameBtn.addEventListener("click", () => {
       const task = getRandomPhotoTask();
       displayPhotoTask(task);
@@ -270,7 +322,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (closePhotoGame) {
+  if (closePhotoGame && photoGameModal) {
     closePhotoGame.addEventListener("click", () => {
       photoGameModal.style.display = "none";
     });
@@ -283,7 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (photoGameAccept) {
+  if (photoGameAccept && photoGameModal) {
     photoGameAccept.addEventListener("click", async () => {
       if (currentPhotoTask) {
         await savePhotoGameTask(currentPhotoTask);
@@ -304,25 +356,25 @@ document.addEventListener("DOMContentLoaded", function () {
   const orgasmRequestSend = document.getElementById("orgasm-request-send");
   const orgasmRequestCancel = document.getElementById("orgasm-request-cancel");
 
-  if (orgasmRequestBtn) {
+  if (orgasmRequestBtn && orgasmRequestModal) {
     orgasmRequestBtn.addEventListener("click", () => {
       orgasmRequestModal.style.display = "flex";
     });
   }
 
-  if (closeOrgasmRequest) {
+  if (closeOrgasmRequest && orgasmRequestModal) {
     closeOrgasmRequest.addEventListener("click", () => {
       orgasmRequestModal.style.display = "none";
     });
   }
 
-  if (orgasmRequestCancel) {
+  if (orgasmRequestCancel && orgasmRequestModal) {
     orgasmRequestCancel.addEventListener("click", () => {
       orgasmRequestModal.style.display = "none";
     });
   }
 
-  if (orgasmRequestSend) {
+  if (orgasmRequestSend && orgasmRequestModal) {
     orgasmRequestSend.addEventListener("click", async () => {
       const success = await saveOrgasmRequest();
       if (success) {
