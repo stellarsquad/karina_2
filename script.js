@@ -526,18 +526,31 @@ async function savePunishment(punishment) {
       timestamp: timestamp,
       type: "punishment",
       description: punishment.description,
-      status: "pending"
+      status: "pending",
+      assignedBy: currentUser
     };
 
     const docRef = await punishmentsRef.collection("tasks").add(punishmentData);
     currentPunishmentId = docRef.id;
     
-    // Send punishment to Telegram bot
-    const message = `🩸 <b>Punishment for Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
-    await sendTelegramMessage(message);
+    if (currentUser === 'she') {
+      // Send notification to submissive (herself)
+      const subMessage = `🩸 <b>Punishment for Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
+      await sendTelegramMessage(subMessage, null, SUBMISSIVE_CHAT_ID);
+      
+      // Send notification to dominant
+      const domMessage = `🩸 <b>Karina has chosen the following punishment:</b>\n\n${punishment.description}`;
+      await sendTelegramMessage(domMessage, null, DOMINANT_CHAT_ID);
+      
+      showPunishmentNotification("🩸 Punishment selected and reported!");
+    } else {
+      // Dominant assigning punishment
+      const message = `🩸 <b>Punishment assigned to Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
+      await sendTelegramMessage(message, null, SUBMISSIVE_CHAT_ID);
+      
+      showPunishmentNotification("🩸 Punishment assigned to Karina!");
+    }
     
-    // Show success notification and enable completion button
-    showPunishmentNotification("🩸 Punishment assigned!");
     document.getElementById("punishment-completed").style.display = "block";
     
   } catch (error) {
@@ -600,14 +613,22 @@ function showPunishmentNotification(message) {
 // Telegram bot configuration
 const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
 const TELEGRAM_CHAT_ID = "1221598";
+const DOMINANT_CHAT_ID = "1221598"; // Anton's chat ID
+const SUBMISSIVE_CHAT_ID = "1221598"; // Karina's chat ID (update when known)
+
+// User authorization state
+let currentUser = localStorage.getItem('currentUser') || null;
+let isAuthorized = currentUser !== null;
 
 // Send message to Telegram bot
-async function sendTelegramMessage(message, inlineKeyboard = null) {
+async function sendTelegramMessage(message, inlineKeyboard = null, chatId = null) {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     
+    const targetChatId = chatId || (currentUser === 'he' ? DOMINANT_CHAT_ID : SUBMISSIVE_CHAT_ID);
+    
     const payload = {
-      chat_id: TELEGRAM_CHAT_ID,
+      chat_id: targetChatId,
       text: message,
       parse_mode: "HTML"
     };
@@ -651,30 +672,34 @@ async function saveOrgasmRequest() {
       timestamp: timestamp,
       type: "orgasm_request",
       status: "pending",
-      requestedBy: "Karina",
+      requestedBy: currentUser === 'she' ? "Karina" : "User",
       message: "Карина просит разрешения на оргазм"
     };
 
     await orgasmRequestsRef.collection("requests").add(orgasmRequestData);
     
-    // Send message to Telegram bot with inline buttons
-    const message = "🧎‍♀️ <b>Карина просит разрешения на оргазм</b>";
-    const inlineKeyboard = [
-      [
-        { text: "✅ Разрешить", callback_data: "orgasm_allow" },
-        { text: "❌ Запретить", callback_data: "orgasm_deny" }
-      ]
-    ];
+    if (currentUser === 'she') {
+      // Send request to dominant
+      const message = "🧎‍♀️ <b>Карина просит разрешения на оргазм</b>";
+      const inlineKeyboard = [
+        [
+          { text: "✅ Разрешить", callback_data: "orgasm_allow" },
+          { text: "❌ Запретить", callback_data: "orgasm_deny" }
+        ]
+      ];
 
-    await sendTelegramMessage(message, inlineKeyboard);
-    
-    // Start polling for bot updates if not already active
-    if (!isPollingActive) {
-      startTelegramPolling();
+      await sendTelegramMessage(message, inlineKeyboard, DOMINANT_CHAT_ID);
+      
+      // Start polling for bot updates if not already active
+      if (!isPollingActive) {
+        startTelegramPolling();
+      }
+      
+      showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен доминанту!");
+    } else {
+      // If dominant is making request, auto-approve
+      showOrgasmResponseNotification("✅ Автоматически разрешено", "success");
     }
-    
-    // Show success notification
-    showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен в Telegram!");
     
     return true;
   } catch (error) {
@@ -684,18 +709,41 @@ async function saveOrgasmRequest() {
   }
 }
 
+// Update orgasm request status in Firestore
+async function updateOrgasmRequestStatus(status, approvedBy) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const timestamp = new Date().toISOString();
+    
+    await orgasmRequestsRef.collection("requests").add({
+      date: today,
+      timestamp: timestamp,
+      type: "orgasm",
+      status: status,
+      by: approvedBy
+    });
+  } catch (error) {
+    console.error("Error updating orgasm request status:", error);
+  }
+}
+
 // Telegram bot polling for callback responses
 async function getTelegramUpdates() {
   try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`;
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=3`;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      signal: AbortSignal.timeout(8000) // 8 second timeout
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       if (response.status === 409) {
@@ -703,7 +751,12 @@ async function getTelegramUpdates() {
         isPollingActive = false;
         return;
       }
-      throw new Error(`Telegram API error: ${response.status}`);
+      if (response.status === 401) {
+        console.error("Telegram bot token is invalid");
+        isPollingActive = false;
+        return;
+      }
+      return; // Don't throw for other HTTP errors
     }
 
     const data = await response.json();
@@ -714,37 +767,18 @@ async function getTelegramUpdates() {
         
         // Check for callback query (button press)
         if (update.callback_query) {
-          const callbackData = update.callback_query.data;
-          
-          if (callbackData === "orgasm_allow") {
-            showOrgasmResponseNotification("✅ Разрешаю", "success");
-            
-            // Answer the callback query to remove loading state from button
-            await answerCallbackQuery(update.callback_query.id, "Разрешение отправлено Карине");
-            
-            // Stop polling after successful response
-            isPollingActive = false;
-            
-          } else if (callbackData === "orgasm_deny") {
-            showOrgasmResponseNotification("❌ Запрещаю", "denied");
-            
-            // Answer the callback query
-            await answerCallbackQuery(update.callback_query.id, "Отказ отправлен Карине");
-            
-            // Stop polling after successful response
-            isPollingActive = false;
-          }
+          await handleCallbackQuery(update.callback_query);
         }
       }
     }
   } catch (error) {
-    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+    if (error.name === 'AbortError') {
       // Timeout is normal for long polling, don't log as error
       return;
     }
     
-    // Only log actual errors, not timeouts
-    if (error.message && !error.message.includes('timeout')) {
+    // Reduce error logging frequency
+    if (Math.random() < 0.1) { // Only log 10% of errors
       console.warn("Telegram polling issue:", error.message);
     }
     
@@ -752,6 +786,42 @@ async function getTelegramUpdates() {
     if (error.message && (error.message.includes('401') || error.message.includes('403'))) {
       isPollingActive = false;
     }
+  }
+}
+
+// Handle callback queries from Telegram
+async function handleCallbackQuery(callbackQuery) {
+  const callbackData = callbackQuery.data;
+  
+  if (callbackData === "orgasm_allow") {
+    showOrgasmResponseNotification("✅ Разрешаю", "success");
+    
+    // Send confirmation to both chats
+    await sendTelegramMessage("✅ <b>Orgasm Allowed</b>\n\nKarina has been granted permission.", null, DOMINANT_CHAT_ID);
+    
+    // Answer the callback query
+    await answerCallbackQuery(callbackQuery.id, "Разрешение отправлено Карине");
+    
+    // Update request status in Firestore
+    await updateOrgasmRequestStatus("allowed", "Anton");
+    
+    // Stop polling after successful response
+    isPollingActive = false;
+    
+  } else if (callbackData === "orgasm_deny") {
+    showOrgasmResponseNotification("❌ Запрещаю", "denied");
+    
+    // Send confirmation to both chats
+    await sendTelegramMessage("❌ <b>Orgasm Denied</b>\n\nKarina's request has been denied.", null, DOMINANT_CHAT_ID);
+    
+    // Answer the callback query
+    await answerCallbackQuery(callbackQuery.id, "Отказ отправлен Карине");
+    
+    // Update request status in Firestore
+    await updateOrgasmRequestStatus("denied", "Anton");
+    
+    // Stop polling after successful response
+    isPollingActive = false;
   }
 }
 
@@ -906,6 +976,144 @@ function showOrgasmRequestNotification(message) {
   }, 3000);
 }
 
+// Authorization functions
+function showAuthorizationModal() {
+  const authModal = document.createElement("div");
+  authModal.id = "auth-modal";
+  authModal.className = "modal-overlay";
+  authModal.innerHTML = `
+    <div class="modal-content" style="width: 300px; max-width: 95%;">
+      <div class="modal-header">
+        <span>🔐 TELEGRAM AUTHORIZATION</span>
+      </div>
+      <div style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 20px 0;">
+        <div style="font-size: 14px; color: #ff4081; margin-bottom: 15px;">
+          Choose your role:
+        </div>
+        <div style="color: #ffe6eb; margin-bottom: 20px;">
+          Select who you are to continue
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button id="auth-he" class="full-width" style="background: linear-gradient(145deg, #4081ff, #6b9eff);">
+          👨 HE (DOMINANT)
+        </button>
+        <button id="auth-she" class="full-width" style="background: linear-gradient(145deg, #ff4081, #ff6b9e);">
+          👩 SHE (SUBMISSIVE)
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(authModal);
+  authModal.style.display = "flex";
+  
+  // Add event listeners
+  document.getElementById("auth-he").addEventListener("click", () => {
+    authorizeUser('he');
+    authModal.remove();
+  });
+  
+  document.getElementById("auth-she").addEventListener("click", () => {
+    authorizeUser('she');
+    authModal.remove();
+  });
+}
+
+function authorizeUser(userType) {
+  currentUser = userType;
+  isAuthorized = true;
+  localStorage.setItem('currentUser', userType);
+  
+  // Update UI based on user type
+  updateUIForUser(userType);
+  
+  // Show authorization success
+  const message = userType === 'he' ? "👨 Authorized as Dominant" : "👩 Authorized as Submissive";
+  showAuthNotification(message);
+}
+
+function updateUIForUser(userType) {
+  // Update title and styling based on user
+  const titleElement = document.querySelector('.title');
+  const titleText = titleElement.firstChild;
+  if (userType === 'he') {
+    titleText.textContent = "DOMINANT CONTROL PANEL";
+    document.body.style.setProperty('--primary-color', '#4081ff');
+  } else {
+    titleText.textContent = "KARINA'S ORGASM-O-MATIC";
+    document.body.style.setProperty('--primary-color', '#ff4081');
+  }
+  
+  // Show user info
+  const userInfo = document.getElementById("user-info");
+  const userDisplay = document.getElementById("current-user-display");
+  if (userInfo && userDisplay) {
+    userDisplay.textContent = userType === 'he' ? '👨 Dominant Mode' : '👩 Submissive Mode';
+    userInfo.style.display = 'block';
+  }
+  
+  // Show/hide certain buttons based on user type
+  const orgasmBtn = document.getElementById("orgasm-request-btn");
+  if (orgasmBtn) {
+    orgasmBtn.style.display = userType === 'she' ? 'block' : 'none';
+  }
+}
+
+function logout() {
+  currentUser = null;
+  isAuthorized = false;
+  localStorage.removeItem('currentUser');
+  
+  // Hide user info
+  const userInfo = document.getElementById("user-info");
+  if (userInfo) {
+    userInfo.style.display = 'none';
+  }
+  
+  // Reset title
+  const titleElement = document.querySelector('.title');
+  const titleText = titleElement.firstChild;
+  titleText.textContent = "KARINA'S ORGASM-O-MATIC";
+  
+  // Show authorization modal
+  showAuthorizationModal();
+}
+
+function showAuthNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #4CAF50, #66BB6A);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+function checkAuthorization() {
+  if (!isAuthorized) {
+    showAuthorizationModal();
+    return false;
+  }
+  return true;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const statsBox = document.getElementById("stats-display");
   const body = document.body;
@@ -936,6 +1144,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (punishmentBtn && punishmentModal) {
     punishmentBtn.addEventListener("click", () => {
+      if (!checkAuthorization()) return;
       const punishment = getRandomPunishment();
       displayPunishment(punishment);
       document.getElementById("punishment-completed").style.display = "none";
@@ -991,6 +1200,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (photoGameBtn && photoGameModal) {
     photoGameBtn.addEventListener("click", () => {
+      if (!checkAuthorization()) return;
       const task = getRandomPhotoTask();
       displayPhotoTask(task);
       photoGameModal.style.display = "flex";
@@ -1024,6 +1234,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Check authorization on load
+  if (!checkAuthorization()) {
+    return; // Don't initialize app until authorized
+  }
+  
+  // Update UI for current user
+  if (currentUser) {
+    updateUIForUser(currentUser);
+  }
+
   // Orgasm Request modal handling
   const orgasmRequestBtn = document.getElementById("orgasm-request-btn");
   const orgasmRequestModal = document.getElementById("orgasm-request-modal");
@@ -1033,6 +1253,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (orgasmRequestBtn && orgasmRequestModal) {
     orgasmRequestBtn.addEventListener("click", () => {
+      if (!checkAuthorization()) return;
       orgasmRequestModal.style.display = "flex";
     });
   }
@@ -1303,6 +1524,12 @@ document.addEventListener("DOMContentLoaded", function () {
   if (soundToggleBtn) {
     soundToggleBtn.textContent = soundEnabled ? "🔊 SOUND" : "🔇 SOUND";
     soundToggleBtn.addEventListener("click", toggleSound);
+  }
+
+  // Logout button handler
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
   }
 
   // Load initial streak data
