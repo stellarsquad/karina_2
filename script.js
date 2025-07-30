@@ -14,6 +14,7 @@ const db = firebase.firestore();
 const docRef = db.collection("users").doc("karina");
 const statsRef = db.collection("users").doc("karina_stats");
 const photoGamesRef = db.collection("users").doc("karina_photo_games");
+const orgasmRequestsRef = db.collection("users").doc("karina_orgasm_requests");
 
 // Photo game tasks data
 const photoGameTasks = [
@@ -178,6 +179,62 @@ function showPhotoGameNotification(message) {
   }, 3000);
 }
 
+// Orgasm Request functionality
+async function saveOrgasmRequest() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const timestamp = new Date().toISOString();
+    
+    const orgasmRequestData = {
+      date: today,
+      timestamp: timestamp,
+      type: "orgasm_request",
+      status: "pending",
+      requestedBy: "Karina",
+      message: "Карина просит разрешения на оргазм"
+    };
+
+    await orgasmRequestsRef.collection("requests").add(orgasmRequestData);
+    
+    // Show success notification
+    showOrgasmRequestNotification("🧎‍♀️ Запрос отправлен!");
+    
+    // TODO: In a real implementation, this would trigger a Telegram bot message
+    // to the dominant with inline buttons for approval/denial
+    
+    return true;
+  } catch (error) {
+    console.error("Error saving orgasm request:", error);
+    showOrgasmRequestNotification("❌ Ошибка отправки запроса");
+    return false;
+  }
+}
+
+function showOrgasmRequestNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, #ff4081, #ff9ec6);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const statsBox = document.getElementById("stats-display");
   const body = document.body;
@@ -235,6 +292,45 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add some hearts for celebration
         for(let i = 0; i < 3; i++) {
           setTimeout(createFloatingHeart, i * 200);
+        }
+      }
+    });
+  }
+
+  // Orgasm Request modal handling
+  const orgasmRequestBtn = document.getElementById("orgasm-request-btn");
+  const orgasmRequestModal = document.getElementById("orgasm-request-modal");
+  const closeOrgasmRequest = document.getElementById("close-orgasm-request");
+  const orgasmRequestSend = document.getElementById("orgasm-request-send");
+  const orgasmRequestCancel = document.getElementById("orgasm-request-cancel");
+
+  if (orgasmRequestBtn) {
+    orgasmRequestBtn.addEventListener("click", () => {
+      orgasmRequestModal.style.display = "flex";
+    });
+  }
+
+  if (closeOrgasmRequest) {
+    closeOrgasmRequest.addEventListener("click", () => {
+      orgasmRequestModal.style.display = "none";
+    });
+  }
+
+  if (orgasmRequestCancel) {
+    orgasmRequestCancel.addEventListener("click", () => {
+      orgasmRequestModal.style.display = "none";
+    });
+  }
+
+  if (orgasmRequestSend) {
+    orgasmRequestSend.addEventListener("click", async () => {
+      const success = await saveOrgasmRequest();
+      if (success) {
+        orgasmRequestModal.style.display = "none";
+        
+        // Add some hearts for celebration
+        for(let i = 0; i < 5; i++) {
+          setTimeout(createFloatingHeart, i * 150);
         }
       }
     });
