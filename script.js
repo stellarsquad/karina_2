@@ -697,7 +697,7 @@ let isAuthorized = currentUser !== null;
 let currentPairId = localStorage.getItem('currentPairId') || null;
 let userUID = localStorage.getItem('userUID') || null;
 
-// Initialize app function - defined before use
+// Initialize app function
 function initializeApp() {
   if (!currentPairId) {
     showAuthorizationModal();
@@ -2190,7 +2190,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const now = new Date();
       const timeStr = now.toLocaleTimeString();
       document.getElementById("last-timestamp").textContent = `Last: ${timeStr}`;
-      
+
       if (counterDocRef) {
         await counterDocRef.set({ 
           count: counter,
@@ -2322,6 +2322,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load initial streak data
   loadStats();
 
-  // This is handled in initializeApp() now
+  // Initialize the app after all event listeners are set up
   initializeApp();
 });
