@@ -10,11 +10,32 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const docRef = db.collection("users").doc("karina");
-const statsRef = db.collection("users").doc("karina_stats");
-const photoGamesRef = db.collection("users").doc("karina_photo_games");
-const orgasmRequestsRef = db.collection("users").doc("karina_orgasm_requests");
-const punishmentsRef = db.collection("users").doc("karina_punishments");
+
+// Dynamic references based on current pair
+function getDocRef() {
+  if (!currentPairId) return null;
+  return db.collection("pairs").doc(currentPairId).collection("data").doc("counter");
+}
+
+function getStatsRef() {
+  if (!currentPairId) return null;
+  return db.collection("pairs").doc(currentPairId).collection("data").doc("stats");
+}
+
+function getPhotoGamesRef() {
+  if (!currentPairId) return null;
+  return db.collection("pairs").doc(currentPairId).collection("data").doc("photo_games");
+}
+
+function getOrgasmRequestsRef() {
+  if (!currentPairId) return null;
+  return db.collection("pairs").doc(currentPairId).collection("data").doc("orgasm_requests");
+}
+
+function getPunishmentsRef() {
+  if (!currentPairId) return null;
+  return db.collection("pairs").doc(currentPairId).collection("data").doc("punishments");
+}
 
 // Punishment tasks data
 const punishmentTasks = [
@@ -372,10 +393,15 @@ function updateStreakDisplay(data) {
 }
 
 async function updateFirestoreStats(increment = 1) {
+  if (!currentPairId) return;
+
   const todayKey = new Date().toISOString().slice(0, 10);
   const yesterdayKey = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
   try {
+    const statsRef = getStatsRef();
+    if (!statsRef) return;
+
     const snapshot = await statsRef.get();
     let data = snapshot.exists ? snapshot.data() : {
       today: 0, week: 0, month: 0, record: 0, lastUpdated: todayKey, streak: 0, lastStreakUpdate: todayKey
@@ -422,9 +448,14 @@ async function updateFirestoreStats(increment = 1) {
 }
 
 async function loadStats() {
+  if (!currentPairId) return;
+
   const statsBox = document.getElementById("stats-display");
   statsBox.classList.add("loading");
   try {
+    const statsRef = getStatsRef();
+    if (!statsRef) return;
+
     const snapshot = await statsRef.get();
     if (snapshot.exists) {
       const data = snapshot.data();
@@ -464,11 +495,22 @@ async function savePhotoGameTask(task) {
       status: "pending"
     };
 
-    await photoGamesRef.collection("tasks").add(photoGameData);
+    const photoGamesRef = getPhotoGamesRef();
+    if (photoGamesRef) {
+      await photoGamesRef.collection("tasks").add(photoGameData);
+    }
 
     // Send task to Telegram bot
-    const message = `📷 <b>Photo Game Task for Karina</b>\n\n<b>${task.title}</b>\n\n${task.description}`;
-    await sendTelegramMessage(message);
+    const partnerName = currentUser === 'he' ? 'your partner' : 'yourself';
+    const message = `📷 <b>Photo Game Task for ${partnerName}</b>\n\n<b>${task.title}</b>\n\n${task.description}`;
+
+    if (currentUser === 'he') {
+      // Dominant sending task to submissive
+      await sendTelegramMessage(message, null, 'she');
+    } else {
+      // Submissive choosing task for themselves, notify dominant
+      await sendTelegramMessage(message, null, 'he');
+    }
 
     // Show success notification
     showPhotoGameNotification("📷 Task sent to Telegram!");
@@ -529,25 +571,24 @@ async function savePunishment(punishment) {
       assignedBy: currentUser
     };
 
+    const punishmentsRef = getPunishmentsRef();
+    if (!punishmentsRef) return;
+
     const docRef = await punishmentsRef.collection("tasks").add(punishmentData);
     currentPunishmentId = docRef.id;
 
     if (currentUser === 'she') {
-      // Send notification to submissive (herself)
-      const subMessage = `🩸 <b>Punishment for Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
-      await sendTelegramMessage(subMessage, null, SUBMISSIVE_CHAT_ID);
-
-      // Send notification to dominant
-      const domMessage = `🩸 <b>Karina has chosen the following punishment:</b>\n\n${punishment.description}`;
-      await sendTelegramMessage(domMessage, null, DOMINANT_CHAT_ID);
+      // Send notification to dominant about self-chosen punishment
+      const domMessage = `🩸 <b>Your partner has chosen a punishment:</b>\n\n${punishment.description}`;
+      await sendTelegramMessage(domMessage, null, 'he');
 
       showPunishmentNotification("🩸 Punishment selected and reported!");
     } else {
       // Dominant assigning punishment
-      const message = `🩸 <b>Punishment assigned to Karina</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
-      await sendTelegramMessage(message, null, SUBMISSIVE_CHAT_ID);
+      const message = `🩸 <b>Punishment assigned by your dominant</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
+      await sendTelegramMessage(message, null, 'she');
 
-      showPunishmentNotification("🩸 Punishment assigned to Karina!");
+      showPunishmentNotification("🩸 Punishment assigned!");
     }
 
     document.getElementById("punishment-completed").style.display = "block";
@@ -562,14 +603,24 @@ async function completePunishment() {
   if (!currentPunishmentId) return;
 
   try {
-    await punishmentsRef.collection("tasks").doc(currentPunishmentId).update({
+    const punishmentsRef = getPunishmentsRef();
+    if (!punishmentsRef) return;
+    
+    const docRef = punishmentsRef.collection("tasks").doc(currentPunishmentId);
+    await docRef.update({
       status: "done",
       completedAt: new Date().toISOString()
     });
 
     // Send completion notification to Telegram
-    const message = `✅ <b>Punishment Completed</b>\n\nКарина выполнила наказание:\n${currentPunishment.description}`;
-    await sendTelegramMessage(message);
+    const message = `✅ <b>Punishment Completed</b>\n\nYour partner has completed the punishment:\n${currentPunishment.description}`;
+
+    // Notify the dominant about punishment completion
+    if (currentUser === 'she') {
+      await sendTelegramMessage(message, null, 'he');
+    } else {
+      await sendTelegramMessage(message, null, 'she');
+    }
 
     showPunishmentNotification("✅ Punishment completed!");
 
@@ -611,20 +662,97 @@ function showPunishmentNotification(message) {
 
 // Telegram bot configuration
 const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
-const TELEGRAM_CHAT_ID = "1221598";
-const DOMINANT_CHAT_ID = "1221598"; // Anton's chat ID
-const SUBMISSIVE_CHAT_ID = "1221598"; // Karina's chat ID (update when known)
+
+// Get pair-specific Telegram chat IDs from Firestore
+async function getPairTelegramData() {
+  if (!currentPairId) return null;
+
+  try {
+    const pairDoc = await db.collection("pairs").doc(currentPairId).get();
+    if (pairDoc.exists) {
+      return pairDoc.data().telegramData || {};
+    }
+  } catch (error) {
+    console.error("Error getting pair Telegram data:", error);
+  }
+  return {};
+}
+
+// Update pair with Telegram chat IDs
+async function updatePairTelegramData(telegramData) {
+  if (!currentPairId) return;
+
+  try {
+    await db.collection("pairs").doc(currentPairId).update({
+      telegramData: telegramData
+    });
+  } catch (error) {
+    console.error("Error updating pair Telegramdata:", error);
+  }
+}
 
 // User authorization state
 let currentUser = localStorage.getItem('currentUser') || null;
 let isAuthorized = currentUser !== null;
+let currentPairId = localStorage.getItem('currentPairId') || null;
+let userUID = localStorage.getItem('userUID') || null;
+
+// Initialize app function
+function initializeApp() {
+  if (!currentPairId) {
+    showAuthorizationModal();
+    return;
+  }
+
+  // Update UI based on user type
+  if (currentUser) {
+    updateUIForUser(currentUser);
+  }
+
+  // Real-time listener for history updates
+  const docRef = getDocRef();
+  if (docRef) {
+    docRef.onSnapshot(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        counter = data.count || 0;
+        incrementHistory = data.history || [];
+        if (data.lastTimestamp) {
+          document.getElementById("last-timestamp").textContent = `Last: ${data.lastTimestamp}`;
+        }
+        updateDisplay();
+      }
+    });
+  }
+
+  // Load initial stats
+  loadStats();
+}
 
 // Send message to Telegram bot
-async function sendTelegramMessage(message, inlineKeyboard = null, chatId = null) {
+async function sendTelegramMessage(message, inlineKeyboard = null, targetUser = null, chatId = null) {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
-    const targetChatId = chatId || (currentUser === 'he' ? DOMINANT_CHAT_ID : SUBMISSIVE_CHAT_ID);
+    let targetChatId = chatId;
+
+    if (!targetChatId) {
+      const telegramData = await getPairTelegramData();
+
+      if (targetUser) {
+        // Send to specific user type
+        targetChatId = telegramData[`${targetUser}_chat_id`];
+      } else {
+        // Send to current user's partner
+        const partnerType = currentUser === 'he' ? 'she' : 'he';
+        targetChatId = telegramData[`${partnerType}_chat_id`];
+      }
+
+      if (!targetChatId) {
+        console.warn("No Telegram chat ID found for target user");
+        return null;
+      }
+    }
 
     const payload = {
       chat_id: targetChatId,
@@ -675,19 +803,22 @@ async function saveOrgasmRequest() {
       message: "Карина просит разрешения на оргазм"
     };
 
-    await orgasmRequestsRef.collection("requests").add(orgasmRequestData);
+    const orgasmRequestsRef = getOrgasmRequestsRef();
+    if (orgasmRequestsRef) {
+      await orgasmRequestsRef.collection("requests").add(orgasmRequestData);
+    }
 
     if (currentUser === 'she') {
       // Send request to dominant
-      const message = "🧎‍♀️ <b>Карина просит разрешения на оргазм</b>";
+      const message = "🧎‍♀️ <b>Your partner is requesting permission for orgasm</b>";
       const inlineKeyboard = [
         [
-          { text: "✅ Разрешить", callback_data: "orgasm_allow" },
-          { text: "❌ Запретить", callback_data: "orgasm_deny" }
+          { text: "✅ Allow", callback_data: "orgasm_allow" },
+          { text: "❌ Deny", callback_data: "orgasm_deny" }
         ]
       ];
 
-      await sendTelegramMessage(message, inlineKeyboard, DOMINANT_CHAT_ID);
+      await sendTelegramMessage(message, inlineKeyboard, 'he');
 
       // Start polling for bot updates if not already active
       if (!isPollingActive) {
@@ -722,17 +853,21 @@ async function sendCumCommand() {
       message: "Карина, кончай, сучка!"
     };
 
-    await orgasmRequestsRef.collection("commands").add(cumCommandData);
+    const orgasmRequestsRef = getOrgasmRequestsRef();
+    if (!orgasmRequestsRef) return false;
+    
+    const docRef = orgasmRequestsRef.collection("commands");
+    await docRef.add(cumCommandData);
 
     // Send command to submissive
-    const message = "🔥 <b>Карина, кончай, сучка!</b>";
+    const message = "🔥 <b>Your dominant is commanding you to orgasm!</b>";
     const inlineKeyboard = [
       [
         { text: "Yes, sir", callback_data: "cum_yes_sir" }
       ]
     ];
 
-    await sendTelegramMessage(message, inlineKeyboard, SUBMISSIVE_CHAT_ID);
+    await sendTelegramMessage(message, inlineKeyboard, 'she');
 
     // Start polling for bot updates if not already active
     if (!isPollingActive) {
@@ -755,7 +890,11 @@ async function updateOrgasmRequestStatus(status, approvedBy) {
     const today = new Date().toISOString().slice(0, 10);
     const timestamp = new Date().toISOString();
 
-    await orgasmRequestsRef.collection("requests").add({
+    const orgasmRequestsRef = getOrgasmRequestsRef();
+    if (!orgasmRequestsRef) return;
+    
+    const docRef = orgasmRequestsRef.collection("requests");
+    await docRef.add({
       date: today,
       timestamp: timestamp,
       type: "orgasm",
@@ -834,45 +973,45 @@ async function handleCallbackQuery(callbackQuery) {
   const callbackData = callbackQuery.data;
 
   if (callbackData === "orgasm_allow") {
-    showOrgasmResponseNotification("✅ Разрешаю", "success");
+    showOrgasmResponseNotification("✅ Permission Granted", "success");
 
-    // Send confirmation to both chats
-    await sendTelegramMessage("✅ <b>Orgasm Allowed</b>\n\nKarina has been granted permission.", null, DOMINANT_CHAT_ID);
+    // Send confirmation to submissive
+    await sendTelegramMessage("✅ <b>Orgasm Permission Granted</b>\n\nYour dominant has allowed you to orgasm.", null, 'she');
 
     // Answer the callback query
-    await answerCallbackQuery(callbackQuery.id, "Разрешение отправлено Карине");
+    await answerCallbackQuery(callbackQuery.id, "Permission granted");
 
     // Update request status in Firestore
-    await updateOrgasmRequestStatus("allowed", "Anton");
+    await updateOrgasmRequestStatus("allowed", "Dominant");
 
     // Stop polling after successful response
     isPollingActive = false;
 
   } else if (callbackData === "orgasm_deny") {
-    showOrgasmResponseNotification("❌ Запрещаю", "denied");
+    showOrgasmResponseNotification("❌ Permission Denied", "denied");
 
-    // Send confirmation to both chats
-    await sendTelegramMessage("❌ <b>Orgasm Denied</b>\n\nKarina's request has been denied.", null, DOMINANT_CHAT_ID);
+    // Send denial to submissive
+    await sendTelegramMessage("❌ <b>Orgasm Permission Denied</b>\n\nYour dominant has denied your request.", null, 'she');
 
     // Answer the callback query
-    await answerCallbackQuery(callbackQuery.id, "Отказ отправлен Карине");
+    await answerCallbackQuery(callbackQuery.id, "Permission denied");
 
     // Update request status in Firestore
-    await updateOrgasmRequestStatus("denied", "Anton");
+    await updateOrgasmRequestStatus("denied", "Dominant");
 
     // Stop polling after successful response
     isPollingActive = false;
   } else if (callbackData === "cum_yes_sir") {
-    showCumCommandResponseNotification("✅ Karina is cumming!", "success");
+    showCumCommandResponseNotification("✅ Command Acknowledged", "success");
 
     // Send confirmation to dominant
-    await sendTelegramMessage("✅ <b>Karina is ready to cum.</b>", null, DOMINANT_CHAT_ID);
+    await sendTelegramMessage("✅ <b>Command Acknowledged</b>\n\nYour partner is ready to comply.", null, 'he');
 
     // Answer the callback query
-    await answerCallbackQuery(callbackQuery.id, "Карина готова кончить");
+    await answerCallbackQuery(callbackQuery.id, "Command acknowledged");
 
      // Send notification to dominant's app
-    showDominantCumNotification("Karina is ready to cum.");
+    showDominantCumNotification("Partner is ready to comply.");
 
     // Stop polling after successful response
     isPollingActive = false;
@@ -1138,47 +1277,458 @@ function showDominantCumNotification(message) {
 }
 
 // Authorization functions
-function showAuthorizationModal() {
-  const authModal = document.createElement("div");
-  authModal.id = "auth-modal";
-  authModal.className = "modal-overlay";
-  authModal.innerHTML = `
-    <div class="modal-content" style="width: 300px; max-width: 95%;">
-      <div class="modal-header">
-        <span>🔐 TELEGRAM AUTHORIZATION</span>
+async function generatePairId() {
+  // Generate a unique 6-character code
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let pairId = '';
+  for (let i = 0; i < 6; i++) {
+    pairId += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  // Check if this ID already exists
+  const pairDoc = await db.collection("pairs").doc(pairId).get();
+  if (pairDoc.exists) {
+    // If it exists, generate a new one
+    return generatePairId();
+  }
+
+  return pairId;
+}
+
+async function createPair(userType) {
+  try {
+    const pairId = await generatePairId();
+    const uid = generateUID();
+
+    // Create pair document
+    await db.collection("pairs").doc(pairId).set({
+      createdAt: new Date().toISOString(),
+      createdBy: uid,
+      users: [uid],
+      userTypes: {
+        [uid]: userType
+      }
+    });
+
+    // Initialize pair data
+    await db.collection("pairs").doc(pairId).collection("data").doc("counter").set({
+      count: 0,
+      history: [],
+      lastTimestamp: ""
+    });
+
+    await db.collection("pairs").doc(pairId).collection("data").doc("stats").set({
+      today: 0,
+      week: 0,
+      month: 0,
+      record: 0,
+      streak: 0,
+      lastUpdated: new Date().toISOString().slice(0, 10)
+    });
+
+    // Store user info
+    currentPairId = pairId;
+    userUID = uid;
+    localStorage.setItem('currentPairId', pairId);
+    localStorage.setItem('userUID', uid);
+
+    showPairCodeModal(pairId);
+    return pairId;
+  } catch (error) {
+    console.error("Error creating pair:", error);
+    showPairNotification("❌ Error creating pair");
+    return null;
+  }
+}
+
+async function joinPair(pairId, userType) {
+  try {
+    const pairDoc = await db.collection("pairs").doc(pairId).get();
+
+    if (!pairDoc.exists) {
+      showPairNotification("❌ Pair code not found. Please check the code and try again.");
+      return false;
+    }
+
+    const pairData = pairDoc.data();
+
+    if (pairData.users.length >= 2) {
+      showPairNotification("❌ This pair is already full (2 users maximum)");
+      return false;
+    }
+
+    // Check if user is trying to join with the same role as creator
+    const creatorUID = pairData.createdBy;
+    const creatorRole = pairData.userTypes[creatorUID];
+
+    if (creatorRole === userType) {
+      const roleNames = { 'he': 'Dominant', 'she': 'Submissive' };
+      showPairNotification(`❌ This pair already has a ${roleNames[userType]}. Please select the opposite role.`);
+      return false;
+    }
+
+    const uid = generateUID();
+
+    // Add user to pair
+    await db.collection("pairs").doc(pairId).update({
+      users: firebase.firestore.FieldValue.arrayUnion(uid),
+      [`userTypes.${uid}`]: userType,
+      joinedAt: new Date().toISOString()
+    });
+
+    // Store user info
+    currentPairId = pairId;
+    userUID = uid;
+    localStorage.setItem('currentPairId', pairId);
+    localStorage.setItem('userUID', uid);
+
+    showPairNotification("✅ Successfully joined pair! Your connection is now private and secure.");
+    return true;
+  } catch (error) {
+    console.error("Error joining pair:", error);
+    if (error.code === 'permission-denied') {
+      showPairNotification("❌ Permission denied. Please check your internet connection.");
+    } else {
+      showPairNotification("❌ Network error. Please try again.");
+    }
+    return false;
+  }
+}
+
+function generateUID() {
+  return 'user_' + Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
+}
+
+function showPairCodeModal(pairId) {
+  const modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.innerHTML = `
+    <div class="modal-content" style="width: 400px; max-width: 95%; text-align: center;">
+      <div style="font-size: 16px; color: #4CAF50; margin-bottom: 20px;">
+        ✅ Pair Created Successfully!
       </div>
-      <div style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 20px 0;">
-        <div style="font-size: 14px; color: #ff4081; margin-bottom: 15px;">
-          Choose your role:
-        </div>
-        <div style="color: #ffe6eb; margin-bottom: 20px;">
-          Select who you are to continue
-        </div>
+
+      <div style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 12px; 
+                  border: 2px solid #4CAF50; margin: 20px 0;">
+        <div style="font-size: 12px; color: #ffb6d5; margin-bottom: 10px;">Your Pair Code:</div>
+        <div style="font-size: 24px; color: #4CAF50; letter-spacing: 3px; margin: 15px 0; 
+                    text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);">${pairId}</div>
+        <div style="font-size: 10px; color: #ffe6eb;">Share this code with your partner</div>
       </div>
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button id="auth-he" class="full-width" style="background: linear-gradient(145deg, #4081ff, #6b9eff);">
-          👨 HE (DOMINANT)
+
+      <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 12px; 
+                  border: 2px solid #2196F3; margin: 20px 0;">
+        <div style="font-size: 12px; color: #ffb6d5; margin-bottom: 10px;">📱 Enable Telegram Notifications</div>
+        <div style="font-size: 10px; color: #ffe6eb; margin-bottom: 10px;">
+          To receive notifications, start a chat with our bot and click the button below:
+        </div>
+        <button onclick="window.open('https://t.me/iloveyoukarina_bot', '_blank')" 
+                style="background: linear-gradient(145deg, #0088cc, #0099dd); margin: 5px 0; width: 100%;">
+          📱 OPEN TELEGRAM BOT
         </button>
-        <button id="auth-she" class="full-width" style="background: linear-gradient(145deg, #ff4081, #ff6b9e);">
-          👩 SHE (SUBMISSIVE)
+        <button onclick="setupTelegram('${pairId}')" 
+                style="background: linear-gradient(145deg, #ff9800, #ffb74d); margin: 5px 0; width: 100%;">
+          🔗 SETUP NOTIFICATIONS
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="copyToClipboard('${pairId}')" style="flex: 1; background: linear-gradient(145deg, #2196F3, #42A5F5);">
+          📋 COPY CODE
+        </button>
+        <button onclick="this.closest('.modal-overlay').remove()" style="flex: 1; background: linear-gradient(145deg, #4CAF50, #66BB6A);">
+          ✅ CONTINUE
         </button>
       </div>
     </div>
   `;
 
-  document.body.appendChild(authModal);
-  authModal.style.display = "flex";
+  document.body.appendChild(modal);
+  modal.style.display = "flex";
+}
 
-  // Add event listeners
-  document.getElementById("auth-he").addEventListener("click", () => {
-    authorizeUser('he');
-    authModal.remove();
+async function setupTelegram(pairId) {
+  const modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.innerHTML = `
+    <div class="modal-content" style="width: 380px; max-width: 95%; text-align: center;">
+      <div style="font-size: 16px; color: #2196F3; margin-bottom: 20px;">
+        📱 Telegram Setup
+      </div>
+
+      <div style="font-size: 11px; color: #ffb6d5; margin-bottom: 20px; line-height: 1.4;">
+        1. Open the Telegram bot by clicking the button above<br>
+        2. Send the command: <code>/setup ${pairId}</code><br>
+        3. The bot will automatically connect to your pair
+      </div>
+
+      <div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 12px; 
+                  border: 2px solid #ff9800; margin: 20px 0;">
+        <div style="font-size: 10px; color: #ffe6eb;">
+          💡 Both partners need to setup Telegram individually to receive notifications
+        </div>
+      </div>
+
+      <button onclick="this.closest('.modal-overlay').remove()" 
+              style="background: linear-gradient(145deg, #4CAF50, #66BB6A); width: 100%;">
+        ✅ GOT IT
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  modal.style.display = "flex";
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showPairNotification("📋 Code copied to clipboard!");
+  }).catch(() => {
+    // Fallback for older browsers
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showPairNotification("📋 Code copied to clipboard!");
+  });
+}
+
+function showPairNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #4CAF50, #66BB6A);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 4000);
+}
+
+function showPairingModal() {
+  const pairingModal = document.createElement("div");
+  pairingModal.id = "pairing-modal";
+  pairingModal.className = "modal-overlay";
+  pairingModal.innerHTML = `
+    <div class="modal-content" style="width: 380px; max-width: 95%;">
+      <div class="modal-header">
+        <span>💕 COUPLE PAIRING</span>
+      </div>
+      <div style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 20px 0;">
+        <div style="font-size: 16px; color: #ff4081; margin-bottom: 15px; text-shadow: 0 0 10px rgba(255, 64, 129, 0.5);">
+          🔗 Create or Join a Couple
+        </div>
+        <div style="color: #ffe6eb; margin-bottom: 20px;">
+          Each couple gets a private shared space for their intimate data
+        </div>
+      </div>
+
+      <div style="margin-bottom: 25px;">
+        <label style="display: block; color: #ffb6d5; font-size: 11px; margin-bottom: 12px; text-align: left;">
+          👤 Select Your Role:
+        </label>
+        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+          <button id="role-he" class="role-btn" style="flex: 1; padding: 12px; font-size: 10px; 
+                  background: linear-gradient(145deg, #4081ff, #6b9eff); border: 2px solid transparent;
+                  transition: all 0.3s ease;">
+            👨 HE (DOMINANT)
+          </button>
+          <button id="role-she" class="role-btn" style="flex: 1; padding: 12px; font-size: 10px; 
+                  background: linear-gradient(145deg, #ff4081, #ff6b9e); border: 2px solid transparent;
+                  transition: all 0.3s ease;">
+            👩 SHE (SUBMISSIVE)
+          </button>
+        </div>
+        <div id="role-description" style="font-size: 9px; color: #ffe6eb; text-align: center; margin-top: 8px; min-height: 20px;">
+          Choose your role in the relationship
+        </div>
+      </div>
+
+      <div id="action-section" style="opacity: 0.5; transition: opacity 0.3s ease; pointer-events: none;">
+        <div style="display: flex; gap: 10px<previous_generation>
+, margin-bottom: 20px;">
+          <button id="create-pair" class="full-width" style="background: linear-gradient(145deg, #4CAF50, #66BB6A);
+                  border: 2px solid #4CAF50; position: relative; overflow: hidden;">
+            <span style="position: relative; z-index: 1;">✨ CREATE NEW PAIR</span>
+          </button>
+        </div>
+
+        <div style="margin: 20px 0; text-align: center; color: #ffe6eb; font-size: 11px; 
+                    border-top: 1px solid #ff4081; padding-top: 15px;">
+          OR JOIN EXISTING PAIR
+        </div>
+
+        <div style="margin-bottom: 15px; position: relative;">
+          <input id="pair-code-input" type="text" placeholder="ENTER 6-DIGIT CODE" 
+                 style="width: 100%; padding: 12px; font-family: 'Press Start 2P', monospace; font-size: 11px; 
+                        background: #1f2235; border: 2px solid #ff4081; border-radius: 10px; color: #ffb6d5;
+                        text-align: center; text-transform: uppercase; letter-spacing: 2px;
+                        transition: border-color 0.3s ease;" maxlength="6">
+          <div id="code-validation" style="font-size: 9px; color: #f44336; text-align: center; margin-top: 5px; min-height: 15px;"></div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button id="join-pair" class="full-width" style="background: linear-gradient(145deg, #ff9800, #ffb74d);
+                  border: 2px solid #ff9800;">
+            🤝 JOIN PAIR
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; font-size: 9px; color: #ffe6eb; text-align: center; line-height: 1.3;">
+        💡 Tip: Share the 6-digit code with your partner to connect your accounts
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(pairingModal);
+  pairingModal.style.display = "flex";
+
+  let selectedRole = null;
+  const actionSection = document.getElementById("action-section");
+  const roleDescription = document.getElementById("role-description");
+  const codeInput = document.getElementById("pair-code-input");
+  const codeValidation = document.getElementById("code-validation");
+
+  // Role descriptions
+  const roleDescriptions = {
+    'he': '👨 Dominant role - Full control over commands and permissions',
+    'she': '👩 Submissive role - Receives commands and requests permissions'
+  };
+
+  // Role selection with improved UX
+  function selectRole(role) {
+    selectedRole = role;
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.style.opacity = '0.5';
+      btn.style.border = '2px solid transparent';
+    });
+    const selectedBtn = document.getElementById(`role-${role}`);
+    selectedBtn.style.opacity = '1';
+    selectedBtn.style.border = '2px solid #fff';
+    selectedBtn.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.3)';
+
+    // Update description and enable actions
+    roleDescription.textContent = roleDescriptions[role];
+    roleDescription.style.color = '#4CAF50';
+    actionSection.style.opacity = '1';
+    actionSection.style.pointerEvents = 'auto';
+  }
+
+  document.getElementById("role-he").addEventListener("click", () => selectRole('he'));
+  document.getElementById("role-she").addEventListener("click", () => selectRole('she'));
+
+  // Input validation for pair code
+  codeInput.addEventListener('input', (e) => {
+    const value = e.target.value.toUpperCase();
+    e.target.value = value;
+
+    if (value.length === 0) {
+      codeValidation.textContent = '';
+      e.target.style.borderColor = '#ff4081';
+    } else if (value.length < 6) {
+      codeValidation.textContent = 'Code must be 6 characters';
+      codeValidation.style.color = '#ff9800';
+      e.target.style.borderColor = '#ff9800';
+    } else if (value.length === 6) {
+      codeValidation.textContent = '✓ Valid format';
+      codeValidation.style.color = '#4CAF50';
+      e.target.style.borderColor = '#4CAF50';
+    }
   });
 
-  document.getElementById("auth-she").addEventListener("click", () => {
-    authorizeUser('she');
-    authModal.remove();
+  // Create pair with loading state
+  document.getElementById("create-pair").addEventListener("click", async () => {
+    if (!selectedRole) {
+      showPairNotification("⚠️ Please select your role first");
+      return;
+    }
+
+    const createBtn = document.getElementById("create-pair");
+    const originalText = createBtn.innerHTML;
+    createBtn.innerHTML = '<span style="position: relative; z-index: 1;">🔄 CREATING...</span>';
+    createBtn.disabled = true;
+
+    try {
+      const pairId = await createPair(selectedRole);
+      if (pairId) {
+        currentUser = selectedRole;
+        localStorage.setItem('currentUser', selectedRole);
+        showPairCodeModal(pairId);
+        pairingModal.remove();
+        initializeApp();
+      }
+    } finally {
+      createBtn.innerHTML = originalText;
+      createBtn.disabled = false;
+    }
   });
+
+  // Join pair with validation
+  document.getElementById("join-pair").addEventListener("click", async () => {
+    if (!selectedRole) {
+      showPairNotification("⚠️ Please select your role first");
+      return;
+    }
+
+    const pairCode = codeInput.value.trim().toUpperCase();
+    if (!pairCode) {
+      showPairNotification("⚠️ Please enter a pair code");
+      codeInput.focus();
+      return;
+    }
+
+    if (pairCode.length !== 6) {
+      showPairNotification("⚠️ Pair code must be 6 characters");
+      codeInput.focus();
+      return;
+    }
+
+    const joinBtn = document.getElementById("join-pair");
+    const originalText = joinBtn.innerHTML;
+    joinBtn.innerHTML = '🔄 JOINING...';
+    joinBtn.disabled = true;
+
+    try {
+      const success = await joinPair(pairCode, selectedRole);
+      if (success) {
+        currentUser = selectedRole;
+        localStorage.setItem('currentUser', selectedRole);
+        pairingModal.remove();
+        initializeApp();
+      }
+    } finally {
+      joinBtn.innerHTML = originalText;
+      joinBtn.disabled = false;
+    }
+  });
+}
+
+function showAuthorizationModal() {
+  // Check if user already has a pair
+  if (currentPairId && userUID) {
+    // Try to restore session
+    initializeApp();
+    return;
+  }
+
+  showPairingModal();
 }
 
 function authorizeUser(userType) {
@@ -1403,15 +1953,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Check authorization on load
-  if (!checkAuthorization()) {
-    return; // Don't initialize app until authorized
-  }
-
-  // Update UI for current user
-  if (currentUser) {
-    updateUIForUser(currentUser);
-  }
+  // Initialize the app first, then check authorization
+  initializeApp();
 
   // Orgasm Request modal handling
   const orgasmRequestBtn = document.getElementById("orgasm-request-btn");
@@ -1532,18 +2075,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Real-time listener for history updates
-  docRef.onSnapshot(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      counter = data.count || 0;
-      incrementHistory = data.history || [];
-      if (data.lastTimestamp) {
-        document.getElementById("last-timestamp").textContent = `Last: ${data.lastTimestamp}`;
-      }
-      updateDisplay();
+  // Function to create water drops
+  function createWaterDrop() {
+    const waterDrop = document.createElement('div');
+    waterDrop.className = 'water-drop';
+    waterDrop.textContent = '💧';
+    waterDrop.style.left = Math.random() * 100 + '%';
+
+    // Add to water container if it exists
+    const waterContainer = document.getElementById('water-container');
+    if (waterContainer) {
+      waterContainer.appendChild(waterDrop);
+    } else {
+      // Create water container if it doesn't exist
+      const newContainer = document.createElement('div');
+      newContainer.id = 'water-container';
+      newContainer.style.cssText = `
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      `;
+      document.body.appendChild(newContainer);
+      newContainer.appendChild(waterDrop);
     }
-  });
+  }
 
   const achievements = {
     10: { title: "Getting Started! 🌟", unlocked: false },
@@ -1606,6 +2166,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function handleIncrement(increment) {
+    if (!currentPairId) return;
+
     try {
       // Add vibration feedback if supported
       if ('vibrate' in navigator) {
@@ -1614,6 +2176,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Play sound effect
       playSound('increment');
+
+      const docRef = getDocRef();
+      if (!docRef) return;
 
       const snapshot = await docRef.get();
       const currentCount = snapshot.exists ? snapshot.data().count : 0;
@@ -1627,11 +2192,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const now = new Date();
       const timeStr = now.toLocaleTimeString();
       document.getElementById("last-timestamp").textContent = `Last: ${timeStr}`;
-      await docRef.set({ 
-        count: counter,
-        lastTimestamp: timeStr,
-        history: incrementHistory
-      }, { merge: true });
+      const counterDocRef = getDocRef();
+      if (counterDocRef) {
+        await counterDocRef.set({ 
+          count: counter,
+          lastTimestamp: timeStr,
+          history: incrementHistory
+        }, { merge: true });
+      }
       await updateFirestoreStats(increment);
 
       // Show temporary feedback
@@ -1658,10 +2226,13 @@ document.addEventListener("DOMContentLoaded", function () {
           ).join('');
         }
 
-        await docRef.set({ 
-          count: counter,
-          history: incrementHistory 
-        }, { merge: true });
+        const undoDocRef = getDocRef();
+        if (undoDocRef) {
+          await undoDocRef.set({ 
+            count: counter,
+            history: incrementHistory 
+          }, { merge: true });
+        }
         await updateFirestoreStats(-lastIncrement);
       } catch (e) {
         console.error("Undo error:", e);
@@ -1677,14 +2248,21 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("reset-btn").addEventListener("click", async () => {
     counter = 0;
     updateDisplay();
-    await docRef.set({ count: 0 }, { merge: true });
-    await statsRef.set({
-      today: 0,
-      week: 0,
-      month: 0,
-      record: 0,
-      lastUpdated: new Date().toISOString().slice(0, 10)
-    });
+    const resetDocRef = getDocRef();
+    const statsRef = getStatsRef();
+
+    if (resetDocRef) {
+      await resetDocRef.set({ count: 0 }, { merge: true });
+    }
+    if (statsRef) {
+      await statsRef.set({
+        today: 0,
+        week: 0,
+        month: 0,
+        record: 0,
+        lastUpdated: new Date().toISOString().slice(0, 10)
+      });
+    }
     updateStatsDisplay({ today: 0, week: 0, month: 0, record: 0 });
   });
 
@@ -1744,11 +2322,5 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load initial streak data
   loadStats();
 
-  // Listen for counter updates
-  docRef.onSnapshot((doc) => {
-    if (doc.exists) {
-      counter = doc.data().count || 0;
-      updateDisplay();
-    }
-  });
+  // This is handled in initializeApp() now
 });

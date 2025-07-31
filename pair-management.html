@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Couple Pair Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0b0f24;
+      font-family: 'Press Start 2P', monospace;
+      color: #ffb6d5;
+      text-align: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: rgba(31, 34, 53, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      border: 2px solid #ff4081;
+    }
+    
+    .title {
+      font-size: 16px;
+      color: #ff4081;
+      margin-bottom: 30px;
+    }
+    
+    .pair-info {
+      background: rgba(255, 64, 129, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border: 1px solid #ff4081;
+    }
+    
+    .pair-code {
+      font-size: 24px;
+      color: #4CAF50;
+      margin: 15px 0;
+      letter-spacing: 3px;
+    }
+    
+    button {
+      background: linear-gradient(145deg, #ff4081, #ff6b9e);
+      border: none;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      cursor: pointer;
+      margin: 10px;
+      transition: all 0.2s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4);
+    }
+    
+    .danger {
+      background: linear-gradient(145deg, #f44336, #ef5350);
+    }
+    
+    .success {
+      background: linear-gradient(145deg, #4CAF50, #66BB6A);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">💕 COUPLE PAIR MANAGEMENT</div>
+    
+    <div id="pair-status">
+      <div id="no-pair" style="display: none;">
+        <p>You are not currently in a pair.</p>
+        <button onclick="location.href='index.html'">🏠 Go to Main App</button>
+      </div>
+      
+      <div id="has-pair" style="display: none;">
+        <div class="pair-info">
+          <div>Your Pair Code:</div>
+          <div class="pair-code" id="current-pair-code">------</div>
+          <div style="font-size: 10px; color: #ffe6eb; margin-top: 10px;">
+            Share this code with your partner
+          </div>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <div style="font-size: 10px; margin-bottom: 10px;">Partner Status:</div>
+          <div id="partner-status" style="color: #ff9800;">Waiting for partner...</div>
+        </div>
+        
+        <button onclick="copyPairCode()">📋 Copy Pair Code</button>
+        <button onclick="location.href='index.html'">🏠 Go to Main App</button>
+        <button class="danger" onclick="leavePair()">💔 Leave Pair</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Initialize Firebase (same config as main app)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
+      authDomain: "karina-5d44d.firebaseapp.com",
+      projectId: "karina-5d44d",
+      storageBucket: "karina-5d44d.appspot.com",
+      messagingSenderId: "930914134264",
+      appId: "1:930914134264:web:0e527a744b3d2c7182330d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const currentPairId = localStorage.getItem('currentPairId');
+    const userUID = localStorage.getItem('userUID');
+
+    async function loadPairInfo() {
+      if (!currentPairId) {
+        document.getElementById('no-pair').style.display = 'block';
+        return;
+      }
+
+      try {
+        const pairDoc = await db.collection('pairs').doc(currentPairId).get();
+        if (pairDoc.exists) {
+          const pairData = pairDoc.data();
+          document.getElementById('current-pair-code').textContent = currentPairId;
+          document.getElementById('has-pair').style.display = 'block';
+          
+          const partnerCount = pairData.users.length;
+          const partnerStatus = document.getElementById('partner-status');
+          
+          if (partnerCount === 2) {
+            partnerStatus.textContent = '✅ Partner connected';
+            partnerStatus.style.color = '#4CAF50';
+          } else {
+            partnerStatus.textContent = '⏳ Waiting for partner...';
+            partnerStatus.style.color = '#ff9800';
+          }
+        } else {
+          document.getElementById('no-pair').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error loading pair info:', error);
+        document.getElementById('no-pair').style.display = 'block';
+      }
+    }
+
+    function copyPairCode() {
+      navigator.clipboard.writeText(currentPairId).then(() => {
+        alert('Pair code copied to clipboard!');
+      });
+    }
+
+    async function leavePair() {
+      if (!confirm('Are you sure you want to leave this pair? This cannot be undone.')) {
+        return;
+      }
+
+      try {
+        // Remove user from pair
+        await db.collection('pairs').doc(currentPairId).update({
+          users: firebase.firestore.FieldValue.arrayRemove(userUID)
+        });
+
+        // Clear local storage
+        localStorage.removeItem('currentPairId');
+        localStorage.removeItem('userUID');
+
+        alert('Successfully left the pair.');
+        location.href = 'index.html';
+      } catch (error) {
+        console.error('Error leaving pair:', error);
+        alert('Error leaving pair. Please try again.');
+      }
+    }
+
+    // Load pair info on page load
+    loadPairInfo();
+  </script>
+</body>
+</html>
