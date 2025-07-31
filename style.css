@@ -197,14 +197,16 @@ button:hover {
       top: 0; left: 0;
       width: 100vw;
       height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
       background-color: rgba(0, 0, 0, 0.8);
       z-index: 9999;
-      justify-content: center;
-      align-items: center;
       display: none;
-      padding: 20px;
+      padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
       box-sizing: border-box;
       overflow-y: auto;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: max(env(safe-area-inset-top, 0px), 60px);
     }
 
 .modal-content {
@@ -216,10 +218,12 @@ button:hover {
       box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
       width: 320px;
       max-width: 95%;
-      max-height: 90vh;
+      max-height: calc(100vh - 120px);
+      max-height: calc(100dvh - 120px);
       overflow-y: auto;
       z-index: 10000;
-      margin: 20px;
+      margin: 20px auto;
+      flex-shrink: 0;
     }
 
 /* Water droplet animation */
@@ -267,27 +271,38 @@ body.lock-scroll {
     width: 100%;
     height: 100%;
     height: -webkit-fill-available;
+    padding-top: max(env(safe-area-inset-top), 80px);
   }
 
   .modal-content {
-    max-height: 80vh;
-    max-height: 80dvh;
+    max-height: calc(100vh - 160px);
+    max-height: calc(-webkit-fill-available - 160px);
+    margin-top: 0;
   }
 }
 
 /* iPhone specific adjustments */
 @media only screen and (max-width: 414px) {
+  .modal-overlay {
+    padding: max(env(safe-area-inset-top), 60px) 15px max(env(safe-area-inset-bottom), 20px) 15px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
   .modal-content {
-    width: 90%;
+    width: 95%;
     max-width: none;
-    margin: 15px;
+    margin: 0 auto;
     padding: 20px 15px;
+    max-height: calc(100vh - 140px);
+    max-height: calc(100dvh - 140px);
   }
 
   .modal-content button {
     font-size: 10px;
     padding: 18px 12px;
     margin: 8px 0;
+    min-height: 50px;
   }
 
   .modal-content input {
@@ -302,6 +317,11 @@ body.lock-scroll {
   }
 }
 @media (max-width: 480px) {
+      body {
+        padding-top: env(safe-area-inset-top, 0);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+
       .frame {
         padding: 15px;
         width: calc(100% - 30px);
