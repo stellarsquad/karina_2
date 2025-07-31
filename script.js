@@ -605,7 +605,7 @@ async function completePunishment() {
   try {
     const punishmentsRef = getPunishmentsRef();
     if (!punishmentsRef) return;
-    
+
     const docRef = punishmentsRef.collection("tasks").doc(currentPunishmentId);
     await docRef.update({
       status: "done",
@@ -685,7 +685,8 @@ async function updatePairTelegramData(telegramData) {
   try {
     await db.collection("pairs").doc(currentPairId).update({
       telegramData: telegramData
-    });
+    });```python
+
   } catch (error) {
     console.error("Error updating pair Telegramdata:", error);
   }
@@ -697,7 +698,7 @@ let isAuthorized = currentUser !== null;
 let currentPairId = localStorage.getItem('currentPairId') || null;
 let userUID = localStorage.getItem('userUID') || null;
 
-// Initialize app function
+// Initialize app function - must be defined before use
 function initializeApp() {
   if (!currentPairId) {
     showAuthorizationModal();
@@ -710,9 +711,9 @@ function initializeApp() {
   }
 
   // Real-time listener for history updates
-  const docRef = getDocRef();
-  if (docRef) {
-    docRef.onSnapshot(doc => {
+  const counterDocRef = getDocRef();
+  if (counterDocRef) {
+    counterDocRef.onSnapshot(doc => {
       if (doc.exists) {
         const data = doc.data();
         counter = data.count || 0;
@@ -855,7 +856,7 @@ async function sendCumCommand() {
 
     const orgasmRequestsRef = getOrgasmRequestsRef();
     if (!orgasmRequestsRef) return false;
-    
+
     const docRef = orgasmRequestsRef.collection("commands");
     await docRef.add(cumCommandData);
 
@@ -892,7 +893,7 @@ async function updateOrgasmRequestStatus(status, approvedBy) {
 
     const orgasmRequestsRef = getOrgasmRequestsRef();
     if (!orgasmRequestsRef) return;
-    
+
     const docRef = orgasmRequestsRef.collection("requests");
     await docRef.add({
       date: today,
@@ -1555,14 +1556,13 @@ function showPairingModal() {
             👩 SHE (SUBMISSIVE)
           </button>
         </div>
-        <div id="role-description" style="font-size: 9px; color: #ffe6eb; text-align: center; margin-top: 8px; min-height: 20px;">
+        <div id="role-description" style="font-size: 9px; color: #ffe6eb; text-align: center; margin-bottom: 8px; min-height: 20px;">
           Choose your role in the relationship
         </div>
       </div>
 
       <div id="action-section" style="opacity: 0.5; transition: opacity 0.3s ease; pointer-events: none;">
-        <div style="display: flex; gap: 10px<previous_generation>
-, margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px, margin-bottom: 20px;">
           <button id="create-pair" class="full-width" style="background: linear-gradient(145deg, #4CAF50, #66BB6A);
                   border: 2px solid #4CAF50; position: relative; overflow: hidden;">
             <span style="position: relative; z-index: 1;">✨ CREATE NEW PAIR</span>
@@ -1954,7 +1954,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Initialize the app first, then check authorization
-  initializeApp();
 
   // Orgasm Request modal handling
   const orgasmRequestBtn = document.getElementById("orgasm-request-btn");
@@ -2177,10 +2176,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // Play sound effect
       playSound('increment');
 
-      const docRef = getDocRef();
-      if (!docRef) return;
+      const counterDocRef = getDocRef();
+      if (!counterDocRef) return;
 
-      const snapshot = await docRef.get();
+      const snapshot = await counterDocRef.get();
       const currentCount = snapshot.exists ? snapshot.data().count : 0;
       counter = currentCount + increment;
       incrementHistory.push(increment);
@@ -2192,7 +2191,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const now = new Date();
       const timeStr = now.toLocaleTimeString();
       document.getElementById("last-timestamp").textContent = `Last: ${timeStr}`;
-      const counterDocRef = getDocRef();
+      
+      // Fix: Using the already defined 'counterDocRef'
       if (counterDocRef) {
         await counterDocRef.set({ 
           count: counter,
@@ -2248,11 +2248,11 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("reset-btn").addEventListener("click", async () => {
     counter = 0;
     updateDisplay();
-    const resetDocRef = getDocRef();
+    const resetCounterRef = getDocRef();
     const statsRef = getStatsRef();
 
-    if (resetDocRef) {
-      await resetDocRef.set({ count: 0 }, { merge: true });
+    if (resetCounterRef) {
+      await resetCounterRef.set({ count: 0 }, { merge: true });
     }
     if (statsRef) {
       await statsRef.set({
@@ -2266,8 +2266,9 @@ document.addEventListener("DOMContentLoaded", function () {
     updateStatsDisplay({ today: 0, week: 0, month: 0, record: 0 });
   });
 
+  // Correct placement for the lastBtn and lastResults elements and getLocationName
   document.getElementById("stats-btn").addEventListener("click", () => {
-    if (lastResults.style.display === "block") {
+    if (lastResults && lastResults.style.display === "block") {
       lastResults.style.display = "none";
       lastResults.style.opacity = "0";
     }
@@ -2277,7 +2278,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Last results modal handling
   const lastBtn = document.getElementById("last-btn");
   const lastResults = document.getElementById("last-results");
 
@@ -2292,19 +2292,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  lastBtn.addEventListener("click", () => {
-    const last5 = incrementHistory.slice(-5).reverse();
-    lastResults.innerHTML = last5.map(increment => 
-      `<div>${getLocationName(increment)}: +${increment}</div>`
-    ).join('');
+  if (lastBtn && lastResults) {
+    lastBtn.addEventListener("click", () => {
+      const last5 = incrementHistory.slice(-5).reverse();
+      lastResults.innerHTML = last5.map(increment => 
+        `<div>${getLocationName(increment)}: +${increment}</div>`
+      ).join('');
 
-    if (statsBox.classList.contains("show")) {
-      statsBox.classList.remove("show");
-    }
+      if (statsBox.classList.contains("show")) {
+        statsBox.classList.remove("show");
+      }
 
-    lastResults.style.display = lastResults.style.display === "block" ? "none" : "block";
-    lastResults.style.opacity = lastResults.style.display === "block" ? "1" : "0";
-  });
+      lastResults.style.display = lastResults.style.display === "block" ? "none" : "block";
+      lastResults.style.opacity = lastResults.style.display === "block" ? "1" : "0";
+    });
+  }
 
   // Sound toggle button
   const soundToggleBtn = document.getElementById("sound-toggle-btn");
@@ -2323,4 +2325,5 @@ document.addEventListener("DOMContentLoaded", function () {
   loadStats();
 
   // This is handled in initializeApp() now
+  initializeApp();
 });
