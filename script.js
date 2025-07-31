@@ -685,10 +685,9 @@ async function updatePairTelegramData(telegramData) {
   try {
     await db.collection("pairs").doc(currentPairId).update({
       telegramData: telegramData
-    });```python
-
+    });
   } catch (error) {
-    console.error("Error updating pair Telegramdata:", error);
+    console.error("Error updating pair Telegram data:", error);
   }
 }
 
@@ -698,7 +697,7 @@ let isAuthorized = currentUser !== null;
 let currentPairId = localStorage.getItem('currentPairId') || null;
 let userUID = localStorage.getItem('userUID') || null;
 
-// Initialize app function - must be defined before use
+// Initialize app function - defined before use
 function initializeApp() {
   if (!currentPairId) {
     showAuthorizationModal();
@@ -2192,7 +2191,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const timeStr = now.toLocaleTimeString();
       document.getElementById("last-timestamp").textContent = `Last: ${timeStr}`;
       
-      // Fix: Using the already defined 'counterDocRef'
       if (counterDocRef) {
         await counterDocRef.set({ 
           count: counter,
