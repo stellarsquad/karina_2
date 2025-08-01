@@ -1,1 +1,25 @@
-{"name": "Karina App", "short_name": "Karina", "start_url": ".", "display": "standalone", "background_color": "#0b0f24", "theme_color": "#ff4081", "icons": [{"src": "icon.png", "sizes": "192x192", "type": "image/png"}]}
+
+{
+  "name": "Карина Оргазм-О-Матик",
+  "short_name": "Карина",
+  "description": "Приватное приложение для пар",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ff4081",
+  "background_color": "#0b0f24",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["lifestyle", "social"],
+  "lang": "ru"
+}

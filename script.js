@@ -388,6 +388,23 @@ function updateStatsDisplay(data) {
   document.getElementById("stat-week").textContent = `На этой неделе: ${data.week || 0}`;
   document.getElementById("stat-month").textContent = `В этом месяце: ${data.month || 0}`;
   document.getElementById("stat-record").textContent = `Рекорд: ${data.record || 0}`;
+  
+  // Add visual progress bars for stats
+  const todayPercent = Math.min((data.today || 0) / 20 * 100, 100);
+  const weekPercent = Math.min((data.week || 0) / 100 * 100, 100);
+  
+  updateStatBar('today-bar', todayPercent);
+  updateStatBar('week-bar', weekPercent);
+}
+
+function updateStatBar(barId, percent) {
+  const bar = document.getElementById(barId);
+  if (bar) {
+    bar.style.width = percent + '%';
+    bar.style.background = `linear-gradient(90deg, 
+      ${percent > 80 ? '#4CAF50' : percent > 50 ? '#ff9800' : '#ff4081'}, 
+      ${percent > 80 ? '#66BB6A' : percent > 50 ? '#ffb74d' : '#ff6b9e'})`;
+  }
 }
 
 function updateStreakDisplay(data) {
@@ -2200,9 +2217,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!currentPairId) return;
 
     try {
-      // Add vibration feedback if supported
+      // Add haptic feedback
       if ('vibrate' in navigator) {
-        navigator.vibrate(50);
+        navigator.vibrate([50, 30, 50]); // Pattern: vibrate, pause, vibrate
+      }
+      
+      // Telegram haptic feedback
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
       }
 
       // Play sound effect
@@ -2339,11 +2361,48 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Theme toggle functionality
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    const themeBtn = document.getElementById("theme-toggle-btn");
+    if (themeBtn) {
+      themeBtn.textContent = newTheme === 'light' ? "☀️ СВЕТЛАЯ" : "🌙 ТЁМНАЯ";
+    }
+  }
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
   // Sound toggle button
   const soundToggleBtn = document.getElementById("sound-toggle-btn");
   if (soundToggleBtn) {
     soundToggleBtn.textContent = soundEnabled ? "🔊 ЗВУК" : "🔇 ЗВУК";
     soundToggleBtn.addEventListener("click", toggleSound);
+  }
+
+  // Theme toggle button
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
+  if (themeToggleBtn) {
+    themeToggleBtn.textContent = savedTheme === 'light' ? "☀️ СВЕТЛАЯ" : "🌙 ТЁМНАЯ";
+    themeToggleBtn.addEventListener("click", toggleTheme);
+  }
+
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('SW registered: ', registration);
+        })
+        .catch((registrationError) => {
+          console.log('SW registration failed: ', registrationError);
+        });
+    });
   }
 
   // Logout button handler
