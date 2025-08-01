@@ -1,29 +1,5 @@
-:root {
-  --primary-bg: #0b0f24;
-  --secondary-bg: #1a1c2c;
-  --accent-bg: #2d1b3d;
-  --primary-color: #ff4081;
-  --secondary-color: #ff9ec6;
-  --text-color: #ffb6d5;
-  --text-light: #ffe6eb;
-  --border-color: rgba(255, 158, 198, 0.3);
-  --glass-bg: rgba(31, 34, 53, 0.8);
-}
-
-[data-theme="light"] {
-  --primary-bg: #f8f9ff;
-  --secondary-bg: #e1e5f2;
-  --accent-bg: #d6dae8;
-  --primary-color: #d63384;
-  --secondary-color: #e83e8c;
-  --text-color: #495057;
-  --text-light: #6c757d;
-  --border-color: rgba(214, 51, 132, 0.3);
-  --glass-bg: rgba(255, 255, 255, 0.9);
-}
-
 body {
-  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--accent-bg) 100%);
+  background: linear-gradient(135deg, #0b0f24 0%, #1a1c2c 50%, #2d1b3d 100%);
   background-size: 400% 400%;
   animation: gradient-shift 15s ease infinite;
   margin: 0;
@@ -31,15 +7,12 @@ body {
   font-family: 'Press Start 2P', monospace;
   min-height: 100vh;
   min-height: 100dvh;
-  height: var(--tg-viewport-height, 100vh);
   display: flex;
   justify-content: center;
   align-items: flex-start;
   overflow-x: hidden;
   width: 100%;
   box-sizing: border-box;
-  color: var(--text-color);
-  transition: all 0.3s ease;
 }
 
 @keyframes gradient-shift {
@@ -61,25 +34,11 @@ body {
   backdrop-filter: blur(15px);
   display: flex;
   flex-direction: column;
-  min-height: calc(var(--tg-viewport-height, 100vh) - 40px);
+  min-height: calc(100vh - 40px);
   min-height: calc(100dvh - 40px);
   overflow-y: auto;
   position: relative;
   box-sizing: border-box;
-}
-
-/* Telegram Web App specific optimizations */
-.tg-webapp body {
-  height: var(--tg-viewport-height, 100vh);
-  overflow: hidden;
-}
-
-.tg-webapp .frame {
-  margin: 5px auto;
-  padding: 15px;
-  width: calc(100% - 10px);
-  min-height: calc(var(--tg-viewport-height, 100vh) - 20px);
-  border-radius: 15px;
 }
 
 .frame::before {
@@ -213,33 +172,6 @@ button:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 64, 129, 0.3);
   background: linear-gradient(145deg, #ff6b9e, #ff4081);
-  animation: button-pulse 0.6s ease-in-out;
-}
-
-@keyframes button-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(255, 64, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0); }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
-}
-
-.shake {
-  animation: shake 0.5s ease-in-out;
-}
-
-@keyframes success-bounce {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-.success-animation {
-  animation: success-bounce 0.6s ease-in-out;
 }
 
 .stats-box {
