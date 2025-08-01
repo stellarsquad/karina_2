@@ -362,10 +362,10 @@ function createFloatingHeart() {
 }
 
 function updateStatsDisplay(data) {
-  document.getElementById("stat-today").textContent = `Today: ${data.today || 0}`;
-  document.getElementById("stat-week").textContent = `This Week: ${data.week || 0}`;
-  document.getElementById("stat-month").textContent = `This Month: ${data.month || 0}`;
-  document.getElementById("stat-record").textContent = `Record: ${data.record || 0}`;
+  document.getElementById("stat-today").textContent = `Сегодня: ${data.today || 0}`;
+  document.getElementById("stat-week").textContent = `На этой неделе: ${data.week || 0}`;
+  document.getElementById("stat-month").textContent = `В этом месяце: ${data.month || 0}`;
+  document.getElementById("stat-record").textContent = `Рекорд: ${data.record || 0}`;
 }
 
 function updateStreakDisplay(data) {
@@ -501,8 +501,8 @@ async function savePhotoGameTask(task) {
     }
 
     // Send task to Telegram bot
-    const partnerName = currentUser === 'he' ? 'your partner' : 'yourself';
-    const message = `📷 <b>Photo Game Task for ${partnerName}</b>\n\n<b>${task.title}</b>\n\n${task.description}`;
+    const partnerName = currentUser === 'he' ? 'вашего партнёра' : 'себя';
+    const message = `📷 <b>Задание фото игры для ${partnerName}</b>\n\n<b>${task.title}</b>\n\n${task.description}`;
 
     if (currentUser === 'he') {
       // Dominant sending task to submissive
@@ -513,11 +513,11 @@ async function savePhotoGameTask(task) {
     }
 
     // Show success notification
-    showPhotoGameNotification("📷 Task sent to Telegram!");
+    showPhotoGameNotification("📷 Задание отправлено в Telegram!");
 
   } catch (error) {
     console.error("Error saving photo game task:", error);
-    showPhotoGameNotification("❌ Error saving task");
+    showPhotoGameNotification("❌ Ошибка сохранения задания");
   }
 }
 
@@ -579,23 +579,23 @@ async function savePunishment(punishment) {
 
     if (currentUser === 'she') {
       // Send notification to dominant about self-chosen punishment
-      const domMessage = `🩸 <b>Your partner has chosen a punishment:</b>\n\n${punishment.description}`;
+      const domMessage = `🩸 <b>Ваш партнёр выбрал наказание:</b>\n\n${punishment.description}`;
       await sendTelegramMessage(domMessage, null, 'he');
 
-      showPunishmentNotification("🩸 Punishment selected and reported!");
+      showPunishmentNotification("🩸 Наказание выбрано и сообщено!");
     } else {
       // Dominant assigning punishment
-      const message = `🩸 <b>Punishment assigned by your dominant</b>\n\n${punishment.description}\n\n<i>Status: Pending</i>`;
+      const message = `🩸 <b>Наказание назначено вашим доминантом</b>\n\n${punishment.description}\n\n<i>Статус: Ожидание</i>`;
       await sendTelegramMessage(message, null, 'she');
 
-      showPunishmentNotification("🩸 Punishment assigned!");
+      showPunishmentNotification("🩸 Наказание назначено!");
     }
 
     document.getElementById("punishment-completed").style.display = "block";
 
   } catch (error) {
     console.error("Error saving punishment:", error);
-    showPunishmentNotification("❌ Error saving punishment");
+    showPunishmentNotification("❌ Ошибка сохранения наказания");
   }
 }
 
@@ -613,7 +613,7 @@ async function completePunishment() {
     });
 
     // Send completion notification to Telegram
-    const message = `✅ <b>Punishment Completed</b>\n\nYour partner has completed the punishment:\n${currentPunishment.description}`;
+    const message = `✅ <b>Наказание выполнено</b>\n\nВаш партнёр выполнил наказание:\n${currentPunishment.description}`;
 
     // Notify the dominant about punishment completion
     if (currentUser === 'she') {
@@ -622,7 +622,7 @@ async function completePunishment() {
       await sendTelegramMessage(message, null, 'she');
     }
 
-    showPunishmentNotification("✅ Punishment completed!");
+    showPunishmentNotification("✅ Наказание выполнено!");
 
     // Reset punishment state
     currentPunishment = null;
@@ -718,7 +718,7 @@ function initializeApp() {
         counter = data.count || 0;
         incrementHistory = data.history || [];
         if (data.lastTimestamp) {
-          document.getElementById("last-timestamp").textContent = `Last: ${data.lastTimestamp}`;
+          document.getElementById("last-timestamp").textContent = `Последнее: ${data.lastTimestamp}`;
         }
         updateDisplay();
       }
@@ -810,11 +810,11 @@ async function saveOrgasmRequest() {
 
     if (currentUser === 'she') {
       // Send request to dominant
-      const message = "🧎‍♀️ <b>Your partner is requesting permission for orgasm</b>";
+      const message = "🧎‍♀️ <b>Ваш партнёр просит разрешения на оргазм</b>";
       const inlineKeyboard = [
         [
-          { text: "✅ Allow", callback_data: "orgasm_allow" },
-          { text: "❌ Deny", callback_data: "orgasm_deny" }
+          { text: "✅ Разрешить", callback_data: "orgasm_allow" },
+          { text: "❌ Отказать", callback_data: "orgasm_deny" }
         ]
       ];
 
@@ -860,10 +860,10 @@ async function sendCumCommand() {
     await docRef.add(cumCommandData);
 
     // Send command to submissive
-    const message = "🔥 <b>Your dominant is commanding you to orgasm!</b>";
+    const message = "🔥 <b>Ваш доминант приказывает вам кончить!</b>";
     const inlineKeyboard = [
       [
-        { text: "Yes, sir", callback_data: "cum_yes_sir" }
+        { text: "Да, господин", callback_data: "cum_yes_sir" }
       ]
     ];
 
@@ -973,13 +973,13 @@ async function handleCallbackQuery(callbackQuery) {
   const callbackData = callbackQuery.data;
 
   if (callbackData === "orgasm_allow") {
-    showOrgasmResponseNotification("✅ Permission Granted", "success");
+    showOrgasmResponseNotification("✅ Разрешение предоставлено", "success");
 
     // Send confirmation to submissive
-    await sendTelegramMessage("✅ <b>Orgasm Permission Granted</b>\n\nYour dominant has allowed you to orgasm.", null, 'she');
+    await sendTelegramMessage("✅ <b>Разрешение на оргазм предоставлено</b>\n\nВаш доминант разрешил вам кончить.", null, 'she');
 
     // Answer the callback query
-    await answerCallbackQuery(callbackQuery.id, "Permission granted");
+    await answerCallbackQuery(callbackQuery.id, "Разрешение предоставлено");
 
     // Update request status in Firestore
     await updateOrgasmRequestStatus("allowed", "Dominant");
@@ -988,13 +988,13 @@ async function handleCallbackQuery(callbackQuery) {
     isPollingActive = false;
 
   } else if (callbackData === "orgasm_deny") {
-    showOrgasmResponseNotification("❌ Permission Denied", "denied");
+    showOrgasmResponseNotification("❌ В разрешении отказано", "denied");
 
     // Send denial to submissive
-    await sendTelegramMessage("❌ <b>Orgasm Permission Denied</b>\n\nYour dominant has denied your request.", null, 'she');
+    await sendTelegramMessage("❌ <b>В разрешении на оргазм отказано</b>\n\nВаш доминант отклонил ваш запрос.", null, 'she');
 
     // Answer the callback query
-    await answerCallbackQuery(callbackQuery.id, "Permission denied");
+    await answerCallbackQuery(callbackQuery.id, "В разрешении отказано");
 
     // Update request status in Firestore
     await updateOrgasmRequestStatus("denied", "Dominant");
@@ -1002,16 +1002,16 @@ async function handleCallbackQuery(callbackQuery) {
     // Stop polling after successful response
     isPollingActive = false;
   } else if (callbackData === "cum_yes_sir") {
-    showCumCommandResponseNotification("✅ Command Acknowledged", "success");
+    showCumCommandResponseNotification("✅ Команда принята", "success");
 
     // Send confirmation to dominant
-    await sendTelegramMessage("✅ <b>Command Acknowledged</b>\n\nYour partner is ready to comply.", null, 'he');
+    await sendTelegramMessage("✅ <b>Команда принята</b>\n\nВаш партнёр готов выполнить.", null, 'he');
 
     // Answer the callback query
-    await answerCallbackQuery(callbackQuery.id, "Command acknowledged");
+    await answerCallbackQuery(callbackQuery.id, "Команда принята");
 
      // Send notification to dominant's app
-    showDominantCumNotification("Partner is ready to comply.");
+    showDominantCumNotification("Партнёр готов выполнить.");
 
     // Stop polling after successful response
     isPollingActive = false;
@@ -1346,14 +1346,14 @@ async function joinPair(pairId, userType) {
     const pairDoc = await db.collection("pairs").doc(pairId).get();
 
     if (!pairDoc.exists) {
-      showPairNotification("❌ Pair code not found. Please check the code and try again.");
+      showPairNotification("❌ Код пары не найден. Пожалуйста, проверьте код и попробуйте снова.");
       return false;
     }
 
     const pairData = pairDoc.data();
 
     if (pairData.users.length >= 2) {
-      showPairNotification("❌ This pair is already full (2 users maximum)");
+      showPairNotification("❌ Эта пара уже заполнена (максимум 2 пользователя)");
       return false;
     }
 
@@ -1362,8 +1362,8 @@ async function joinPair(pairId, userType) {
     const creatorRole = pairData.userTypes[creatorUID];
 
     if (creatorRole === userType) {
-      const roleNames = { 'he': 'Dominant', 'she': 'Submissive' };
-      showPairNotification(`❌ This pair already has a ${roleNames[userType]}. Please select the opposite role.`);
+      const roleNames = { 'he': 'Доминант', 'she': 'Сабмиссив' };
+      showPairNotification(`❌ В этой паре уже есть ${roleNames[userType]}. Пожалуйста, выберите противоположную роль.`);
       return false;
     }
 
@@ -1382,14 +1382,14 @@ async function joinPair(pairId, userType) {
     localStorage.setItem('currentPairId', pairId);
     localStorage.setItem('userUID', uid);
 
-    showPairNotification("✅ Successfully joined pair! Your connection is now private and secure.");
+    showPairNotification("✅ Успешно присоединились к паре! Ваше соединение теперь приватное и безопасное.");
     return true;
   } catch (error) {
     console.error("Error joining pair:", error);
     if (error.code === 'permission-denied') {
-      showPairNotification("❌ Permission denied. Please check your internet connection.");
+      showPairNotification("❌ Доступ запрещён. Пожалуйста, проверьте интернет-соединение.");
     } else {
-      showPairNotification("❌ Network error. Please try again.");
+      showPairNotification("❌ Ошибка сети. Пожалуйста, попробуйте снова.");
     }
     return false;
   }
@@ -1524,74 +1524,79 @@ function showPairNotification(message) {
 function showPairingModal() {
   const pairingModal = document.createElement("div");
   pairingModal.id = "pairing-modal";
-  pairingModal.className = "modal-overlay";
+  pairingModal.className = "modal-overlay show";
   pairingModal.innerHTML = `
     <div class="modal-content" style="width: 380px; max-width: 95%;">
       <div class="modal-header">
-        <span>💕 COUPLE PAIRING</span>
+        <span>💕 СОЗДАНИЕ ПАРЫ</span>
       </div>
       <div style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 20px 0;">
         <div style="font-size: 16px; color: #ff4081; margin-bottom: 15px; text-shadow: 0 0 10px rgba(255, 64, 129, 0.5);">
-          🔗 Create or Join a Couple
+          🔗 Создать или присоединиться к паре
         </div>
         <div style="color: #ffe6eb; margin-bottom: 20px;">
-          Each couple gets a private shared space for their intimate data
+          Каждая пара получает приватное общее пространство для интимных данных
         </div>
       </div>
 
       <div style="margin-bottom: 25px;">
         <label style="display: block; color: #ffb6d5; font-size: 11px; margin-bottom: 12px; text-align: left;">
-          👤 Select Your Role:
+          👤 Выберите вашу роль:
         </label>
         <div style="display: flex; gap: 12px; margin-bottom: 15px;">
           <button id="role-he" class="role-btn" style="flex: 1; padding: 12px; font-size: 10px; 
                   background: linear-gradient(145deg, #4081ff, #6b9eff); border: 2px solid transparent;
                   transition: all 0.3s ease;">
-            👨 HE (DOMINANT)
+            👨 ОН (ДОМИНАНТ)
           </button>
           <button id="role-she" class="role-btn" style="flex: 1; padding: 12px; font-size: 10px; 
                   background: linear-gradient(145deg, #ff4081, #ff6b9e); border: 2px solid transparent;
                   transition: all 0.3s ease;">
-            👩 SHE (SUBMISSIVE)
+            👩 ОНА (САБМИССИВ)
           </button>
         </div>
         <div id="role-description" style="font-size: 9px; color: #ffe6eb; text-align: center; margin-bottom: 8px; min-height: 20px;">
-          Choose your role in the relationship
+          Выберите вашу роль в отношениях
         </div>
       </div>
 
       <div id="action-section" style="opacity: 0.5; transition: opacity 0.3s ease; pointer-events: none;">
-        <div style="display: flex; gap: 10px, margin-bottom: 20px;">
-          <button id="create-pair" class="full-width" style="background: linear-gradient(145deg, #4CAF50, #66BB6A);
-                  border: 2px solid #4CAF50; position: relative; overflow: hidden;">
-            <span style="position: relative; z-index: 1;">✨ CREATE NEW PAIR</span>
+        <div style="display: flex; justify-content: center; margin-bottom: 25px;">
+          <button id="create-pair" style="width: 90%; padding: 15px; font-size: 11px;
+                  background: linear-gradient(145deg, #4CAF50, #66BB6A); border: 2px solid #4CAF50; 
+                  border-radius: 10px; color: white; cursor: pointer; font-family: 'Press Start 2P', monospace;
+                  transition: all 0.3s ease; position: relative; overflow: hidden;">
+            <span style="position: relative; z-index: 1;">✨ СОЗДАТЬ НОВУЮ ПАРУ</span>
           </button>
         </div>
 
-        <div style="margin: 20px 0; text-align: center; color: #ffe6eb; font-size: 11px; 
-                    border-top: 1px solid #ff4081; padding-top: 15px;">
-          OR JOIN EXISTING PAIR
+        <div style="margin: 20px 0 15px 0; text-align: center; color: #ffb6d5; font-size: 10px; 
+                    border-top: 1px solid rgba(255, 64, 129, 0.5); padding-top: 15px; line-height: 1.4;
+                    text-shadow: 0 0 5px rgba(255, 182, 213, 0.3);">
+          ИЛИ ПРИСОЕДИНИТЬСЯ К СУЩЕСТВУЮЩЕЙ<br>ПАРЕ
         </div>
 
-        <div style="margin-bottom: 15px; position: relative;">
-          <input id="pair-code-input" type="text" placeholder="ENTER 6-DIGIT CODE" 
-                 style="width: 100%; padding: 12px; font-family: 'Press Start 2P', monospace; font-size: 11px; 
+        <div style="margin-bottom: 20px; position: relative;">
+          <input id="pair-code-input" type="text" placeholder="ВВЕДИТЕ 6-ЗНАЧНЫЙ КОД" 
+                 style="width: calc(100% - 24px); padding: 12px; font-family: 'Press Start 2P', monospace; font-size: 11px; 
                         background: #1f2235; border: 2px solid #ff4081; border-radius: 10px; color: #ffb6d5;
                         text-align: center; text-transform: uppercase; letter-spacing: 2px;
-                        transition: border-color 0.3s ease;" maxlength="6">
-          <div id="code-validation" style="font-size: 9px; color: #f44336; text-align: center; margin-top: 5px; min-height: 15px;"></div>
+                        transition: border-color 0.3s ease; box-sizing: border-box; margin: 0 auto; display: block;" maxlength="6">
+          <div id="code-validation" style="font-size: 9px; color: #f44336; text-align: center; margin-top: 8px; min-height: 18px;"></div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-          <button id="join-pair" class="full-width" style="background: linear-gradient(145deg, #ff9800, #ffb74d);
-                  border: 2px solid #ff9800;">
-            🤝 JOIN PAIR
+        <div style="display: flex; justify-content: center; margin-top: 15px;">
+          <button id="join-pair" style="width: 90%; padding: 12px; font-size: 11px; 
+                  background: linear-gradient(145deg, #ff9800, #ffb74d); border: 2px solid #ff9800;
+                  border-radius: 10px; color: white; cursor: pointer; font-family: 'Press Start 2P', monospace;
+                  transition: all 0.3s ease;">
+            🤝 ПРИСОЕДИНИТЬСЯ К ПАРЕ
           </button>
         </div>
       </div>
 
       <div style="margin-top: 20px; font-size: 9px; color: #ffe6eb; text-align: center; line-height: 1.3;">
-        💡 Tip: Share the 6-digit code with your partner to connect your accounts
+        💡 Подсказка: Поделитесь 6-значным кодом с партнёром, чтобы соединить ваши аккаунты
       </div>
     </div>
   `;
@@ -1607,8 +1612,8 @@ function showPairingModal() {
 
   // Role descriptions
   const roleDescriptions = {
-    'he': '👨 Dominant role - Full control over commands and permissions',
-    'she': '👩 Submissive role - Receives commands and requests permissions'
+    'he': '👨 Роль доминанта - Полный контроль над командами и разрешениями',
+    'she': '👩 Роль сабмиссива - Получает команды и запрашивает разрешения'
   };
 
   // Role selection with improved UX
@@ -1642,11 +1647,11 @@ function showPairingModal() {
       codeValidation.textContent = '';
       e.target.style.borderColor = '#ff4081';
     } else if (value.length < 6) {
-      codeValidation.textContent = 'Code must be 6 characters';
+      codeValidation.textContent = 'Код должен содержать 6 символов';
       codeValidation.style.color = '#ff9800';
       e.target.style.borderColor = '#ff9800';
     } else if (value.length === 6) {
-      codeValidation.textContent = '✓ Valid format';
+      codeValidation.textContent = '✓ Правильный формат';
       codeValidation.style.color = '#4CAF50';
       e.target.style.borderColor = '#4CAF50';
     }
@@ -1655,13 +1660,13 @@ function showPairingModal() {
   // Create pair with loading state
   document.getElementById("create-pair").addEventListener("click", async () => {
     if (!selectedRole) {
-      showPairNotification("⚠️ Please select your role first");
+      showPairNotification("⚠️ Пожалуйста, сначала выберите вашу роль");
       return;
     }
 
     const createBtn = document.getElementById("create-pair");
     const originalText = createBtn.innerHTML;
-    createBtn.innerHTML = '<span style="position: relative; z-index: 1;">🔄 CREATING...</span>';
+    createBtn.innerHTML = '<span style="position: relative; z-index: 1;">🔄 СОЗДАНИЕ...</span>';
     createBtn.disabled = true;
 
     try {
@@ -1670,7 +1675,8 @@ function showPairingModal() {
         currentUser = selectedRole;
         localStorage.setItem('currentUser', selectedRole);
         showPairCodeModal(pairId);
-        pairingModal.remove();
+        pairingModal.classList.remove('show');
+        setTimeout(() => pairingModal.remove(), 300);
         initializeApp();
       }
     } finally {
@@ -1682,26 +1688,26 @@ function showPairingModal() {
   // Join pair with validation
   document.getElementById("join-pair").addEventListener("click", async () => {
     if (!selectedRole) {
-      showPairNotification("⚠️ Please select your role first");
+      showPairNotification("⚠️ Пожалуйста, сначала выберите вашу роль");
       return;
     }
 
     const pairCode = codeInput.value.trim().toUpperCase();
     if (!pairCode) {
-      showPairNotification("⚠️ Please enter a pair code");
+      showPairNotification("⚠️ Пожалуйста, введите код пары");
       codeInput.focus();
       return;
     }
 
     if (pairCode.length !== 6) {
-      showPairNotification("⚠️ Pair code must be 6 characters");
+      showPairNotification("⚠️ Код пары должен содержать 6 символов");
       codeInput.focus();
       return;
     }
 
     const joinBtn = document.getElementById("join-pair");
     const originalText = joinBtn.innerHTML;
-    joinBtn.innerHTML = '🔄 JOINING...';
+    joinBtn.innerHTML = '🔄 ПРИСОЕДИНЕНИЕ...';
     joinBtn.disabled = true;
 
     try {
@@ -1709,7 +1715,8 @@ function showPairingModal() {
       if (success) {
         currentUser = selectedRole;
         localStorage.setItem('currentUser', selectedRole);
-        pairingModal.remove();
+        pairingModal.classList.remove('show');
+        setTimeout(() => pairingModal.remove(), 300);
         initializeApp();
       }
     } finally {
@@ -1748,10 +1755,10 @@ function updateUIForUser(userType) {
   const titleElement = document.querySelector('.title');
   const titleText = titleElement.firstChild;
   if (userType === 'he') {
-    titleText.textContent = "DOMINANT CONTROL PANEL";
+    titleText.textContent = "ПАНЕЛЬ УПРАВЛЕНИЯ ДОМИНАНТА";
     document.body.style.setProperty('--primary-color', '#4081ff');
   } else {
-    titleText.textContent = "KARINA'S ORGASM-O-MATIC";
+    titleText.textContent = "КАРИНА ОРГАЗМ-О-МАТИК";
     document.body.style.setProperty('--primary-color', '#ff4081');
   }
 
@@ -1759,7 +1766,7 @@ function updateUIForUser(userType) {
   const userInfo = document.getElementById("user-info");
   const userDisplay = document.getElementById("current-user-display");
   if (userInfo && userDisplay) {
-    userDisplay.textContent = userType === 'he' ? '👨 Dominant Mode' : '👩 Submissive Mode';
+    userDisplay.textContent = userType === 'he' ? '👨 Режим доминанта' : '👩 Режим сабмиссива';
     userInfo.style.display = 'block';
   }
 
@@ -1866,13 +1873,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const punishment = getRandomPunishment();
       displayPunishment(punishment);
       document.getElementById("punishment-completed").style.display = "none";
-      punishmentModal.style.display = "flex";
+      punishmentModal.classList.add('show');
     });
   }
 
   if (closePunishment && punishmentModal) {
     closePunishment.addEventListener("click", () => {
-      punishmentModal.style.display = "none";
+      punishmentModal.classList.remove('show');
     });
   }
 
@@ -1900,7 +1907,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (punishmentDone && punishmentModal) {
     punishmentDone.addEventListener("click", async () => {
       await completePunishment();
-      punishmentModal.style.display = "none";
+      punishmentModal.classList.remove('show');
 
       // Add celebration hearts
       for(let i = 0; i < 5; i++) {
@@ -1921,13 +1928,13 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!checkAuthorization()) return;
       const task = getRandomPhotoTask();
       displayPhotoTask(task);
-      photoGameModal.style.display = "flex";
+      photoGameModal.classList.add('show');
     });
   }
 
   if (closePhotoGame && photoGameModal) {
     closePhotoGame.addEventListener("click", () => {
-      photoGameModal.style.display = "none";
+      photoGameModal.classList.remove('show');
     });
   }
 
@@ -1942,7 +1949,7 @@ document.addEventListener("DOMContentLoaded", function () {
     photoGameAccept.addEventListener("click", async () => {
       if (currentPhotoTask) {
         await savePhotoGameTask(currentPhotoTask);
-        photoGameModal.style.display = "none";
+        photoGameModal.classList.remove('show');
 
         // Add some hearts for celebration
         for(let i = 0; i < 3; i++) {
@@ -1964,19 +1971,19 @@ document.addEventListener("DOMContentLoaded", function () {
   if (orgasmRequestBtn && orgasmRequestModal) {
     orgasmRequestBtn.addEventListener("click", () => {
       if (!checkAuthorization()) return;
-      orgasmRequestModal.style.display = "flex";
+      orgasmRequestModal.classList.add('show');
     });
   }
 
   if (closeOrgasmRequest && orgasmRequestModal) {
     closeOrgasmRequest.addEventListener("click", () => {
-      orgasmRequestModal.style.display = "none";
+      orgasmRequestModal.classList.remove('show');
     });
   }
 
   if (orgasmRequestCancel && orgasmRequestModal) {
     orgasmRequestCancel.addEventListener("click", () => {
-      orgasmRequestModal.style.display = "none";
+      orgasmRequestModal.classList.remove('show');
     });
   }
 
@@ -1984,7 +1991,7 @@ document.addEventListener("DOMContentLoaded", function () {
     orgasmRequestSend.addEventListener("click", async () => {
       const success = await saveOrgasmRequest();
       if (success) {
-        orgasmRequestModal.style.display = "none";
+        orgasmRequestModal.classList.remove('show');
 
         // Add some hearts for celebration
         for(let i = 0; i < 5; i++) {
@@ -2004,19 +2011,19 @@ document.addEventListener("DOMContentLoaded", function () {
   if (cumCommandBtn && cumCommandModal) {
     cumCommandBtn.addEventListener("click", () => {
       if (!checkAuthorization()) return;
-      cumCommandModal.style.display = "flex";
+      cumCommandModal.classList.add('show');
     });
   }
 
   if (closeCumCommand && cumCommandModal) {
     closeCumCommand.addEventListener("click", () => {
-      cumCommandModal.style.display = "none";
+      cumCommandModal.classList.remove('show');
     });
   }
 
   if (cumCommandCancel && cumCommandModal) {
     cumCommandCancel.addEventListener("click", () => {
-      cumCommandModal.style.display = "none";
+      cumCommandModal.classList.remove('show');
     });
   }
 
@@ -2024,7 +2031,7 @@ document.addEventListener("DOMContentLoaded", function () {
     cumCommandSend.addEventListener("click", async () => {
       const success = await sendCumCommand();
       if (success) {
-        cumCommandModal.style.display = "none";
+        cumCommandModal.classList.remove('show');
 
         // Add some hearts for celebration
         for (let i = 0; i < 5; i++) {
@@ -2040,11 +2047,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const closeModal = document.getElementById("close-location");
 
   locationBtn.addEventListener("click", () => {
-    locationModal.style.display = "flex";
+    locationModal.classList.add('show');
   });
 
   closeModal.addEventListener("click", () => {
-    locationModal.style.display = "none";
+    locationModal.classList.remove('show');
   });
 
   // Location bonus handling
@@ -2062,7 +2069,7 @@ document.addEventListener("DOMContentLoaded", function () {
       el.addEventListener("click", async () => {
         try {
           await handleIncrement(locationBonuses[id]);
-          locationModal.style.display = "none";
+          locationModal.classList.remove('show');
           for(let i = 0; i < 3; i++) {
             createFloatingHeart();
           }
@@ -2104,14 +2111,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const achievements = {
-    10: { title: "Getting Started! 🌟", unlocked: false },
-    25: { title: "Quarter Century! 🎯", unlocked: false },
-    50: { title: "Halfway There! 🎊", unlocked: false },
-    69: { title: "Nice! 😏", unlocked: false },
-    100: { title: "Century Club! 🏆", unlocked: false },
-    200: { title: "Double Trouble! 🌈", unlocked: false },
-    500: { title: "High Achiever! 👑", unlocked: false },
-    1000: { title: "Legendary Status! 🔥", unlocked: false }
+    10: { title: "Начинаем! 🌟", unlocked: false },
+    25: { title: "Четверть века! 🎯", unlocked: false },
+    50: { title: "На полпути! 🎊", unlocked: false },
+    69: { title: "Красиво! 😏", unlocked: false },
+    100: { title: "Клуб века! 🏆", unlocked: false },
+    200: { title: "Двойные неприятности! 🌈", unlocked: false },
+    500: { title: "Высокие достижения! 👑", unlocked: false },
+    1000: { title: "Легендарный статус! 🔥", unlocked: false }
   };
 
   function showAchievement(title) {
@@ -2146,7 +2153,7 @@ document.addEventListener("DOMContentLoaded", function () {
     soundEnabled = !soundEnabled;
     localStorage.setItem('soundEnabled', soundEnabled);
     const soundBtn = document.getElementById("sound-toggle-btn");
-    soundBtn.textContent = soundEnabled ? "🔊 SOUND" : "🔇 SOUND";
+    soundBtn.textContent = soundEnabled ? "🔊 ЗВУК" : "🔇 ЗВУК";
 
     // Play test sound when enabling
     if (soundEnabled) {
@@ -2281,12 +2288,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function getLocationName(increment) {
     switch(increment) {
-      case 1: return "Add one";
-      case 2: return "Taxi";
-      case 3: return "Subway";
-      case 4: return "Cafe";
-      case 5: return "Guest";
-      default: return "Bonus";
+      case 1: return "Добавить";
+      case 2: return "Такси";
+      case 3: return "Метро";
+      case 4: return "Кафе";
+      case 5: return "В гостях";
+      default: return "Бонус";
     }
   }
 
@@ -2309,7 +2316,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Sound toggle button
   const soundToggleBtn = document.getElementById("sound-toggle-btn");
   if (soundToggleBtn) {
-    soundToggleBtn.textContent = soundEnabled ? "🔊 SOUND" : "🔇 SOUND";
+    soundToggleBtn.textContent = soundEnabled ? "🔊 ЗВУК" : "🔇 ЗВУК";
     soundToggleBtn.addEventListener("click", toggleSound);
   }
 

@@ -204,31 +204,46 @@ button:hover {
       width: 100vw;
       height: 100vh;
       height: 100dvh;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.85);
       z-index: 9999;
-      display: none;
+      display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
       box-sizing: border-box;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+.modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
     }
 
 .modal-content {
       position: relative;
-      background-color: #1f2235;
-      border: 2px solid #ff4081;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
-      width: 320px;
-      max-width: 95%;
-      max-height: 80vh;
-      max-height: 80dvh;
+      background: linear-gradient(135deg, #1f2235 0%, #2a2f4a 100%);
+      border: 3px solid #ff4081;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(255, 64, 129, 0.6),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      width: 90%;
+      max-width: 420px;
+      max-height: 85vh;
+      max-height: 85dvh;
       overflow-y: auto;
       z-index: 10000;
-      margin: auto;
-      flex-shrink: 0;
-      transform: none;
+      margin: 0;
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+.modal-overlay.show .modal-content {
+      transform: scale(1);
     }
 
 /* Water droplet animation */
@@ -314,15 +329,26 @@ body.lock-scroll {
   }
 
   .modal-content input {
-    font-size: 16px; /* Prevents zoom on iOS */
-    padding: 18px 12px;
-  }
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 18px 12px;
+        width: calc(100% - 24px) !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
+        display: block !important;
+      }
 
-  /* Larger text for better readability */
-  .modal-content > div {
-    font-size: 11px;
-    line-height: 1.5;
-  }
+      /* Larger text for better readability */
+      .modal-content > div {
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      /* Better button centering on mobile */
+      .modal-content button {
+        margin: 0 auto;
+        display: block;
+        width: 90% !important;
+      }
 }
 @media (max-width: 480px) {
       body {
@@ -368,12 +394,14 @@ body.lock-scroll {
         max-height: 85vh;
         max-height: 85dvh;
         font-size: 12px;
+        box-sizing: border-box;
       }
 
       .modal-content button {
         padding: 16px 12px;
         font-size: 11px;
         min-height: 50px;
+        box-sizing: border-box;
       }
 
       .modal-content input {
@@ -381,6 +409,8 @@ body.lock-scroll {
         font-size: 12px;
         min-height: 50px;
         box-sizing: border-box;
+        width: 100%;
+        margin: 0;
       }
 
       .stats-box {
@@ -397,6 +427,8 @@ body.lock-scroll {
       .modal-content div {
         font-size: 12px;
         line-height: 1.4;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
 
       /* Make role buttons larger on mobile */
