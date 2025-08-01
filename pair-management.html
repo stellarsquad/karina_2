@@ -12,8 +12,10 @@
       font-family: 'Press Start 2P', monospace;
       color: #ffb6d5;
       text-align: center;
-      padding: 20px;
+      padding: 0;
       min-height: 100vh;
+      position: relative;
+      overflow: hidden;
     }
     
     .container {
@@ -23,6 +25,11 @@
       padding: 30px;
       border-radius: 20px;
       border: 2px solid #ff4081;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-height: auto;
     }
     
     .title {

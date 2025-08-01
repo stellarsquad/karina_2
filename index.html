@@ -352,6 +352,7 @@
       width: 270px;
       max-width: 90%;
       z-index: 10000;
+      transform: translateY(-170px);
     }
 
     .modal-grid {
@@ -825,11 +826,11 @@ body.lock-scroll {
 <body><div id="app">
   <div class="frame">
     <div class="title">
-      КАРИНА ОРГАЗМ-О-МАТИК
+      KARINA'S ORGASM-O-MATIC
       <div id="user-info" style="font-size: 8px; color: #ffe6eb; margin-top: 5px; display: none;">
         <span id="current-user-display"></span>
         <button id="logout-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 7px; background: #666; border: 1px solid #999;">
-          🔄 СМЕНИТЬ ПОЛЬЗОВАТЕЛЯ
+          🔄 SWITCH USER
         </button>
       </div>
     </div>
@@ -837,11 +838,11 @@ body.lock-scroll {
     <div class="count-box">
       <div class="heart-container" id="heart-container"></div>
       <div id="floating-hearts-container"></div>
-      <div class="count-label">ОБЩИЙ СЧЁТ</div>
+      <div class="count-label">TOTAL COUNT</div>
       <div class="count-value" id="counter-display">0</div>
-      <div class="timestamp" id="last-timestamp">Последний: --:--:--</div>
+      <div class="timestamp" id="last-timestamp">Last: --:--:--</div>
       <div class="streak-info" id="streak-info" style="font-size: 9px; color: #ffb6d5; margin-top: 8px;">
-        🔥 Серия: <span id="streak-count">0</span> дней | 🎯 Сегодня: <span id="daily-progress">0</span>/10
+        🔥 Streak: <span id="streak-count">0</span> days | 🎯 Today: <span id="daily-progress">0</span>/10
       </div>
     </div>
 
@@ -860,45 +861,45 @@ body.lock-scroll {
     </div>
 
     <div class="button-grid">
-      <button id="increment-btn">➕ ДОБАВИТЬ</button>
-      <button id="location-btn">📍 МЕСТО</button>
-      <button id="photo-game-btn">📷 ФОТО ИГРА</button>
-      <button id="punishment-btn">🩸 НАКАЖИ МЕНЯ</button>
-      <button id="orgasm-request-btn">🧎‍♀️ ПРОШУ ОРГАЗМ</button>
-      <button id="cum-command-btn" style="display: none;">💦 КОНЧАЙ, СУЧКА</button>
-      <button id="sound-toggle-btn">🔊 ЗВУК</button>
-      <button id="undo-btn">⤺ ОТМЕНА</button>
-      <button id="reset-btn">⟳ СБРОС</button>
-      <button id="stats-btn">📊 СТАТИСТИКА</button>
-      <button id="last-btn">📜 ИСТОРИЯ</button>
-      <button onclick="location.href='pair-management.html'">💕 УПРАВЛЕНИЕ ПАРОЙ</button>
+      <button id="increment-btn">➕ ADD ONE</button>
+      <button id="location-btn">📍 LOCATION</button>
+      <button id="photo-game-btn">📷 PHOTO GAME</button>
+      <button id="punishment-btn">🩸 PUNISH ME</button>
+      <button id="orgasm-request-btn">🧎‍♀️ REQUEST ORGASM</button>
+      <button id="cum-command-btn" style="display: none;">💦 CUM, BITCH</button>
+      <button id="sound-toggle-btn">🔊 SOUND</button>
+      <button id="undo-btn">⤺ UNDO</button>
+      <button id="reset-btn">⟳ RESET</button>
+      <button id="stats-btn">📊 STATS</button>
+      <button id="last-btn">📜 LAST</button>
+      <button onclick="location.href='pair-management.html'">💕 MANAGE PAIR</button>
     </div>
 
     <div class="stats-box" id="stats-display">
-      <div id="stat-today">Сегодня: 0</div>
-      <div id="stat-week">На этой неделе: 0</div>
-      <div id="stat-month">В этом месяце: 0</div>
-      <div id="stat-record">Рекорд: 0</div>
+      <div id="stat-today">Today: 0</div>
+      <div id="stat-week">This Week: 0</div>
+      <div id="stat-month">This Month: 0</div>
+      <div id="stat-record">Record: 0</div>
     </div>
 
     <div class="stats-box" id="last-results" style="display: none; opacity: 0;"></div>
 
-    <div class="footer">Я люблю тебя <span>♥</span></div>
+    <div class="footer">I love you <span>♥</span></div>
   </div>
 
   <!-- Location Modal -->
   <div id="location-modal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <span>ВЫБЕРИТЕ МЕСТО</span>
+        <span>SELECT LOCATION</span>
         <button class="close-btn" id="close-location">✖</button>
       </div>
       <div class="modal-grid">
-        <button id="location-taxi">🚕 ТАКСИ +2</button>
-        <button id="location-subway">🚇 МЕТРО +3</button>
-        <button id="location-cafe">☕ КАФЕ +4</button>
-        <button id="location-guest">👯 В ГОСТЯХ +5</button>
-        <button id="location-bonus" class="full-width">✨ БОНУС +1</button>
+        <button id="location-taxi">🚕 TAXI +2</button>
+        <button id="location-subway">🚇 SUBWAY +3</button>
+        <button id="location-cafe">☕ CAFE +4</button>
+        <button id="location-guest">👯 GUEST +5</button>
+        <button id="location-bonus" class="full-width">✨ BONUS +1</button>
       </div>
     </div>
   </div>
@@ -907,7 +908,7 @@ body.lock-scroll {
   <div id="photo-game-modal" class="modal-overlay">
     <div class="modal-content" style="width: 320px; max-width: 95%;">
       <div class="modal-header">
-        <span>📷 ФОТО ИГРА</span>
+        <span>📷 PHOTO GAME</span>
         <button class="close-btn" id="close-photo-game">✖</button>
       </div>
       <div id="photo-game-content" style="text-align: left; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 15px 0;">
@@ -916,10 +917,10 @@ body.lock-scroll {
       </div>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button id="photo-game-accept" class="full-width" style="background: linear-gradient(145deg, #ff4081, #ff6b9e);">
-          ✅ ПРИНЯТЬ ЗАДАНИЕ
+          ✅ ACCEPT TASK
         </button>
         <button id="photo-game-new" class="full-width" style="background: linear-gradient(145deg, #6b9eff, #4081ff);">
-          🔄 НОВОЕ ЗАДАНИЕ
+          🔄 NEW TASK
         </button>
       </div>
     </div>
@@ -929,7 +930,7 @@ body.lock-scroll {
   <div id="punishment-modal" class="modal-overlay">
     <div class="modal-content" style="width: 320px; max-width: 95%;">
       <div class="modal-header">
-        <span>🩸 НАКАЗАНИЕ</span>
+        <span>🩸 PUNISHMENT</span>
         <button class="close-btn" id="close-punishment">✖</button>
       </div>
       <div id="punishment-content" style="text-align: left; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 15px 0;">
@@ -937,10 +938,10 @@ body.lock-scroll {
       </div>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button id="punishment-accept" class="full-width" style="background: linear-gradient(145deg, #ff4081, #ff6b9e);">
-          ✅ ПРИНЯТЬ НАКАЗАНИЕ
+          ✅ ACCEPT PUNISHMENT
         </button>
         <button id="punishment-new" class="full-width" style="background: linear-gradient(145deg, #6b9eff, #4081ff);">
-          🔄 НОВОЕ НАКАЗАНИЕ
+          🔄 NEW PUNISHMENT
         </button>
       </div>
       <div id="punishment-completed" style="display: none; margin-top: 15px;">
@@ -955,7 +956,7 @@ body.lock-scroll {
   <div id="orgasm-request-modal" class="modal-overlay">
     <div class="modal-content" style="width: 300px; max-width: 95%;">
       <div class="modal-header">
-        <span>🧎‍♀️ ЗАПРОС ОРГАЗМА</span>
+        <span>🧎‍♀️ ORGASM REQUEST</span>
         <button class="close-btn" id="close-orgasm-request">✖</button>
       </div>
       <div id="orgasm-request-content" style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 20px 0;">
@@ -981,318 +982,43 @@ body.lock-scroll {
   <div id="cum-command-modal" class="modal-overlay">
     <div class="modal-content" style="width: 300px; max-width: 95%;">
       <div class="modal-header">
-        <span>💦 КОМАНДА КОНЧАТЬ</span>
+        <span>💦 CUM COMMAND</span>
         <button class="close-btn" id="close-cum-command">✖</button>
       </div>
       <div id="cum-command-content" style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin: 20px 0;">
         <div style="font-size: 14px; color: #4081ff; margin-bottom: 15px;">
-          Приказать Карине кончить
+          Command Karina to orgasm
         </div>
         <div style="color: #ffe6eb; margin-bottom: 20px;">
-          Это отправит прямую команду сабмиссиву
+          This will send a direct command to the submissive
         </div>
       </div>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button id="cum-command-send" class="full-width" style="background: linear-gradient(145deg, #4081ff, #6b9eff);">
-          💦 ОТПРАВИТЬ КОМАНДУ
+          💦 SEND COMMAND
         </button>
         <button id="cum-command-cancel" class="full-width" style="background: linear-gradient(145deg, #666, #888);">
-          ❌ ОТМЕНА
+          ❌ CANCEL
         </button>
       </div>
     </div>
   </div>
 
-  <div id="saved-indicator">💾 Сохранено</div>
-
+  <div id="saved-indicator">💾 Saved</div>
+  
   <!-- Water animation container -->
   <div id="water-container"></div>
 
   <!-- Achievement notification -->
   <div id="achievement-notification" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, #ff4081, #ff9ec6); padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4); z-index: 1000; font-family: 'Press Start 2P', monospace; color: white; font-size: 12px; text-align: center; animation: achievementSlide 0.5s ease-out;">
-    <div style="margin-bottom: 8px;">🏆 Достижение разблокировано!</div>
+    <div style="margin-bottom: 8px;">🏆 Achievement Unlocked!</div>
     <div id="achievement-text" style="font-size: 10px;"></div>
   </div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-  <script>
-function showPairingModal() {
-  const pairingModal = document.createElement("div");
-  pairingModal.id = "pairing-modal";
-  pairingModal.className = "modal-overlay";
-  pairingModal.innerHTML = `
-    <div class="modal-content" style="width: 100%; max-width: 420px; margin: 0; padding: 25px; box-sizing: border-box;">
-      <div class="modal-header" style="text-align: center; margin-bottom: 20px;">
-        <span style="font-size: 14px; color: #ff4081;">💕 СОЗДАНИЕ ПАРЫ</span>
-      </div>
-
-      <div style="text-align: center; color: #ffb6d5; font-size: 11px; line-height: 1.4; margin-bottom: 25px;">
-        <div style="font-size: 16px; color: #ff4081; margin-bottom: 15px; text-shadow: 0 0 10px rgba(255, 64, 129, 0.5);">
-          🔗 Создать или присоединиться к паре
-        </div>
-        <div style="color: #ffe6eb; margin-bottom: 15px;">
-          Каждая пара получает приватное общее пространство для интимных данных
-        </div>
-      </div>
-
-      <div style="margin-bottom: 30px;">
-        <div style="color: #ffb6d5; font-size: 12px; margin-bottom: 15px; text-align: center;">
-          👤 Выберите вашу роль:
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-          <button id="role-he" class="role-btn" style="padding: 15px 8px; font-size: 9px; 
-                  background: linear-gradient(145deg, #4081ff, #6b9eff); border: 2px solid transparent;
-                  border-radius: 12px; color: white; cursor: pointer; transition: all 0.3s ease;
-                  font-family: 'Press Start 2P', monospace; text-align: center; line-height: 1.2;
-                  min-height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center;
-                  box-sizing: border-box; width: 100%;">
-            👨 ОН<br>(ДОМИНАНТ)
-          </button>
-          <button id="role-she" class="role-btn" style="padding: 15px 8px; font-size: 9px; 
-                  background: linear-gradient(145deg, #ff4081, #ff6b9e); border: 2px solid transparent;
-                  border-radius: 12px; color: white; cursor: pointer; transition: all 0.3s ease;
-                  font-family: 'Press Start 2P', monospace; text-align: center; line-height: 1.2;
-                  min-height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center;
-                  box-sizing: border-box; width: 100%;">
-            👩 ОНА<br>(САБМИССИВ)
-          </button>
-        </div>
-        <div id="role-description" style="font-size: 10px; color: #ffe6eb; text-align: center; margin-bottom: 10px; min-height: 25px; line-height: 1.3;">
-          Выберите вашу роль в отношениях
-        </div>
-      </div>
-
-      <div id="action-section" style="opacity: 0.5; transition: opacity 0.3s ease; pointer-events: none;">
-        <div style="margin-bottom: 20px; text-align: center;">
-          <button id="create-pair" style="width: 90%; padding: 18px 15px; font-size: 10px;
-                  background: linear-gradient(145deg, #4CAF50, #66BB6A); border: 2px solid #4CAF50; 
-                  border-radius: 12px; color: white; cursor: pointer; font-family: 'Press Start 2P', monospace;
-                  box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; line-height: 1.3;
-                  min-height: 50px; display: inline-flex; align-items: center; justify-content: center;">
-            ✨ СОЗДАТЬ НОВУЮ ПАРУ
-          </button>
-        </div>
-
-        <div style="margin: 20px 0; text-align: center; color: #ffe6eb; font-size: 10px; 
-                    border-top: 1px solid #ff4081; padding-top: 15px;">
-          ИЛИ ПРИСОЕДИНИТЬСЯ К СУЩЕСТВУЮЩЕЙ ПАРЕ
-        </div>
-
-        <div style="margin-bottom: 15px;">
-          <input id="pair-code-input" type="text" placeholder="ВВЕДИТЕ КОД" 
-                 style="width: 100%; padding: 15px 12px; box-sizing: border-box;
-                        font-family: 'Press Start 2P', monospace; font-size: 11px; 
-                        background: #1f2235; border: 2px solid #ff4081; border-radius: 12px; color: #ffb6d5;
-                        text-align: center; text-transform: uppercase; letter-spacing: 2px;
-                        transition: border-color 0.3s ease; outline: none; margin: 0; display: block;" maxlength="6">
-          <div id="code-validation" style="font-size: 9px; color: #f44336; text-align: center; margin-top: 8px; min-height: 18px; line-height: 1.2;"></div>
-        </div>
-
-        <div>
-          <button id="join-pair" class="full-width" style="width: 100%; padding: 18px 10px; font-size: 10px;
-                  background: linear-gradient(145deg, #ff9800, #ffb74d); border: 2px solid #ff9800;
-                  border-radius: 12px; color: white; cursor: pointer; font-family: 'Press Start 2P', monospace;
-                  box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; line-height: 1.3;
-                  min-height: 50px; display: flex; align-items: center; justify-content: center;">
-            🤝 ПРИСОЕДИНИТЬСЯ К ПАРЕ
-          </button>
-        </div>
-      </div>
-
-      <div style="margin-top: 25px; font-size: 9px; color: #ffe6eb; text-align: center; line-height: 1.4; padding: 15px;
-                  background: rgba(255, 182, 213, 0.1); border-radius: 10px; border: 1px solid rgba(255, 182, 213, 0.2);">
-        💡 Подсказка: Поделитесь 6-значным кодом с партнёром, чтобы соединить ваши аккаунты
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(pairingModal);
-
-  const roleHeBtn = document.getElementById("role-he");
-  const roleSheBtn = document.getElementById("role-she");
-  const createPairBtn = document.getElementById("create-pair");
-  const joinPairBtn = document.getElementById("join-pair");
-  const pairCodeInput = document.getElementById("pair-code-input");
-  const codeValidation = document.getElementById("code-validation");
-  const actionSection = document.getElementById("action-section");
-  const roleDescription = document.getElementById("role-description");
-
-  let selectedRole = null;
-
-  function updateActionSection() {
-    if (selectedRole) {
-      actionSection.style.opacity = 1;
-      actionSection.style.pointerEvents = "auto";
-    } else {
-      actionSection.style.opacity = 0.5;
-      actionSection.style.pointerEvents = "none";
-    }
-  }
-
-  roleHeBtn.addEventListener("click", () => {
-    selectedRole = "he";
-    roleHeBtn.style.border = "2px solid #4081ff";
-    roleSheBtn.style.border = "2px solid transparent";
-    roleDescription.textContent = "Вы доминант в отношениях";
-    updateActionSection();
-  });
-
-  roleSheBtn.addEventListener("click", () => {
-    selectedRole = "she";
-    roleSheBtn.style.border = "2px solid #ff4081";
-    roleHeBtn.style.border = "2px solid transparent";
-    roleDescription.textContent = "Вы сабмиссив в отношениях";
-    updateActionSection();
-  });
-
-  createPairBtn.addEventListener("click", async () => {
-    if (!selectedRole) {
-      alert("Выберите вашу роль!");
-      return;
-    }
-    const newPairCode = generatePairCode();
-    await savePairingInfo(newPairCode, selectedRole);
-    alert(`Пара создана! Код: ${newPairCode}. Поделитесь им с партнером.`);
-    closePairingModal();
-  });
-
-  joinPairBtn.addEventListener("click", async () => {
-    const pairCode = pairCodeInput.value.trim().toUpperCase();
-    if (!/^[A-Z0-9]{6}$/.test(pairCode)) {
-      codeValidation.textContent = "Введите 6-значный код";
-      return;
-    }
-    codeValidation.textContent = "";
-    const isValid = await validatePairCode(pairCode);
-    if (isValid) {
-      await joinExistingPair(pairCode, selectedRole);
-      alert("Вы успешно присоединились к паре!");
-      closePairingModal();
-    } else {
-      codeValidation.textContent = "Неверный код";
-    }
-  });
-
-  pairCodeInput.addEventListener("input", () => {
-    codeValidation.textContent = "";
-  });
-
-  function closePairingModal() {
-    pairingModal.remove();
-  }
-
-  pairingModal.addEventListener("click", (event) => {
-    if (event.target === pairingModal) {
-      closePairingModal();
-    }
-  });
-}
-
-
-function generatePairCode() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return code;
-}
-
-async function savePairingInfo(pairCode, userRole) {
-  const db = firebase.firestore();
-  const userId = localStorage.getItem('user');
-  if (!userId) {
-    console.error('User ID not found.');
-    return;
-  }
-
-  const pairData = {
-    code: pairCode,
-    [userRole]: userId,
-  };
-
-  try {
-    await db.collection('pairs').doc(pairCode).set(pairData);
-    console.log('Pairing information saved to Firestore.');
-    localStorage.setItem('pairCode', pairCode);
-
-     // Update user document with pairCode and role
-     const userRef = db.collection('users').doc(userId);
-     await userRef.update({
-         pairCode: pairCode,
-         role: userRole
-     });
-
-  } catch (error) {
-    console.error('Error saving pairing information to Firestore:', error);
-  }
-}
-
-async function validatePairCode(pairCode) {
-    const db = firebase.firestore();
-    try {
-        const doc = await db.collection('pairs').doc(pairCode).get();
-        return doc.exists;
-    } catch (error) {
-        console.error("Error validating pair code:", error);
-        return false;
-    }
-}
-
-async function joinExistingPair(pairCode, userRole) {
-    const db = firebase.firestore();
-    const userId = localStorage.getItem('user');
-
-    if (!userId) {
-        console.error('User ID not found.');
-        return;
-    }
-
-    try {
-        const pairRef = db.collection('pairs').doc(pairCode);
-        const pairDoc = await pairRef.get();
-
-        if (!pairDoc.exists) {
-            console.error('Pair code does not exist.');
-            return;
-        }
-
-        const pairData = pairDoc.data();
-
-        if (pairData.he && pairData.she) {
-            console.error('Pair is already full.');
-            return;
-        }
-
-        if (pairData[userRole]) {
-            console.error('This role is already taken in the pair.');
-            return;
-        }
-
-        // Update the pair document with the new user
-        await pairRef.update({
-            [userRole]: userId
-        });
-
-        console.log('User successfully joined the pair.');
-        localStorage.setItem('pairCode', pairCode);
-
-        // Update user document with pairCode and role
-        const userRef = db.collection('users').doc(userId);
-        await userRef.update({
-            pairCode: pairCode,
-            role: userRole
-        });
-
-    } catch (error) {
-        console.error('Error joining pair:', error);
-    }
-}
-
-</script>
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </div>
 
 </body>
