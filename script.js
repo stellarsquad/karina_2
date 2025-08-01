@@ -1,3 +1,25 @@
+// Initialize Telegram Web App
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  
+  // Expand the web app to full height
+  tg.expand();
+  
+  // Enable closing confirmation
+  tg.enableClosingConfirmation();
+  
+  // Set header color to match app theme
+  tg.setHeaderColor('#1a1c2c');
+  
+  // Set background color
+  tg.setBackgroundColor('#0b0f24');
+  
+  // Ready the web app
+  tg.ready();
+  
+  console.log('Telegram Web App initialized and expanded');
+}
+
 // Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
@@ -1840,6 +1862,10 @@ function checkAuthorization() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Add Telegram Web App class if running in Telegram
+  if (window.Telegram && window.Telegram.WebApp) {
+    document.body.classList.add('tg-webapp');
+  }
   const statsBox = document.getElementById("stats-display");
   const body = document.body;
   const toggleStats = () => {
