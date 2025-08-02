@@ -352,16 +352,26 @@
       width: 270px;
       max-width: 90%;
       z-index: 10000;
-      transform: translateY(-170px);
+      text-align: center;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .modal-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 10px;
+      margin-top: 15px;
+      align-items: center;
+      width: 100%;
     }
 
-    .modal-grid button {
+    .modal-grid button,
+    .modal-content > button {
+      width: 180px;
       font-family: 'Press Start 2P', monospace;
       font-size: 10px;
       padding: 10px;
@@ -372,6 +382,8 @@
       border-radius: 10px;
       transition: all 0.2s;
       box-shadow: 2px 2px 0 #000;
+      align-self: center;
+      margin: 5px 0;
     }
 
     .modal-grid button:hover {
@@ -383,6 +395,59 @@
       cursor: pointer;
       color: #ff9ec6;
       font-size: 12px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      max-width: 100%;
+      padding: 12px;
+      margin: 10px auto;
+      background: #1a1c2c;
+      border: 2px solid #ff9ec6;
+      border-radius: 8px;
+      color: #ffb6d5;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      text-align: center;
+      box-sizing: border-box;
+      outline: none;
+      display: block;
+    }
+
+    .modal-content input:focus {
+      border-color: #ff4081;
+      box-shadow: 0 0 8px rgba(255, 64, 129, 0.5);
+    }
+
+    .modal-content .modal-text {
+      color: #ffb6d5;
+      font-size: 10px;
+      line-height: 1.4;
+      margin: 10px 0;
+      text-align: center;
+      width: 100%;
+    }
+
+    .modal-content > div {
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-header span {
+      flex-grow: 1;
+      text-align: center;
     }
     @keyframes pulseFrame {
       0% { box-shadow: 0 0 0 4px #ff006a, 0 0 0 8px #ff9ec6; }
@@ -672,6 +737,21 @@
       100% { transform: translateX(100%); }
     }
 
+    @keyframes slideIn {
+      0% { transform: translateX(100%); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0; }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
     .progress-container .milestone {
       position: absolute;
       top: -2px;
@@ -732,7 +812,7 @@
       transform: translateX(-50%);
       font-size: 10px;
       color: #ffb6d5;
-      font-family: 'Press Start 2P', monospace;
+      font-family: 'Press Start Start 2P', monospace;
       pointer-events: none;
     }
 
@@ -778,14 +858,15 @@
 
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0;
+      top: 0; 
+      left: 0;
       width: 100vw;
       height: 100vh;
       background-color: rgba(0, 0, 0, 0.6);
       z-index: 9999;
+      display: none;
       justify-content: center;
       align-items: center;
-      display: none;
     }
 
     .modal-header {
@@ -1005,7 +1086,7 @@ body.lock-scroll {
   </div>
 
   <div id="saved-indicator">💾 Saved</div>
-  
+
   <!-- Water animation container -->
   <div id="water-container"></div>
 

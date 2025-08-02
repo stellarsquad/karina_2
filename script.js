@@ -663,6 +663,121 @@ function showPunishmentNotification(message) {
 // Telegram bot configuration
 const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
 
+// Telegram setup monitoring
+let telegramSetupInterval = null;
+
+async function startTelegramSetupMonitoring(pairId) {
+  if (telegramSetupInterval) {
+    clearInterval(telegramSetupInterval);
+  }
+
+  // Check every 5 seconds for new Telegram IDs
+  telegramSetupInterval = setInterval(async () => {
+    try {
+      await checkForTelegramUpdates(pairId);
+    } catch (error) {
+      console.error("Error checking Telegram updates:", error);
+    }
+  }, 5000);
+
+  // Stop monitoring after 10 minutes
+  setTimeout(() => {
+    if (telegramSetupInterval) {
+      clearInterval(telegramSetupInterval);
+      telegramSetupInterval = null;
+    }
+  }, 600000);
+}
+
+async function checkForTelegramUpdates(pairId) {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
+    const response = await fetch(url);
+    
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    if (!data.ok || !data.result.length) return;
+
+    for (const update of data.result) {
+      if (update.message && update.message.text) {
+        const text = update.message.text.trim();
+        const chatId = update.message.chat.id;
+        
+        // Check if message is a setup command for this pair
+        if (text.startsWith('/setup') && text.includes(pairId)) {
+          await handleTelegramSetup(pairId, chatId, update.message.from);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error checking Telegram updates:", error);
+  }
+}
+
+async function handleTelegramSetup(pairId, chatId, user) {
+  try {
+    // Get current pair data
+    const pairDoc = await db.collection("pairs").doc(pairId).get();
+    if (!pairDoc.exists) return;
+
+    const pairData = pairDoc.data();
+    const telegramData = pairData.telegramData || {};
+
+    // Determine user role based on their position in the pair
+    let userRole = null;
+    const userUID = pairData.createdBy;
+    
+    if (pairData.users.length === 1) {
+      // First user (creator)
+      userRole = pairData.userTypes[userUID];
+    } else if (pairData.users.length === 2) {
+      // Second user - find their role
+      for (const uid of pairData.users) {
+        if (uid !== pairData.createdBy) {
+          userRole = pairData.userTypes[uid];
+          break;
+        }
+      }
+    }
+
+    if (!userRole) return;
+
+    // Store chat ID for this user role
+    telegramData[`${userRole}_chat_id`] = chatId;
+    telegramData[`${userRole}_user`] = {
+      id: user.id,
+      username: user.username || null,
+      first_name: user.first_name || null,
+      last_name: user.last_name || null
+    };
+
+    // Update pair with Telegram data
+    await db.collection("pairs").doc(pairId).update({
+      telegramData: telegramData
+    });
+
+    // Send confirmation message
+    const roleNames = { 'he': 'Dominant', 'she': 'Submissive' };
+    const confirmMessage = `✅ <b>Telegram setup complete!</b>\n\nYou are connected as: <b>${roleNames[userRole]}</b>\nPair ID: <code>${pairId}</code>\n\nYou will now receive notifications for this pair.`;
+    
+    await sendTelegramMessage(confirmMessage, null, null, chatId);
+
+    // If both users are connected, send welcome message to both
+    if (telegramData.he_chat_id && telegramData.she_chat_id) {
+      const welcomeMessage = `🎉 <b>Both partners are now connected!</b>\n\nYour couple pairing is complete. You will receive notifications about:\n• 📷 Photo game tasks\n• 🩸 Punishments\n• 🧎‍♀️ Orgasm requests\n• 💦 Commands\n\nEnjoy your intimate connection! 💕`;
+      
+      await sendTelegramMessage(welcomeMessage, null, 'he');
+      await sendTelegramMessage(welcomeMessage, null, 'she');
+    }
+
+    console.log(`Telegram setup completed for ${userRole} in pair ${pairId}`);
+    
+  } catch (error) {
+    console.error("Error handling Telegram setup:", error);
+  }
+}
+
 // Get pair-specific Telegram chat IDs from Firestore
 async function getPairTelegramData() {
   if (!currentPairId) return null;
@@ -684,8 +799,7 @@ async function updatePairTelegramData(telegramData) {
 
   try {
     await db.collection("pairs").doc(currentPairId).update({
-      telegramData: telegramData
-    });
+      telegramData: telegramData    });
   } catch (error) {
     console.error("Error updating pair Telegram data:", error);
   }
@@ -699,7 +813,7 @@ let userUID = localStorage.getItem('userUID') || null;
 
 // Initialize app function
 function initializeApp() {
-  if (!currentPairId) {
+  if (!currentPairId || !currentUser) {
     showAuthorizationModal();
     return;
   }
@@ -1307,7 +1421,8 @@ async function createPair(userType) {
       users: [uid],
       userTypes: {
         [uid]: userType
-      }
+      },
+      telegramData: {}
     });
 
     // Initialize pair data
@@ -1331,6 +1446,9 @@ async function createPair(userType) {
     userUID = uid;
     localStorage.setItem('currentPairId', pairId);
     localStorage.setItem('userUID', uid);
+
+    // Start monitoring for Telegram setup
+    startTelegramSetupMonitoring(pairId);
 
     showPairCodeModal(pairId);
     return pairId;
@@ -1382,6 +1500,9 @@ async function joinPair(pairId, userType) {
     localStorage.setItem('currentPairId', pairId);
     localStorage.setItem('userUID', uid);
 
+    // Start monitoring for Telegram setup
+    startTelegramSetupMonitoring(pairId);
+
     showPairNotification("✅ Successfully joined pair! Your connection is now private and secure.");
     return true;
   } catch (error) {
@@ -1419,17 +1540,19 @@ function showPairCodeModal(pairId) {
       <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 12px; 
                   border: 2px solid #2196F3; margin: 20px 0;">
         <div style="font-size: 12px; color: #ffb6d5; margin-bottom: 10px;">📱 Enable Telegram Notifications</div>
-        <div style="font-size: 10px; color: #ffe6eb; margin-bottom: 10px;">
-          To receive notifications, start a chat with our bot and click the button below:
+        <div style="font-size: 10px; color: #ffe6eb; margin-bottom: 10px; line-height: 1.4;">
+          1. Click "OPEN TELEGRAM BOT" below<br>
+          2. Send: <strong>/setup ${pairId}</strong><br>
+          3. Both partners must do this separately
         </div>
         <button onclick="window.open('https://t.me/iloveyoukarina_bot', '_blank')" 
                 style="background: linear-gradient(145deg, #0088cc, #0099dd); margin: 5px 0; width: 100%;">
           📱 OPEN TELEGRAM BOT
         </button>
-        <button onclick="setupTelegram('${pairId}')" 
-                style="background: linear-gradient(145deg, #ff9800, #ffb74d); margin: 5px 0; width: 100%;">
-          🔗 SETUP NOTIFICATIONS
-        </button>
+        <div style="background: rgba(76, 175, 80, 0.1); padding: 10px; border-radius: 8px; 
+                    border: 1px solid #4CAF50; margin: 10px 0; font-size: 9px; color: #ffe6eb;">
+          💡 The app will automatically detect when you connect to Telegram and start sending notifications!
+        </div>
       </div>
 
       <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1453,26 +1576,38 @@ async function setupTelegram(pairId) {
   modal.innerHTML = `
     <div class="modal-content" style="width: 380px; max-width: 95%; text-align: center;">
       <div style="font-size: 16px; color: #2196F3; margin-bottom: 20px;">
-        📱 Telegram Setup
+        📱 Telegram Setup Instructions
       </div>
 
-      <div style="font-size: 11px; color: #ffb6d5; margin-bottom: 20px; line-height: 1.4;">
-        1. Open the Telegram bot by clicking the button above<br>
-        2. Send the command: <code>/setup ${pairId}</code><br>
-        3. The bot will automatically connect to your pair
+      <div style="font-size: 11px; color: #ffb6d5; margin-bottom: 20px; line-height: 1.5;">
+        <strong>Step by step:</strong><br><br>
+        1. Open <a href="https://t.me/iloveyoukarina_bot" target="_blank" style="color: #4CAF50;">@iloveyoukarina_bot</a><br>
+        2. Send exactly: <br>
+        <div style="background: #1a1c2c; padding: 10px; border-radius: 8px; margin: 10px 0; 
+                    border: 2px solid #4CAF50; font-family: monospace; color: #4CAF50;">
+          /setup ${pairId}
+        </div>
+        3. Wait for confirmation message<br>
+        4. Your partner must do the same
       </div>
 
-      <div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 12px; 
-                  border: 2px solid #ff9800; margin: 20px 0;">
+      <div style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 12px; 
+                  border: 2px solid #4CAF50; margin: 20px 0;">
         <div style="font-size: 10px; color: #ffe6eb;">
-          💡 Both partners need to setup Telegram individually to receive notifications
+          ✅ After both partners complete setup, notifications will work automatically!
         </div>
       </div>
 
-      <button onclick="this.closest('.modal-overlay').remove()" 
-              style="background: linear-gradient(145deg, #4CAF50, #66BB6A); width: 100%;">
-        ✅ GOT IT
-      </button>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="copyToClipboard('/setup ${pairId}')" 
+                style="flex: 1; background: linear-gradient(145deg, #2196F3, #42A5F5);">
+          📋 COPY COMMAND
+        </button>
+        <button onclick="this.closest('.modal-overlay').remove()" 
+                style="flex: 1; background: linear-gradient(145deg, #4CAF50, #66BB6A);">
+          ✅ GOT IT
+        </button>
+      </div>
     </div>
   `;
 
@@ -1555,7 +1690,7 @@ function showPairingModal() {
             👩 SHE (SUBMISSIVE)
           </button>
         </div>
-        <div id="role-description" style="font-size: 9px; color: #ffe6eb; text-align: center; margin-bottom: 8px; min-height: 20px;">
+        <div id="role-description" style="font-size: 9px; color: #ffe6eb; text-align: center; margin-bottom: The code changes fix a syntax error with the 'code' identifier and adjust button styling for centering.8px; min-height: 20px;">
           Choose your role in the relationship
         </div>
       </div>
@@ -1720,10 +1855,9 @@ function showPairingModal() {
 }
 
 function showAuthorizationModal() {
-  // Check if user already has a pair
-  if (currentPairId && userUID) {
-    // Try to restore session
-    initializeApp();
+  // Check if user already has a pair and user type
+  if (currentPairId && userUID && currentUser) {
+    // Session is complete, no need to show modal
     return;
   }
 
@@ -1825,7 +1959,7 @@ function showAuthNotification(message) {
 }
 
 function checkAuthorization() {
-  if (!isAuthorized) {
+  if (!currentPairId || !currentUser) {
     showAuthorizationModal();
     return false;
   }
@@ -2164,24 +2298,31 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function handleIncrement(increment) {
-    if (!currentPairId) return;
-
     try {
-      // Add vibration feedback if supported
-      if ('vibrate' in navigator) {
-        navigator.vibrate(50);
-      }
+    // Check authorization before proceeding
+    if (!checkAuthorization()) {
+      return;
+    }
 
-      // Play sound effect
-      playSound('increment');
+    // Add vibration feedback if supported
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
 
-      const counterDocRef = getDocRef();
-      if (!counterDocRef) return;
+    // Play sound effect
+    playSound('increment');
 
-      const snapshot = await counterDocRef.get();
-      const currentCount = snapshot.exists ? snapshot.data().count : 0;
-      counter = currentCount + increment;
-      incrementHistory.push(increment);
+    const counterDocRef = getDocRef();
+    if (!counterDocRef) {
+      console.error("Counter document reference not available");
+      showErrorNotification("Database not available");
+      return;
+    }
+
+    const snapshot = await counterDocRef.get();
+    const currentCount = snapshot.exists ? snapshot.data().count : 0;
+    counter = currentCount + increment;
+    incrementHistory.push(increment);
       checkAchievements(counter);
       if (incrementHistory.length > MAX_HISTORY) {
         incrementHistory.shift();
@@ -2325,3 +2466,82 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize the app after all event listeners are set up
   initializeApp();
 });
+
+function showErrorNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #f44336, #e57373);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s ease-out forwards";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+async function joinPair(pairCode, userType) {
+  try {
+    const pairDoc = await db.collection("pairs").doc(pairCode).get();
+
+    if (!pairDoc.exists) {
+      showPairNotification("❌ Pair code not found. Please check the code and try again.");
+      return false;
+    }
+
+    const pairData = pairDoc.data();
+
+    if (pairData.users.length >= 2) {
+      showPairNotification("❌ This pair is already full (2 users maximum)");
+      return false;
+    }
+
+    // Check if user is trying to join with the same role as creator
+    const creatorUID = pairData.createdBy;
+    const creatorRole = pairData.userTypes[creatorUID];
+
+    if (creatorRole === userType) {
+      const roleNames = { 'he': 'Dominant', 'she': 'Submissive' };
+      showPairNotification(`❌ This pair already has a ${roleNames[userType]}. Please select the opposite role.`);
+      return false;
+    }
+
+    const uid = generateUID();
+
+    // Add user to pair
+    await db.collection("pairs").doc(pairCode).update({
+      users: firebase.firestore.FieldValue.arrayUnion(uid),
+      [`userTypes.${uid}`]: userType,
+      joinedAt: new Date().toISOString()
+    });
+
+    // Store user info
+    currentPairId = pairCode;
+    userUID = uid;
+    localStorage.setItem('currentPairId', pairCode);
+    localStorage.setItem('userUID', uid);
+
+    showPairNotification("✅ Successfully joined pair! Your connection is now private and secure.");
+    return true;
+  } catch (error) {
+    console.error("Error joining pair:", error);
+    if (error.code === 'permission-denied') {
+      showPairNotification("❌ Permission denied. Please check your internet connection.");
+    } else {
+      showPairNotification("❌ Network error. Please try again.");
+    }
+    return false;
+  }
+}
