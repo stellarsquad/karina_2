@@ -1,4 +1,7 @@
-body {
+html {
+  height: 100%;
+  width: 100%;
+}body {
   background: linear-gradient(135deg, #0b0f24 0%, #1a1c2c 50%, #2d1b3d 100%);
   background-size: 400% 400%;
   animation: gradient-shift 15s ease infinite;
@@ -166,12 +169,26 @@ button {
 button:active {
   transform: scale(0.98);
   opacity: 0.9;
+  transition: all 0.1s ease-out;
 }
 
 button:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 64, 129, 0.3);
   background: linear-gradient(145deg, #ff6b9e, #ff4081);
+  transition: all 0.2s ease-out;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px #999;
+}
+
+button:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px #999;
 }
 
 .stats-box {
@@ -203,58 +220,97 @@ button:hover {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-}
-.modal-content {
-  position: relative;
-  background-color: #1f2235;
-  border: 2px solid #ff4081;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
-  width: 320px;
-  max-width: 95%;
-  max-height: 80vh;
-  overflow-y: auto;
-  z-index: 10000;
-  transform: translate(-50%, -50%);
+  animation: fadeIn 0.2s ease-out;
 }
 
-/* Water droplet animation */
-#water-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
+.modal-content input {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #333 !important;
+  border: 2px solid #ff9ec6 !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+.modal-content input:focus {
+  border-color: #ff4081 !important;
+  background: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 0 10px rgba(255, 64, 129, 0.3) !important;
+}
+
+.modal-content input::placeholder {
+  color: #666 !important;
+  opacity: 0.7 !important;
+}
+
+.role-btn {
+  transition: all 0.3s ease !important;
+}
+
+.role-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 64, 129, 0.3) !important;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.modal-content {
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-content {
+  background: rgba(31, 34, 53, 0.95) !important;
+  border: 2px solid rgba(255, 158, 198, 0.7) !important;
+  border-radius: 20px !important;
+  padding: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(15px) !important;
+  color: #ffb6d5 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 11px !important;
+  max-width: 90% !important;
+  max-height: 90% !important;
+  overflow-y: auto !important;
+}
+
+.loading {
+  position: relative;
   overflow: hidden;
 }
 
-.water-drop {
+.loading::after {
+  content: '';
   position: absolute;
-  bottom: 0;
-  font-size: 16px;
-  color: #4fc3f7;
-  animation: fall 4s linear forwards;
-  filter: drop-shadow(0 0 3px rgba(79, 195, 247, 0.6));
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 1.5s infinite;
 }
 
-@keyframes fall {
-  from {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-100vh) rotate(360deg);
-    opacity: 0;
-  }
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
+
 body.lock-scroll {
   overflow: hidden;
   height: 100vh;
