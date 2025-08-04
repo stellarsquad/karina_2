@@ -1189,7 +1189,7 @@ class TelegramManager {
   }
 
   static async sendNotificationToPartner(message, type = "info") {
-    if (!appState.isAuthorized()) return;
+    if (!appState.isAuthorized()) return false;
 
     try {
       const partnerType = appState.currentUser === 'he' ? 'she' : 'he';
@@ -1197,10 +1197,20 @@ class TelegramManager {
 
       const fullMessage = `🔔 <b>Notification from ${userRole}</b>\n\n${message}`;
 
+      // Check if partner has Telegram connected
+      const telegramData = await TelegramManager.getPairTelegramData();
+      const partnerChatId = telegramData[`${partnerType}_chat_id`];
+      
+      if (!partnerChatId) {
+        console.warn("Partner doesn't have Telegram connected yet");
+        return false;
+      }
+
       await TelegramManager.sendMessage(fullMessage, null, partnerType);
+      console.log("Notification sent to partner successfully");
       return true;
     } catch (error) {
-      console.error("Error sending notification:", error);
+      console.error("Error sending notification to partner:", error);
       return false;
     }
   }
@@ -1371,11 +1381,17 @@ class TelegramManager {
       }
     } catch (error) {
       console.error("Error handling auth code:", error);
-      await TelegramManager.sendMessage(
-        "❌ <b>Error processing auth code.</b>\n\n" +
-        "Please try again later.",
-        null, null, chatId
-      );
+      if (chatId) {
+        try {
+          await TelegramManager.sendMessage(
+            "❌ <b>Error processing auth code.</b>\n\n" +
+            "Please try again later.",
+            null, null, chatId
+          );
+        } catch (sendError) {
+          console.error("Failed to send error message:", sendError);
+        }
+      }
     }
   }
 
@@ -1466,9 +1482,16 @@ class AppInitializer {
         await CounterManager.handleIncrement(1);
         AnimationManager.createFloatingHeart();
         // Send notification to partner
-        await TelegramManager.sendNotificationToPartner(
-          `Counter incremented! New count: ${appState.counter}`
-        );
+        try {
+          const sent = await TelegramManager.sendNotificationToPartner(
+            `🔥 Counter incremented to <b>${appState.counter}</b>!`
+          );
+          if (!sent) {
+            console.log("Partner notification not sent - Telegram not connected");
+          }
+        } catch (error) {
+          console.error("Failed to send partner notification:", error);
+        }
       },
       "undo-btn": () => CounterManager.handleUndo(),
       "reset-btn": () => CounterManager.handleReset(),
@@ -1534,8 +1557,19 @@ class AppInitializer {
           await CounterManager.handleIncrement(bonus);
           const modal = document.getElementById("location-modal");
           if (modal) modal.style.display = "none";
+          
+          // Send notification to partner
+          const locationName = UIManager.getLocationName(bonus);
+          try {
+            await TelegramManager.sendNotificationToPartner(
+              `📍 <b>${locationName}</b> location bonus: +${bonus}\n🔥 Total count: <b>${appState.counter}</b>`
+            );
+          } catch (error) {
+            console.error("Failed to send location notification:", error);
+          }
+          
           for(let i = 0; i < 3; i++) {
-            AnimationManager.createFloatingHeart();
+            setTimeout(() => AnimationManager.createFloatingHeart(), i * 100);
           }
         });
       }
