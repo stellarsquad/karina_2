@@ -11,6 +11,40 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// Application version and cache management
+const APP_VERSION = "2.0.0";
+const BUILD_TIMESTAMP = "1754315809466";
+
+// Clear cache if version changed
+function clearCacheIfNeeded() {
+  const storedVersion = localStorage.getItem('app_version');
+  const storedTimestamp = localStorage.getItem('build_timestamp');
+  
+  if (storedVersion !== APP_VERSION || storedTimestamp !== BUILD_TIMESTAMP) {
+    console.log('Version changed, clearing cache...');
+    
+    // Clear localStorage cache markers
+    localStorage.setItem('app_version', APP_VERSION);
+    localStorage.setItem('build_timestamp', BUILD_TIMESTAMP);
+    
+    // Clear service worker cache if available
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) {
+          caches.delete(name);
+        }
+      });
+    }
+    
+    // Force reload from server (without cache)
+    if (storedVersion && storedVersion !== APP_VERSION) {
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 1000);
+    }
+  }
+}
+
 // Constants
 const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
 const TELEGRAM_BOT_USERNAME = "iloveyoukarina_bot";
@@ -1731,6 +1765,9 @@ class AuthManager {
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
+  // Clear cache if version changed
+  clearCacheIfNeeded();
+  
   // Start heart animations
   setInterval(() => AnimationManager.createFloatingHeart(), 600);
   for(let i = 0; i < 5; i++) {
