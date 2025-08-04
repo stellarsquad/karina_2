@@ -668,7 +668,7 @@ class UIManager {
       userInfo.style.display = 'block';
     }
 
-    // Show/hide buttons based on user type
+    // Show/hide buttons based on user type```text
     const orgasmBtn = document.getElementById("orgasm-request-btn");
     const cumCommandBtn = document.getElementById("cum-command-btn");
 
@@ -1019,7 +1019,7 @@ class TelegramManager {
     }
 
     const authCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-    
+
     try {
       // Store auth code in Firebase
       await db.collection("pairs").doc(appState.currentPairId).set({
@@ -1030,7 +1030,7 @@ class TelegramManager {
       }, { merge: true });
 
       const telegramUrl = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${authCode}`;
-      
+
       const modal = document.createElement("div");
       modal.className = "modal-overlay";
       modal.innerHTML = `
@@ -1160,9 +1160,9 @@ class TelegramManager {
     try {
       const partnerType = appState.currentUser === 'he' ? 'she' : 'he';
       const userRole = appState.currentUser === 'he' ? '👨 Dominant' : '👩 Submissive';
-      
+
       const fullMessage = `🔔 <b>Notification from ${userRole}</b>\n\n${message}`;
-      
+
       await TelegramManager.sendMessage(fullMessage, null, partnerType);
       return true;
     } catch (error) {
@@ -1204,13 +1204,13 @@ class TelegramManager {
 
   static async startPolling() {
     if (appState.isPollingActive) return;
-    
+
     appState.isPollingActive = true;
     console.log("Starting Telegram polling...");
-    
+
     const poll = async () => {
       if (!appState.isPollingActive) return;
-      
+
       try {
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
         const response = await fetch(url, {
@@ -1222,23 +1222,23 @@ class TelegramManager {
             allowed_updates: ["message", "callback_query"]
           })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.ok && data.result.length > 0) {
           for (const update of data.result) {
             await TelegramManager.processUpdate(update);
             appState.lastUpdateId = Math.max(appState.lastUpdateId, update.update_id);
           }
         }
-        
+
         appState.pollRetryCount = 0;
         setTimeout(poll, 1000);
-        
+
       } catch (error) {
         console.error("Polling error:", error);
         appState.pollRetryCount++;
-        
+
         if (appState.pollRetryCount < MAX_POLL_RETRIES) {
           setTimeout(poll, 5000 * appState.pollRetryCount);
         } else {
@@ -1247,7 +1247,7 @@ class TelegramManager {
         }
       }
     };
-    
+
     poll();
   }
 
@@ -1297,7 +1297,7 @@ class TelegramManager {
       for (const pairDoc of pairsSnapshot.docs) {
         const pairData = pairDoc.data();
         const telegramAuth = pairData.telegramAuth || {};
-        
+
         if (telegramAuth.he_auth_code === authCode) {
           foundPair = pairDoc.id;
           userType = 'he';
@@ -1348,7 +1348,7 @@ class TelegramManager {
   static async handleCallbackQuery(callbackQuery) {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
-    
+
     // Handle callback queries (button presses)
     if (data.startsWith('orgasm_')) {
       const [action, requestId] = data.split('_');
@@ -1361,7 +1361,7 @@ class TelegramManager {
   static async handleOrgasmResponse(requestId, callbackQuery) {
     const chatId = callbackQuery.message.chat.id;
     const action = callbackQuery.data.split('_')[2]; // approve or deny
-    
+
     try {
       // Update request status in Firebase
       const requestRef = db.collection("orgasm_requests").doc(requestId);
@@ -1420,7 +1420,7 @@ class AppInitializer {
     }
 
     StatsManager.loadStats();
-    
+
     // Start Telegram polling
     TelegramManager.startPolling();
   }
@@ -1612,7 +1612,7 @@ class AuthManager {
       try {
         const pairCode = Math.random().toString(36).substr(2, 6).toUpperCase();
         const userUID = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-        
+
         await db.collection("pairs").doc(pairCode).set({
           createdAt: new Date(),
           createdBy: selectedRole,
@@ -1620,13 +1620,13 @@ class AuthManager {
         });
 
         appState.updateUser(selectedRole, pairCode, userUID);
-        
+
         modal.remove();
         document.body.classList.remove('lock-scroll');
-        
+
         UIManager.updateUIForUser(selectedRole);
         AppInitializer.initializeApp();
-        
+
         // Copy to clipboard
         if (navigator.clipboard) {
           navigator.clipboard.writeText(pairCode).then(() => {
@@ -1663,7 +1663,7 @@ class AuthManager {
     // Confirm join handler
     document.getElementById('confirm-join-auth').addEventListener('click', async () => {
       if (!selectedRole) return;
-      
+
       const pairCode = document.getElementById('auth-pair-code').value.trim().toUpperCase();
       if (pairCode.length !== 6) {
         NotificationManager.show('Please enter a 6-digit code', 'error');
@@ -1678,15 +1678,15 @@ class AuthManager {
         }
 
         const userUID = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-        
+
         appState.updateUser(selectedRole, pairCode, userUID);
-        
+
         modal.remove();
         document.body.classList.remove('lock-scroll');
-        
+
         UIManager.updateUIForUser(selectedRole);
         AppInitializer.initializeApp();
-        
+
         NotificationManager.showLargeNotification('Successfully joined pair!', 'success');
       } catch (error) {
         NotificationManager.show('Error joining pair', 'error');
