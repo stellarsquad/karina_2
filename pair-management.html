@@ -22,7 +22,12 @@
     <div class="count-box">
       <div class="count-label">CURRENT PAIR</div>
       <div id="current-pair-info" style="color: #ff4081; font-size: 14px; margin: 15px 0;">
-        <div id="pair-code-display">Not paired</div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+          <div id="pair-code-display">Not paired</div>
+          <button id="copy-pair-code-btn" style="display: none; padding: 5px 10px; font-size: 8px; background: linear-gradient(145deg, #4CAF50, #66BB6A); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 6px; color: white; font-family: 'Press Start 2P', monospace; cursor: pointer;">
+            📋 COPY
+          </button>
+        </div>
         <div id="user-role-display" style="font-size: 10px; color: #ffb6d5; margin-top: 10px;"></div>
       </div>
     </div>
@@ -76,7 +81,40 @@
         if (pairCode && userRole) {
           document.getElementById('pair-code-display').textContent = `Code: ${pairCode}`;
           document.getElementById('user-role-display').textContent = `Role: ${userRole === 'he' ? 'Dominant' : 'Submissive'}`;
+          document.getElementById('copy-pair-code-btn').style.display = 'inline-block';
+        } else {
+          document.getElementById('copy-pair-code-btn').style.display = 'none';
         }
+      }
+
+      // Copy pair code functionality
+      function copyPairCode() {
+        const pairCode = localStorage.getItem('currentPairId');
+        if (!pairCode) return;
+
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(pairCode).then(() => {
+            NotificationManager.show("Pair code copied to clipboard!", 'success');
+          }).catch(() => {
+            fallbackCopy(pairCode);
+          });
+        } else {
+          fallbackCopy(pairCode);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          NotificationManager.show("Pair code copied!", 'success');
+        } catch (err) {
+          NotificationManager.show("Failed to copy code", 'error');
+        }
+        document.body.removeChild(textArea);
       }
 
       // Create new pair
@@ -175,6 +213,9 @@
       document.getElementById('close-join').addEventListener('click', () => {
         document.getElementById('join-modal').style.display = 'none';
       });
+
+      // Copy pair code button
+      document.getElementById('copy-pair-code-btn').addEventListener('click', copyPairCode);
 
       loadPairInfo();
     });
