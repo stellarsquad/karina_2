@@ -534,5 +534,3 @@ body.lock-scroll {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
-
-<div id="punishment-content" style="display: flex; flex-direction: column; gap: 25px; margin-top: 15px;">
