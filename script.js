@@ -19,14 +19,14 @@ const BUILD_TIMESTAMP = "1754315809466";
 function clearCacheIfNeeded() {
   const storedVersion = localStorage.getItem('app_version');
   const storedTimestamp = localStorage.getItem('build_timestamp');
-  
+
   if (storedVersion !== APP_VERSION || storedTimestamp !== BUILD_TIMESTAMP) {
     console.log('Version changed, clearing cache...');
-    
+
     // Clear localStorage cache markers
     localStorage.setItem('app_version', APP_VERSION);
     localStorage.setItem('build_timestamp', BUILD_TIMESTAMP);
-    
+
     // Clear service worker cache if available
     if ('caches' in window) {
       caches.keys().then(function(names) {
@@ -35,7 +35,7 @@ function clearCacheIfNeeded() {
         }
       });
     }
-    
+
     // Force reload from server (without cache)
     if (storedVersion && storedVersion !== APP_VERSION) {
       setTimeout(() => {
@@ -1194,7 +1194,7 @@ class TelegramManager {
       // Check if partner has Telegram connected
       const telegramData = await TelegramManager.getPairTelegramData();
       const partnerChatId = telegramData[`${partnerType}_chat_id`];
-      
+
       if (!partnerChatId) {
         console.warn("Partner doesn't have Telegram connected yet");
         return false;
@@ -1403,14 +1403,14 @@ class TelegramManager {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
     console.log("Callback data received:", data);
-    
+
     // Parse callback data: orgasm_requestId_approve or orgasm_requestId_deny
     const parts = data.split('_');
     // The data format is: orgasm_[timestamp]_[randomString]_[action]
     // So we need to get the last part as the response
     const response = parts[parts.length - 1]; // Get the last part which is "approve" or "deny"
     const requestId = parts.slice(1, -1).join('_'); // Get everything between first and last as requestId
-    
+
     console.log("Parsed response:", response);
     console.log("Request ID:", requestId);
 
@@ -1418,17 +1418,17 @@ class TelegramManager {
       // Find the pair this user belongs to
       const pairsSnapshot = await db.collection("pairs").get();
       let userPairId = null;
-      
+
       for (const pairDoc of pairsSnapshot.docs) {
         const pairData = pairDoc.data();
         const telegramData = pairData.telegramData || {};
-        
+
         if (telegramData.he_chat_id === chatId || telegramData.she_chat_id === chatId) {
           userPairId = pairDoc.id;
           break;
         }
       }
-      
+
       if (!userPairId) {
         await TelegramManager.sendMessage(
           "❌ <b>Error:</b> Could not find your pair information.",
@@ -1453,12 +1453,12 @@ class TelegramManager {
           "The submissive has been notified and is allowed to orgasm.",
           null, null, chatId
         );
-        
+
         // Send approval notification to submissive
         const pairDoc = await db.collection("pairs").doc(userPairId).get();
         const telegramData = pairDoc.data().telegramData || {};
         const submissiveChatId = telegramData.she_chat_id;
-        
+
         if (submissiveChatId) {
           await TelegramManager.sendMessage(
             "✅ <b>ORGASM APPROVED!</b>\n\n" +
@@ -1474,12 +1474,12 @@ class TelegramManager {
           "The submissive has been notified of the denial.",
           null, null, chatId
         );
-        
+
         // Send denial notification to submissive
         const pairDoc = await db.collection("pairs").doc(userPairId).get();
         const telegramData = pairDoc.data().telegramData || {};
         const submissiveChatId = telegramData.she_chat_id;
-        
+
         if (submissiveChatId) {
           await TelegramManager.sendMessage(
             "❌ <b>ORGASM DENIED</b>\n\n" +
@@ -1489,7 +1489,7 @@ class TelegramManager {
           );
         }
       }
-      
+
       // Answer the callback query to remove loading state
       try {
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
@@ -1503,7 +1503,7 @@ class TelegramManager {
       } catch (answerError) {
         console.error("Error answering callback query:", answerError);
       }
-      
+
     } catch (error) {
       console.error("Error handling orgasm response:", error);
       await TelegramManager.sendMessage(
@@ -1704,7 +1704,7 @@ class AppInitializer {
           await CounterManager.handleIncrement(bonus);
           const modal = document.getElementById("location-modal");
           if (modal) modal.style.display = "none";
-          
+
           // Send notification to partner
           const locationName = UIManager.getLocationName(bonus);
           try {
@@ -1714,7 +1714,7 @@ class AppInitializer {
           } catch (error) {
             console.error("Failed to send location notification:", error);
           }
-          
+
           for(let i = 0; i < 3; i++) {
             setTimeout(() => AnimationManager.createFloatingHeart(), i * 100);
           }
@@ -1750,51 +1750,51 @@ class PhotoGameManager {
   static showPhotoGame() {
     const tasks = TaskDataManager.getPhotoGameTasks();
     const randomTask = TaskDataManager.getRandomTask(tasks);
-    
+
     appState.currentPhotoTask = randomTask;
-    
+
     const modal = document.getElementById("photo-game-modal");
     const titleElement = document.getElementById("photo-game-title");
     const descriptionElement = document.getElementById("photo-game-description");
-    
+
     if (titleElement) titleElement.textContent = randomTask.title;
     if (descriptionElement) descriptionElement.textContent = randomTask.description;
     if (modal) modal.style.display = "flex";
-    
+
     // Setup button handlers
     PhotoGameManager.setupPhotoGameHandlers();
   }
-  
+
   static setupPhotoGameHandlers() {
     const acceptBtn = document.getElementById("photo-game-accept");
     const newBtn = document.getElementById("photo-game-new");
-    
+
     // Remove existing listeners
     const newAcceptBtn = acceptBtn?.cloneNode(true);
     const newNewBtn = newBtn?.cloneNode(true);
     if (acceptBtn && newAcceptBtn) acceptBtn.parentNode.replaceChild(newAcceptBtn, acceptBtn);
     if (newBtn && newNewBtn) newBtn.parentNode.replaceChild(newNewBtn, newBtn);
-    
+
     // Add new listeners
     if (newAcceptBtn) {
       newAcceptBtn.addEventListener("click", async () => {
         const modal = document.getElementById("photo-game-modal");
         if (modal) modal.style.display = "none";
-        
+
         await PhotoGameManager.acceptPhotoGame();
       });
     }
-    
+
     if (newNewBtn) {
       newNewBtn.addEventListener("click", () => {
         PhotoGameManager.showPhotoGame();
       });
     }
   }
-  
+
   static async acceptPhotoGame() {
     if (!appState.currentPhotoTask) return;
-    
+
     try {
       // Send notification to partner
       const userRole = appState.currentUser === 'he' ? 'Dominant' : 'Submissive';
@@ -1802,11 +1802,11 @@ class PhotoGameManager {
         `<b>${userRole}</b> accepted photo task:\n\n` +
         `<b>"${appState.currentPhotoTask.title}"</b>\n\n` +
         `${appState.currentPhotoTask.description}`;
-      
+
       await TelegramManager.sendNotificationToPartner(message);
-      
+
       NotificationManager.show("✅ Photo game task accepted! Check Telegram for details.", 'success');
-      
+
       // Store in Firebase for history
       if (appState.currentPairId) {
         const photoGamesRef = DatabaseManager.getPhotoGamesRef();
@@ -1833,7 +1833,7 @@ class PunishmentManager {
     const descriptionElement = document.getElementById("punishment-description");
     const completedSection = document.getElementById("punishment-completed");
     const punishmentContent = document.getElementById("punishment-content");
-    
+
     // Check if there's an accepted punishment
     if (appState.punishmentAccepted && appState.currentPunishment) {
       // Show only completion button for accepted punishment
@@ -1844,82 +1844,82 @@ class PunishmentManager {
       // Show new punishment selection
       const tasks = TaskDataManager.getPunishmentTasks();
       const randomTask = TaskDataManager.getRandomTask(tasks);
-      
+
       appState.currentPunishment = randomTask;
-      
+
       if (descriptionElement) descriptionElement.textContent = randomTask.description;
       if (completedSection) completedSection.style.display = "none";
       if (punishmentContent) punishmentContent.style.display = "block";
     }
-    
+
     if (modal) modal.style.display = "flex";
-    
+
     // Setup button handlers
     PunishmentManager.setupPunishmentHandlers();
   }
-  
+
   static setupPunishmentHandlers() {
     const acceptBtn = document.getElementById("punishment-accept");
     const newBtn = document.getElementById("punishment-new");
     const doneBtn = document.getElementById("punishment-done");
-    
+
     // Remove existing listeners
     const newAcceptBtn = acceptBtn?.cloneNode(true);
     const newNewBtn = newBtn?.cloneNode(true);
     const newDoneBtn = doneBtn?.cloneNode(true);
-    
+
     if (acceptBtn && newAcceptBtn) acceptBtn.parentNode.replaceChild(newAcceptBtn, acceptBtn);
     if (newBtn && newNewBtn) newBtn.parentNode.replaceChild(newNewBtn, newBtn);
     if (doneBtn && newDoneBtn) doneBtn.parentNode.replaceChild(newDoneBtn, doneBtn);
-    
+
     // Add new listeners
     if (newAcceptBtn) {
       newAcceptBtn.addEventListener("click", async () => {
         await PunishmentManager.acceptPunishment();
       });
     }
-    
+
     if (newNewBtn) {
       newNewBtn.addEventListener("click", () => {
         PunishmentManager.showPunishment();
       });
     }
-    
+
     if (newDoneBtn) {
       newDoneBtn.addEventListener("click", async () => {
         const modal = document.getElementById("punishment-modal");
         if (modal) modal.style.display = "none";
-        
+
         await PunishmentManager.completePunishment();
       });
     }
   }
-  
+
   static async acceptPunishment() {
     if (!appState.currentPunishment) return;
-    
+
     try {
       // Generate punishment ID
       appState.currentPunishmentId = 'pun_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-      
+
       // Send notification to partner
       const userRole = appState.currentUser === 'he' ? 'Dominant' : 'Submissive';
       const message = `🩸 <b>Punishment Accepted!</b>\n\n` +
         `<b>${userRole}</b> accepted punishment:\n\n` +
         `${appState.currentPunishment.description}\n\n` +
         `⏰ Waiting for completion confirmation...`;
-      
+
       await TelegramManager.sendNotificationToPartner(message);
-      
+
       // Hide the modal after acceptance
       const modal = document.getElementById("punishment-modal");
       if (modal) modal.style.display = "none";
-      
+
       // Mark punishment as accepted in app state
       appState.punishmentAccepted = true;
-      
+
       NotificationManager.show("✅ Punishment accepted! Click 'Punish Me' again when completed.", 'success');
-      
+
       // Store in Firebase
       if (appState.currentPairId) {
         const punishmentsRef = DatabaseManager.getPunishmentsRef();
@@ -1938,10 +1938,10 @@ class PunishmentManager {
       NotificationManager.show("❌ Error sending punishment notification", 'error');
     }
   }
-  
+
   static async completePunishment() {
     if (!appState.currentPunishment || !appState.currentPunishmentId) return;
-    
+
     try {
       // Send completion notification to partner
       const userRole = appState.currentUser === 'he' ? 'Dominant' : 'Submissive';
@@ -1949,11 +1949,11 @@ class PunishmentManager {
         `<b>${userRole}</b> completed punishment:\n\n` +
         `${appState.currentPunishment.description}\n\n` +
         `🎯 Punishment ID: ${appState.currentPunishmentId}`;
-      
+
       await TelegramManager.sendNotificationToPartner(message);
-      
+
       NotificationManager.show("✅ Punishment completed! Partner has been notified.", 'success');
-      
+
       // Update Firebase
       if (appState.currentPairId) {
         const punishmentsRef = DatabaseManager.getPunishmentsRef();
@@ -1964,12 +1964,12 @@ class PunishmentManager {
           }, { merge: true });
         }
       }
-      
+
       // Clear current punishment
       appState.currentPunishment = null;
       appState.currentPunishmentId = null;
       appState.punishmentAccepted = false;
-      
+
     } catch (error) {
       console.error("Error completing punishment:", error);
       NotificationManager.show("❌ Error sending completion notification", 'error');
@@ -1982,40 +1982,40 @@ class OrgasmManager {
   static showOrgasmRequest() {
     const modal = document.getElementById("orgasm-request-modal");
     if (modal) modal.style.display = "flex";
-    
+
     // Setup button handlers
     OrgasmManager.setupOrgasmRequestHandlers();
   }
-  
+
   static showCumCommand() {
     const modal = document.getElementById("cum-command-modal");
     if (modal) modal.style.display = "flex";
-    
+
     // Setup button handlers
     OrgasmManager.setupCumCommandHandlers();
   }
-  
+
   static setupOrgasmRequestHandlers() {
     const sendBtn = document.getElementById("orgasm-request-send");
     const cancelBtn = document.getElementById("orgasm-request-cancel");
-    
+
     // Remove existing listeners
     const newSendBtn = sendBtn?.cloneNode(true);
     const newCancelBtn = cancelBtn?.cloneNode(true);
-    
+
     if (sendBtn && newSendBtn) sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
     if (cancelBtn && newCancelBtn) cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-    
+
     // Add new listeners
     if (newSendBtn) {
       newSendBtn.addEventListener("click", async () => {
         const modal = document.getElementById("orgasm-request-modal");
         if (modal) modal.style.display = "none";
-        
+
         await OrgasmManager.sendOrgasmRequest();
       });
     }
-    
+
     if (newCancelBtn) {
       newCancelBtn.addEventListener("click", () => {
         const modal = document.getElementById("orgasm-request-modal");
@@ -2023,28 +2023,28 @@ class OrgasmManager {
       });
     }
   }
-  
+
   static setupCumCommandHandlers() {
     const sendBtn = document.getElementById("cum-command-send");
     const cancelBtn = document.getElementById("cum-command-cancel");
-    
+
     // Remove existing listeners
     const newSendBtn = sendBtn?.cloneNode(true);
     const newCancelBtn = cancelBtn?.cloneNode(true);
-    
+
     if (sendBtn && newSendBtn) sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
     if (cancelBtn && newCancelBtn) cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-    
+
     // Add new listeners
     if (newSendBtn) {
       newSendBtn.addEventListener("click", async () => {
         const modal = document.getElementById("cum-command-modal");
         if (modal) modal.style.display = "none";
-        
+
         await OrgasmManager.sendCumCommand();
       });
     }
-    
+
     if (newCancelBtn) {
       newCancelBtn.addEventListener("click", () => {
         const modal = document.getElementById("cum-command-modal");
@@ -2052,11 +2052,11 @@ class OrgasmManager {
       });
     }
   }
-  
+
   static async sendOrgasmRequest() {
     try {
       const requestId = 'orgasm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-      
+
       // Send request to dominant with approval buttons
       const keyboard = [
         [
@@ -2064,15 +2064,15 @@ class OrgasmManager {
           { text: "❌ DENY", callback_data: `orgasm_${requestId}_deny` }
         ]
       ];
-      
+
       const message = `🧎‍♀️ <b>ORGASM REQUEST</b>\n\n` +
         `The submissive is requesting permission to orgasm.\n\n` +
         `Please choose your response:`;
-      
+
       await TelegramManager.sendMessage(message, keyboard, 'he');
-      
+
       NotificationManager.show("✅ Orgasm request sent to dominant!", 'success');
-      
+
       // Store request in Firebase
       if (appState.currentPairId) {
         const orgasmRequestsRef = DatabaseManager.getOrgasmRequestsRef();
@@ -2085,27 +2085,27 @@ class OrgasmManager {
           }, { merge: true });
         }
       }
-      
+
     } catch (error) {
       console.error("Error sending orgasm request:", error);
       NotificationManager.show("❌ Error sending orgasm request", 'error');
     }
   }
-  
+
   static async sendCumCommand() {
     try {
       const commandId = 'cum_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-      
+
       // Send direct command to submissive
       const message = `💦 <b>CUM COMMAND</b>\n\n` +
         `🔥 <b>The Dominant commands you to orgasm NOW!</b>\n\n` +
         `This is a direct order. Comply immediately.\n\n` +
         `Command ID: ${commandId}`;
-      
+
       await TelegramManager.sendMessage(message, null, 'she');
-      
+
       NotificationManager.show("✅ Cum command sent to submissive!", 'success');
-      
+
       // Store command in Firebase
       if (appState.currentPairId) {
         const orgasmRequestsRef = DatabaseManager.getOrgasmRequestsRef();
@@ -2119,7 +2119,7 @@ class OrgasmManager {
           }, { merge: true });
         }
       }
-      
+
     } catch (error) {
       console.error("Error sending cum command:", error);
       NotificationManager.show("❌ Error sending cum command", 'error');
@@ -2330,7 +2330,7 @@ class AuthManager {
 document.addEventListener("DOMContentLoaded", function () {
   // Clear cache if version changed
   clearCacheIfNeeded();
-  
+
   // Start heart animations
   setInterval(() => AnimationManager.createFloatingHeart(), 600);
   for(let i = 0; i < 5; i++) {
