@@ -1,0 +1,11 @@
+{
+  "env": {
+    "FIREBASE_API_KEY": "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
+    "FIREBASE_AUTH_DOMAIN": "karina-5d44d.firebaseapp.com",
+    "FIREBASE_PROJECT_ID": "karina-5d44d",
+    "FIREBASE_STORAGE_BUCKET": "karina-5d44d.appspot.com",
+    "FIREBASE_MESSAGING_SENDER_ID": "930914134264",
+    "FIREBASE_APP_ID": "1:930914134264:web:0e527a744b3d2c7182330d",
+    "TELEGRAM_BOT_TOKEN": "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU"
+  }
+}
