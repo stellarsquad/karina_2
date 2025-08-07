@@ -1,14 +1,6 @@
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDdvKeBfe8p2UC8dCkXziECUlJEUw3_l4s",
-  authDomain: "karina-5d44d.firebaseapp.com",
-  projectId: "karina-5d44d",
-  storageBucket: "karina-5d44d.appspot.com",
-  messagingSenderId: "930914134264",
-  appId: "1:930914134264:web:0e527a744b3d2c7182330d"
-};
+// Firebase Configuration is now loaded from environment variables
+// This will be handled in a separate script block in the HTML
 
-firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // Application version and cache management
@@ -46,10 +38,8 @@ function clearCacheIfNeeded() {
 }
 
 // Constants
-const TELEGRAM_BOT_TOKEN = "7205768597:AAFDJi75VVBgWUVxuY02MmlElXeAPGjmqeU";
 const TELEGRAM_BOT_USERNAME = "iloveyoukarina_bot";
 const MAX_HISTORY = 100;
-const MAX_POLL_RETRIES = 3;
 
 // Global State Management
 class AppState {
@@ -981,7 +971,6 @@ class CounterManager {
 class TelegramManager {
   static async sendMessage(message, inlineKeyboard = null, targetUser = null, chatId = null) {
     try {
-      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
       let targetChatId = chatId;
 
       if (!targetChatId) {
@@ -1000,6 +989,7 @@ class TelegramManager {
       }
 
       const payload = {
+        methodName: 'sendMessage',
         chat_id: targetChatId,
         text: message,
         parse_mode: "HTML"
@@ -1009,7 +999,7 @@ class TelegramManager {
         payload.reply_markup = { inline_keyboard: inlineKeyboard };
       }
 
-      const response = await fetch(url, {
+      const response = await fetch('/api/telegram', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -1209,310 +1199,6 @@ class TelegramManager {
     }
   }
 
-  static async getTelegramBotInfo() {
-    try {
-      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data.result;
-    } catch (error) {
-      console.error("Error getting bot info:", error);
-      return null;
-    }
-  }
-
-  static async setupWebhook() {
-    try {
-      // Set webhook for receiving messages
-      const webhookUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook`;
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: `${window.location.origin}/webhook`,
-          allowed_updates: ["message", "callback_query"]
-        })
-      });
-      return await response.json();
-    } catch (error) {
-      console.error("Error setting up webhook:", error);
-      return null;
-    }
-  }
-
-  static async startPolling() {
-    if (appState.isPollingActive) return;
-
-    appState.isPollingActive = true;
-    console.log("Starting Telegram polling...");
-
-    const poll = async () => {
-      if (!appState.isPollingActive) return;
-
-      try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            offset: appState.lastUpdateId + 1,
-            timeout: 10,
-            allowed_updates: ["message", "callback_query"]
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.ok && data.result.length > 0) {
-          for (const update of data.result) {
-            await TelegramManager.processUpdate(update);
-            appState.lastUpdateId = Math.max(appState.lastUpdateId, update.update_id);
-          }
-        }
-
-        appState.pollRetryCount = 0;
-        setTimeout(poll, 1000);
-
-      } catch (error) {
-        console.error("Polling error:", error);
-        appState.pollRetryCount++;
-
-        if (appState.pollRetryCount < MAX_POLL_RETRIES) {
-          setTimeout(poll, 5000 * appState.pollRetryCount);
-        } else {
-          console.error("Max polling retries reached");
-          appState.isPollingActive = false;
-        }
-      }
-    };
-
-    poll();
-  }
-
-  static async processUpdate(update) {
-    try {
-      if (update.message) {
-        await TelegramManager.handleMessage(update.message);
-      } else if (update.callback_query) {
-        await TelegramManager.handleCallbackQuery(update.callback_query);
-      }
-    } catch (error) {
-      console.error("Error processing update:", error);
-    }
-  }
-
-  static async handleMessage(message) {
-    const chatId = message.chat.id;
-    const text = message.text;
-    const userId = message.from.id;
-
-    // Handle /start command with auth code
-    if (text && text.startsWith('/start ')) {
-      const authCode = text.split(' ')[1];
-      await TelegramManager.handleAuthCode(authCode, chatId, userId, message);
-      return;
-    }
-
-    // Handle other commands
-    if (text === '/help') {
-      await TelegramManager.sendMessage(
-        "🤖 <b>Karina Bot Commands:</b>\n\n" +
-        "• Send your auth code to connect\n" +
-        "• Receive notifications from your partner\n" +
-        "• Get updates about app activity",
-        null, null, chatId
-      );
-    }
-  }
-
-  static async handleAuthCode(authCode, chatId, userId, messageObj = null) {
-    try {
-      // Find pair with this auth code
-      const pairsSnapshot = await db.collection("pairs").get();
-      let foundPair = null;
-      let userType = null;
-
-      for (const pairDoc of pairsSnapshot.docs) {
-        const pairData = pairDoc.data();
-        const telegramAuth = pairData.telegramAuth || {};
-
-        if (telegramAuth.he_auth_code === authCode) {
-          foundPair = pairDoc.id;
-          userType = 'he';
-          break;
-        } else if (telegramAuth.she_auth_code === authCode) {
-          foundPair = pairDoc.id;
-          userType = 'she';
-          break;
-        }
-      }
-
-      if (foundPair && userType) {
-        // Save chat ID to Firebase
-        await db.collection("pairs").doc(foundPair).set({
-          telegramData: {
-            [`${userType}_chat_id`]: chatId,
-            [`${userType}_user_id`]: userId,
-            [`${userType}_username`]: (messageObj && messageObj.from && messageObj.from.username) ? messageObj.from.username : '',
-            [`${userType}_connected_at`]: new Date()
-          }
-        }, { merge: true });
-
-        const roleName = userType === 'he' ? 'Dominant' : 'Submissive';
-        await TelegramManager.sendMessage(
-          `✅ <b>Successfully connected!</b>\n\n` +
-          `You are now connected as: <b>${roleName}</b>\n` +
-          `Pair Code: <code>${foundPair}</code>\n\n` +
-          `You will now receive notifications from your partner.`,
-          null, null, chatId
-        );
-      } else {
-        await TelegramManager.sendMessage(
-          "❌ <b>Invalid or expired auth code.</b>\n\n" +
-          "Please get a new auth code from the app and try again.",
-          null, null, chatId
-        );
-      }
-    } catch (error) {
-      console.error("Error handling auth code:", error);
-      if (chatId) {
-        try {
-          await TelegramManager.sendMessage(
-            "❌ <b>Error processing auth code.</b>\n\n" +
-            "Please try again later.",
-            null, null, chatId
-          );
-        } catch (sendError) {
-          console.error("Failed to send error message:", sendError);
-        }
-      }
-    }
-  }
-
-  static async handleCallbackQuery(callbackQuery) {
-    const chatId = callbackQuery.message.chat.id;
-    const data = callbackQuery.data;
-
-    // Handle callback queries (button presses)
-    if (data.startsWith('orgasm_')) {
-      await TelegramManager.handleOrgasmResponse(callbackQuery);
-    }
-  }
-
-  static async handleOrgasmResponse(callbackQuery) {
-    const chatId = callbackQuery.message.chat.id;
-    const data = callbackQuery.data;
-    console.log("Callback data received:", data);
-
-    // Parse callback data: orgasm_requestId_approve or orgasm_requestId_deny
-    const parts = data.split('_');
-    // The data format is: orgasm_[timestamp]_[randomString]_[action]
-    // So we need to get the last part as the response
-    const response = parts[parts.length - 1]; // Get the last part which is "approve" or "deny"
-    const requestId = parts.slice(1, -1).join('_'); // Get everything between first and last as requestId
-
-    console.log("Parsed response:", response);
-    console.log("Request ID:", requestId);
-
-    try {
-      // Find the pair this user belongs to
-      const pairsSnapshot = await db.collection("pairs").get();
-      let userPairId = null;
-
-      for (const pairDoc of pairsSnapshot.docs) {
-        const pairData = pairDoc.data();
-        const telegramData = pairData.telegramData || {};
-
-        if (telegramData.he_chat_id === chatId || telegramData.she_chat_id === chatId) {
-          userPairId = pairDoc.id;
-          break;
-        }
-      }
-
-      if (!userPairId) {
-        await TelegramManager.sendMessage(
-          "❌ <b>Error:</b> Could not find your pair information.",
-          null, null, chatId
-        );
-        return;
-      }
-
-      // Update request status in Firebase
-      const orgasmRequestsRef = db.collection("pairs").doc(userPairId).collection("data").doc("orgasm_requests");
-      await orgasmRequestsRef.set({
-        status: response === 'approve' ? 'approved' : 'denied',
-        respondedAt: new Date(),
-        respondedBy: callbackQuery.from.id,
-        responseId: requestId
-      }, { merge: true });
-
-      if (response === 'approve') {
-        // Send approval to dominant
-        await TelegramManager.sendMessage(
-          "✅ <b>Orgasm request approved!</b>\n\n" +
-          "The submissive has been notified and is allowed to orgasm.",
-          null, null, chatId
-        );
-
-        // Send approval notification to submissive
-        const pairDoc = await db.collection("pairs").doc(userPairId).get();
-        const telegramData = pairDoc.data().telegramData || {};
-        const submissiveChatId = telegramData.she_chat_id;
-
-        if (submissiveChatId) {
-          await TelegramManager.sendMessage(
-            "✅ <b>ORGASM APPROVED!</b>\n\n" +
-            "🔥 Your dominant has granted you permission to orgasm.\n\n" +
-            "💦 You may cum now!",
-            null, null, submissiveChatId
-          );
-        }
-      } else {
-        // Send denial to dominant
-        await TelegramManager.sendMessage(
-          "❌ <b>Orgasm request denied.</b>\n\n" +
-          "The submissive has been notified of the denial.",
-          null, null, chatId
-        );
-
-        // Send denial notification to submissive
-        const pairDoc = await db.collection("pairs").doc(userPairId).get();
-        const telegramData = pairDoc.data().telegramData || {};
-        const submissiveChatId = telegramData.she_chat_id;
-
-        if (submissiveChatId) {
-          await TelegramManager.sendMessage(
-            "❌ <b>ORGASM DENIED</b>\n\n" +
-            "🚫 Your dominant has denied your request to orgasm.\n\n" +
-            "⏰ You must wait for permission.",
-            null, null, submissiveChatId
-          );
-        }
-      }
-
-      // Answer the callback query to remove loading state
-      try {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            callback_query_id: callbackQuery.id,
-            text: response === 'approve' ? "✅ Request approved!" : "❌ Request denied!"
-          })
-        });
-      } catch (answerError) {
-        console.error("Error answering callback query:", answerError);
-      }
-
-    } catch (error) {
-      console.error("Error handling orgasm response:", error);
-      await TelegramManager.sendMessage(
-        "❌ <b>Error processing response.</b>\n\n" +
-        "Please try again.",
-        null, null, chatId
-      );
-    }
-  }
 }
 
 // App Initialization
@@ -1545,9 +1231,6 @@ class AppInitializer {
     }
 
     StatsManager.loadStats();
-
-    // Start Telegram polling
-    TelegramManager.startPolling();
   }
 
   static setupEventListeners() {
