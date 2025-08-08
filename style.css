@@ -1,0 +1,536 @@
+html {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #0b0f24 0%, #1a1c2c 50%, #2d1b3d 100%);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  margin: 0;
+  padding: 0;
+  font-family: 'Press Start 2P', monospace;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: block;
+  overflow-x: hidden;
+  width: 100vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.frame {
+  background: rgba(31, 34, 53, 0.8);
+  border: 2px solid rgba(255, 158, 198, 0.3);
+  border-radius: 20px;
+  width: calc(100vw - 40px);
+  max-width: calc(100vw - 40px);
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 50%, 
+    rgba(255, 158, 198, 0.1) 100%);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.title {
+  color: #ffb6d5;
+  font-size: 14px;
+  text-align: center;
+  margin: 0 auto 20px auto;
+  padding-top: 5px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.count-box {
+  background: rgba(31, 34, 53, 0.9);
+  border: 2px solid rgba(255, 158, 198, 0.7);
+  border-radius: 20px;
+  padding: 12px;
+  margin: 8px 0;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 64, 129, 0.2);
+}
+
+.count-label {
+  color: #ffb6d5;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.count-value {
+  color: #ff4081;
+  font-size: 42px;
+  margin: 15px 0;
+  text-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+  from {
+    text-shadow: 0 0 15px rgba(255, 64, 129, 0.5), 0 0 25px rgba(255, 64, 129, 0.3);
+  }
+  to {
+    text-shadow: 0 0 25px rgba(255, 64, 129, 0.8), 0 0 35px rgba(255, 64, 129, 0.5);
+  }
+}
+
+.timestamp {
+  color: #ffe6eb;
+  font-size: 10px;
+}
+
+.progress-container {
+  width: 100%;
+  height: 16px;
+  background: rgba(31, 34, 53, 0.9);
+  border: 2px solid #ff9ec6;
+  border-radius: 8px;
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4081, #ff9ec6);
+  transition: width 0.3s ease;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #ffb6d5;
+  font-size: 10px;
+  margin-top: 5px;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 15px 10px;
+  background: linear-gradient(145deg, #ff6b9e, #ff4081);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px #c03d70,
+                  0 0 15px rgba(255, 107, 158, 0.3),
+                  inset 0 1px rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(5px);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-height: 44px;
+  width: 100%;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: all 0.1s ease-out;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(192, 61, 112, 0.5),
+              0 0 25px rgba(255, 64, 129, 0.4);
+  background: linear-gradient(145deg, #ff4081, #ff6b9e);
+  transition: all 0.2s ease-out;
+}
+
+button:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 2px 4px rgba(192, 61, 112, 0.3),
+              0 0 10px rgba(255, 64, 129, 0.2);
+  opacity: 0.95;
+  transition: all 0.1s ease-out;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px #999;
+}
+
+button:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px #999;
+}
+
+.stats-box {
+  background: rgba(31, 34, 53, 0.9);
+  border: 2px solid #ff9ec6;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 20px;
+  color: #ffb6d5;
+  font-size: 11px;
+  text-align: center;
+  display: none;
+}
+
+.stats-box.show {
+  display: block;
+}
+
+.footer {
+  text-align: center;
+  color: #ff6b9e;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content input {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #333 !important;
+  border: 2px solid #ff9ec6 !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+.modal-content input:focus {
+  border-color: #ff4081 !important;
+  background: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 0 10px rgba(255, 64, 129, 0.3) !important;
+}
+
+.modal-content input::placeholder {
+  color: #666 !important;
+  opacity: 0.7 !important;
+}
+
+.role-btn {
+  transition: all 0.3s ease !important;
+}
+
+.role-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 64, 129, 0.3) !important;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.modal-content {
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-content {
+  background: rgba(31, 34, 53, 0.95) !important;
+  border: 2px solid rgba(255, 158, 198, 0.7) !important;
+  border-radius: 20px !important;
+  padding: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(15px) !important;
+  color: #ffb6d5 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 11px !important;
+  max-width: 90% !important;
+  max-height: 90% !important;
+  overflow-y: auto !important;
+}
+
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+body.lock-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Mobile Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    height: -webkit-fill-available;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 80px);
+    max-height: calc(-webkit-fill-available - 80px);
+    margin: 0;
+  }
+}
+
+/* iPhone specific adjustments */
+@media only screen and (max-width: 414px) {
+  .modal-overlay {
+    padding: 30px 15px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    margin: 0;
+    padding: 20px 15px;
+    max-height: calc(100vh - 60px);
+    max-height: calc(100dvh - 60px);
+  }
+
+  .modal-content button {
+    font-size: 10px;
+    padding: 18px 12px;
+    margin: 8px 0;
+    min-height: 50px;
+  }
+
+  .modal-content input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 18px 12px;
+  }
+
+  /* Larger text for better readability */
+  .modal-content > div {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+}
+@media (max-width: 480px) {
+      body {
+        padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+        width: 100vw;
+        max-width: 100vw;
+      }
+
+      .frame {
+        padding: 15px;
+        width: calc(100vw - 30px);
+        max-width: calc(100vw - 30px);
+        margin: 0 auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        border-radius: 0;
+      }
+
+      .button-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 15px 0;
+      }
+
+      .button-grid button {
+        padding: 16px 12px;
+        font-size: 10px;
+        min-height: 50px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .count-value {
+        font-size: 36px;
+      }
+
+      .title {
+        font-size: 12px;
+      }
+
+      .progress-container {
+        height: 18px;
+        margin: 15px 0;
+      }
+
+      .modal-overlay {
+        padding: 20px 10px;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .modal-content {
+        width: calc(100vw - 40px);
+        max-width: 350px;
+        padding: 20px;
+        margin: 0;
+        max-height: 85vh;
+        max-height: 85dvh;
+        font-size: 12px;
+        box-sizing: border-box;
+      }
+
+      .modal-content button {
+        padding: 16px 12px;
+        font-size: 11px;
+        min-height: 50px;
+        touch-action: manipulation;
+      }
+
+      .modal-content input {
+        padding: 16px 12px;
+        font-size: 16px;
+        min-height: 50px;
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      .stats-box {
+        width: calc(100% - 20px);
+        font-size: 11px;
+        margin: 15px auto;
+      }
+
+      .footer {
+        margin-top: 15px;
+        font-size: 14px;
+      }
+
+      /* Improve modal text readability on mobile */
+      .modal-content div {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      /* Make role buttons larger on mobile */
+      .role-btn {
+        min-height: 60px !important;
+        font-size: 11px !important;
+        touch-action: manipulation !important;
+      }
+
+      /* Improve form elements */
+      #pair-code-input, #join-code-input, #auth-pair-code {
+        font-size: 16px !important;
+        padding: 18px 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+    }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #fff;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(145deg, #ff4081, #ff6b9e);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 12px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: linear-gradient(145deg, #ff6b9e, #ff4081);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
